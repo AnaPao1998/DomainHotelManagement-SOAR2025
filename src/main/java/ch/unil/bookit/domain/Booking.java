@@ -8,7 +8,7 @@ public class Booking {
     private UUID hotelId;
     private UUID userId;
     private UUID roomTypeId;
-
+    // Bonjour ceci est mon commentaire
 
     //constructor
     public Booking(UUID bookingId, UUID hotelId, UUID userId, UUID roomTypeId) {
