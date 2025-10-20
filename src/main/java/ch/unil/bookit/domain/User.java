@@ -22,7 +22,7 @@ public class User {
         this.password = password;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.balance = 0;
+        this.balance = 0; /// testing
     }
 
     public void mergeWith(User user) {
