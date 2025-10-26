@@ -1,6 +1,5 @@
 package ch.unil.bookit.domain;
 
-<<<<<<< HEAD
 import
 
 public class User {
@@ -123,5 +122,4 @@ public class User {
         }
         this.balance -= amount;
     }
->>>>>>> master
 }

@@ -1,6 +1,5 @@
 package ch.unil.bookit.domain;
 
-<<<<<<< HEAD
 public class Booking {
 =======
 import java.util.UUID;
@@ -11,7 +10,6 @@ public class Booking {
     private UUID hotelId;
     private UUID userId;
     private UUID roomTypeId;
-    // Bonjour ceci est mon commentaire
 
     //constructor
     public Booking(UUID bookingId, UUID hotelId, UUID userId, UUID roomTypeId) {
@@ -23,7 +21,4 @@ public class Booking {
 
     //getters
     public UUID getBookingId() {return bookingId;}
-
-
->>>>>>> master
 }
