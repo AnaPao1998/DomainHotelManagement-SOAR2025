@@ -12,6 +12,6 @@ services:
         - "4848:4848" # admin console
       volumes:
           # auto deploy (
-       - ./Bookit-webservice/target/Bookit-webservice-1.0-SNAPSHOT.war:/opt/payara/appserver/glassfish/domains/domain1/autodeploy/webservice1.0-SNAPSHOT.war
+       - ./Bookit-webservice/target/Bookit-webservice-1.0-SNAPSHOT.war:/opt/payara/appserver/glassfish/domains/domain1/autodeploy/Bookit-webservice-1.0-SNAPSHOT.war
 
           # translate http requests into java

@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>ch.unil.bookit</groupId>
+  <groupId>ch.unil.bookit.bookitwebservice</groupId>
   <artifactId>Bookit-webservice</artifactId>
   <version>1.0-SNAPSHOT</version>
   <name>Bookit-webservice</name>
@@ -12,8 +12,8 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.target>25</maven.compiler.target>
-    <maven.compiler.source>25</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
+    <maven.compiler.source>17</maven.compiler.source>
     <junit.version>5.13.2</junit.version>
   </properties>
 
