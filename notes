@@ -1,0 +1,23 @@
+1. When creating new requests it has to match (???)
+
+if you are making a new object in the project, every object should have a corresponding resource file,
+should look like this:
+Create a new ApplicationResource (Java Class)
+"""
+@ApplicationStateScope
+- everything that happens inside this will apply/is accessible to anyone who tries to access the application
+
+@ PostConstruct
+- "once you deploy the server, run this"
+
+@BankerResource (ex for other application, for us would be like Guest or Manager I think)
+- put:
+    @Inject
+    - idfk why that's just what he said
+    @GET
+    - this does something lol but we still need to create functions to add/create/delete objects etc (add user, for example)
+
+there are other scopes that
+public
+
+idk he stopped explaining here so this will not be helpful
