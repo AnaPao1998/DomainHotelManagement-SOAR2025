@@ -7,11 +7,18 @@
     <groupId>org.example</groupId>
     <artifactId>DomainHotelManagement-SOAR2025</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>bookit-domain</module>
+        <module>Bookit-webservice</module>
+    </modules>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <junit.version>5.10.2</junit.version>
     </properties>
 
 </project>
