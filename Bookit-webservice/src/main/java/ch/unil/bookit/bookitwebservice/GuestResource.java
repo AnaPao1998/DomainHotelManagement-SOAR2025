@@ -6,6 +6,8 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Path("/guests")
@@ -24,6 +26,11 @@ public class GuestResource {
         }
         Guest newGuest = applicationResource.createGuest(guest);
         return Response.status(Response.Status.CREATED).entity(newGuest).build();
+    }
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<Guest> getAllGuests() {
+        return new ArrayList<>(applicationResource.getAllGuests().values());
     }
 
     //read
