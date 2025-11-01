@@ -26,23 +26,37 @@ public class GuestTest {
         assertEquals(0, testGuest.getBalance());
         testGuest.deposit(120);
         assertEquals(120, testGuest.getBalance());
+
+        testGuest.withdraw(20);
+        assertEquals(100, testGuest.getBalance());
     }
 
     @Test
-    void testGuestAddAndGetBooking(){
-        testGuest.addBooking(testBooking);
-        assertThrows(IllegalArgumentException.class, () -> {
-            testGuest.addBooking(testBooking); // This will now pass!
+    void testWithdrawInsufficent(){
+        testGuest.deposit(50);
+        assertEquals(50, testGuest.getBalance());
+
+        assertThrows(IllegalStateException.class, () -> {
+            testGuest.withdraw(100);
         });
 
-        // ASSERT:
+        assertEquals(50, testGuest.getBalance());
+    }
+    @Test
+    void testGuestAddAndGetBooking(){
+        testGuest.addBooking(testBooking);
+
         assertEquals(1, testGuest.getBooking().size());
+        assertEquals(testBooking, testGuest.getBooking(testBooking.getBookingId()));
     }
 
     @Test
     void testAddExistingBookingFails(){
         testGuest.addBooking(testBooking);
-        assertThrows(IllegalArgumentException.class, () -> testGuest.addBooking(testBooking));
+        assertThrows(IllegalArgumentException.class, () -> {
+                    testGuest.addBooking(testBooking);
+        });
+
         assertEquals(1, testGuest.getBooking().size());
     }
 }
