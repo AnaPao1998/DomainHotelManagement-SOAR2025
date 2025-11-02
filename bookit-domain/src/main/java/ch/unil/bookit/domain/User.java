@@ -25,29 +25,8 @@ public class User {
         this.balance = 0; /// testing
     }
 
-    public void mergeWith(User user) {
-        if (user == null) {
-            throw new IllegalArgumentException("User can't be null");
-        }
-        if (user.uuid == null) {
-            this.uuid = user.uuid;
-        }
-        if (user.email != null) {
-            this.email = user.email;
-        }
-        if (user.password != null) {
-            this.password = user.password;
-        }
-        if (user.firstName != null) {
-            this.firstName = user.firstName;
-        }
-        if (user.lastName != null) {
-            this.lastName = user.lastName;
-        }
-    }
     // get and set userids
     // always get first and set next
-
     public UUID getUUID() {
         return uuid;
     }
@@ -103,12 +82,21 @@ public class User {
     }
 
     public void deposit(int amount) {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Deposit amount must be positive");
+        }
         this.balance += amount;
     }
 
     public void withdraw(int amount) {
+        if (amount <= 0) {
+            // cant withdraw negatve
+            throw new IllegalArgumentException("Withdrawal amount must be positive");
+        }
         if (this.balance < amount) {
-            throw new IllegalStateException("Not enough money ):" + (amount + this.balance) + "are needed to BookIt!");
+            // show how much more is needed
+            int shortage = amount - this.balance;
+            throw new IllegalStateException("Not enough money ): " + shortage + " more needed to BookIt!");
         }
         this.balance -= amount;
     }
