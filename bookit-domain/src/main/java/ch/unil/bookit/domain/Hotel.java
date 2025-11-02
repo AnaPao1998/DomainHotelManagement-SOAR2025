@@ -9,6 +9,7 @@ public class Hotel {
     // identity
     private final UUID hotelId;
     private String name;
+    private String description;
     private String city;
     private String country;
     private String address;
@@ -20,12 +21,14 @@ public class Hotel {
 
     public Hotel(UUID hotelId,
                  String name,
+                 String description,
                  String city,
                  String country,
                  String address,
                  BigDecimal nightPrice) {
         this.hotelId = Objects.requireNonNull(hotelId, "hotelId");
         this.name = requireNonBlank(name, "name");
+        this.description = (description == null) ? "" : description;  // the description is optional, if it's not fill in it will not cause any errors
         this.city = requireNonBlank(city, "city");
         this.country = requireNonBlank(country, "country");
         this.address = requireNonBlank(address, "address");
@@ -45,6 +48,7 @@ public class Hotel {
     // Updates
     public void updateContent(String name, String city, String country, String address) {
         this.name = requireNonBlank(name, "name");
+        this.description = (description == null) ? "" : description;
         this.city = requireNonBlank(city, "city");
         this.country = requireNonBlank(country, "country");
         this.address = requireNonBlank(address, "address");
@@ -55,33 +59,14 @@ public class Hotel {
     }
 
     // Getters
-    public UUID getHotelId() {
-        return hotelId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public String getCountry() {
-        return country;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public BigDecimal getNightPrice() {
-        return nightPrice;
-    }
-
-    public boolean isPublished() {
-        return published;
-    }
+    public UUID getHotelId() { return hotelId; }
+    public String getName() { return name; }
+    public String getDescription() { return description; }
+    public String getCity() { return city; }
+    public String getCountry() { return country; }
+    public String getAddress() { return address; }
+    public BigDecimal getNightPrice() { return nightPrice; }
+    public boolean isPublished() { return published; }
 
     // Helpers
     private static String requireNonBlank(String s, String field) {
@@ -101,6 +86,7 @@ public class Hotel {
         return "Hotel{" +
                 "hotelId=" + hotelId +
                 ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
                 ", city='" + city + '\'' +
                 ", country='" + country + '\'' +
                 ", address='" + address + '\'' +
