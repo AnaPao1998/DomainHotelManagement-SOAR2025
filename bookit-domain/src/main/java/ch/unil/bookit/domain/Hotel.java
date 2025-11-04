@@ -15,9 +15,19 @@ public class Hotel {
     private String address;
 
     // pricing
-    private BigDecimal nightPrice; // price per night
+    private BigDecimal nightPrice; // price per night at the hotel
 
     private boolean published;
+
+    // List of all rooms in the hotel
+    private final List<Room> rooms = new ArrayList<>();
+
+    // List for hotel photos (URL or file paths)
+    private final List<String> photos = new ArrayList<>();
+
+    // List of hotel amenities (e.g. wifi, parking, etc.)
+    private final List<String> amenities = new ArrayList<>();
+
 
     public Hotel(UUID hotelId,
                  String name,
@@ -58,6 +68,36 @@ public class Hotel {
         this.nightPrice = requirePositive(nightPrice, "nightPrice");
     }
 
+    // Add a Room to the hotel's list of rooms
+    public void addRoom(Room room) {
+        this.rooms.add(Objects.requireNonNull(room, "room"));
+    }
+
+    // Get the list of rooms (read-only)
+    public List<Room> getRooms() {
+        return Collections.unmodifiableList(rooms);
+    }
+
+    // Add a photo URL/path to the hotel
+    public void addPhoto(String photoUrl) {
+        this.photos.add(requireNonBlank(photoUrl, "photoUrl"));
+    }
+
+    // Get the list of photos (read-only)
+    public List<String> getPhotos() {
+        return Collections.unmodifiableList(photos);
+    }
+
+    // Add an amenity to the hotel
+    public void addAmenity(String amenity) {
+        this.amenities.add(requireNonBlank(amenity, "amenity"));
+    }
+
+    // Get the list of amenities (read-only)
+    public List<String> getAmenities() {
+        return Collections.unmodifiableList(amenities);
+    }
+
     // Getters
     public UUID getHotelId() { return hotelId; }
     public String getName() { return name; }
@@ -92,6 +132,9 @@ public class Hotel {
                 ", address='" + address + '\'' +
                 ", nightPrice=" + nightPrice +
                 ", published=" + published +
+                ", rooms=" + rooms.size() +
+                ", photos=" + photos.size() +
+                ", amenities=" + amenities +
                 '}';
     }
 }
