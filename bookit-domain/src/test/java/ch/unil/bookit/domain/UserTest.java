@@ -68,7 +68,6 @@ class UserTest {
         String retrievedLastName = user.getLastName();
     }
 
-
     @Test
     void testGetAndSetBalance() {
         User user = new User();
@@ -95,7 +94,6 @@ class UserTest {
         assertThrows(IllegalArgumentException.class, () -> user.deposit(-10));
     }
 
-
     @Test
     void testWithdrawDecreasesBalance() {
         User user = new User();
@@ -112,6 +110,4 @@ class UserTest {
         user.setBalance(100);
         assertThrows(IllegalArgumentException.class, () -> user.withdraw(-50));
     }
-
-
 }

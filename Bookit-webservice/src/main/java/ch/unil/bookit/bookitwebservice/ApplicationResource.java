@@ -60,4 +60,22 @@ public class ApplicationResource {
         Guest guest2 = new Guest(guestId2, "guest2@bookit.com", "pass123", "Duska", "Bogdanic");
         guests.put(guestId2, guest2);
     }
+
+    public Guest depositToGuestWallet(UUID guestId, int amount) {
+        Guest guest = getGuest(guestId);
+        if (guest == null) {
+            return null;
+        }
+        guest.deposit(amount);   // uses User.deposit()
+        return guest;
+    }
+
+    public Guest withdrawFromGuestWallet(UUID guestId, int amount) {
+        Guest guest = getGuest(guestId);
+        if (guest == null) {
+            return null;
+        }
+        guest.withdraw(amount);  // uses User.withdraw()
+        return guest;
+    }
 }

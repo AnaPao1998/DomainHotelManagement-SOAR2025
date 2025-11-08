@@ -5,7 +5,11 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.PUT;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -71,4 +75,54 @@ public class GuestResource {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
     }
+    // DEPOSIT into guest wallet
+    @PUT
+    @Path("/{guestId}/wallet/deposit")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response depositToWallet(@PathParam("guestId") UUID guestId,
+                                    Integer amount) {
+
+        if (amount == null || amount <= 0) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("Amount must be positive")
+                    .build();
+        }
+
+        Guest guest = applicationResource.depositToGuestWallet(guestId, amount);
+        if (guest == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        return Response.ok(guest).build();  // updated guest with new balance
+    }
+
+    // WITHDRAW from guest wallet
+    @PUT
+    @Path("/{guestId}/wallet/withdraw")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response withdrawFromWallet(@PathParam("guestId") UUID guestId,
+                                       Integer amount) {
+
+        if (amount == null || amount <= 0) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity("Amount must be positive")
+                    .build();
+        }
+
+        try {
+            Guest guest = applicationResource.withdrawFromGuestWallet(guestId, amount);
+            if (guest == null) {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+            return Response.ok(guest).build(); // updated guest with reduced balance
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            // e.g. not enough balance
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(e.getMessage())
+                    .build();
+        }
+    }
+
 }
