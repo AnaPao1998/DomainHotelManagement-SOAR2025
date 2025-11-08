@@ -54,7 +54,7 @@ public class GuestResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response updateGuest(@PathParam("guestId")UUID guestId, Guest guest) {
         Guest result = applicationResource.updateGuest(guestId, guest);
-        if (guest != null) {
+        if (result != null) {
             return Response.ok(guest).build();
         } else  {
             return Response.status(Response.Status.NOT_FOUND).build();
