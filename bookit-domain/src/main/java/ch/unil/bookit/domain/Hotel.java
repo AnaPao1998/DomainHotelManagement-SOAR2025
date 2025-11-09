@@ -7,7 +7,7 @@ import java.util.UUID;
 
 public class Hotel {
     // identity
-    private final UUID hotelId;
+    private UUID hotelId;
     private String name;
     private String description;
     private String city;
@@ -100,6 +100,7 @@ public class Hotel {
 
     // Getters
     public UUID getHotelId() { return hotelId; }
+    public void setHotelId(UUID hotelId) { this.hotelId = hotelId; }
     public String getName() { return name; }
     public String getDescription() { return description; }
     public String getCity() { return city; }

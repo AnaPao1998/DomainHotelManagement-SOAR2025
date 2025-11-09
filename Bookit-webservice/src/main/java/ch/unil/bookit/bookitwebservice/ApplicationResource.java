@@ -78,4 +78,38 @@ public class ApplicationResource {
         guest.withdraw(amount);  // uses User.withdraw()
         return guest;
     }
+
+    // create
+    public Hotel createHotel(Hotel hotel) {
+        if (hotel.getHotelId() == null) {
+            hotel.setHotelId(UUID.randomUUID());
+        }
+        hotels.put(hotel.getHotelId(), hotel);
+        return hotel;
+    }
+
+    // read all hotels
+    public Map<UUID, Hotel> getAllHotels() {
+        return hotels;
+    }
+
+    // read one hotel
+    public Hotel getHotel(UUID id) {
+        return hotels.get(id);
+    }
+
+    // update
+    public Hotel updateHotel(UUID id, Hotel updatedHotel) {
+        if (!hotels.containsKey(id)) {
+            return null;
+        }
+        updatedHotel.setHotelId(id);
+        hotels.put(id, updatedHotel);
+        return updatedHotel;
+    }
+
+    // delete
+    public boolean deleteHotel(UUID id) {
+        return hotels.remove(id) != null;
+    }
 }
