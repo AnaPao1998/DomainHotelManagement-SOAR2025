@@ -14,6 +14,10 @@ public class Hotel {
     private String country;
     private String address;
 
+    public Hotel() {
+        this.published = false;
+    }
+
     // pricing
     private BigDecimal nightPrice; // price per night at the hotel
 
