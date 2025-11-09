@@ -1,15 +1,13 @@
 package ch.unil.bookit.bookitwebservice;
-import ch.unil.bookit.domain.Guest;
+
+import ch.unil.bookit.domain.Booking;
 import ch.unil.bookit.domain.Hotel;
+import ch.unil.bookit.domain.HotelManager;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.PUT;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -73,7 +71,69 @@ public class ManagerResource {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
     }
+    @GET
+    @Path("/all")
+    public Response getAllManagers() {
+        List<HotelManager> managers = new ArrayList<>(applicationResource.getAllManagers().values());
+        return Response.ok(managers).build();
+    }
 
+    // approve booking
+    @PUT
+    @Path("/{managerId}/bookings/{bookingId}/approve")
+    public Response approveBooking(
+            @PathParam("managerId") UUID managerId,
+            @PathParam("bookingId") UUID bookingId) {
 
+        HotelManager manager = applicationResource.getManager(managerId);
+        if (manager == null) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("Manager not found: " + managerId).build();
+        }
+
+        Booking booking = applicationResource.getBooking(bookingId);
+        if (booking == null) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("Booking not found: " + bookingId).build();
+        }
+
+        try {
+            manager.approveBooking(booking,applicationResource.getAllGuests());
+            // if your storage is by reference, this is enough; if not, persist the update:
+            applicationResource.saveBooking(booking); // no-op if you don’t need it
+            return Response.ok(booking).build();
+        } catch (IllegalStateException ex) {
+            // e.g. not PENDING
+            return Response.status(Response.Status.CONFLICT).entity(ex.getMessage()).build();
+        }
+    }
+
+    // cancel booking
+    @PUT
+    @Path("/{managerId}/bookings/{bookingId}/cancel")
+    public Response cancelBooking(
+            @PathParam("managerId") UUID managerId,
+            @PathParam("bookingId") UUID bookingId) {
+
+        HotelManager manager = applicationResource.getManager(managerId);
+        if (manager == null) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("Manager not found: " + managerId).build();
+        }
+
+        Booking booking = applicationResource.getBooking(bookingId);
+        if (booking == null) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("Booking not found: " + bookingId).build();
+        }
+
+        try {
+            manager.cancelBooking(booking,applicationResource.getAllGuests());
+            applicationResource.saveBooking(booking); // no-op if you don’t need it
+            return Response.ok(booking).build();
+        } catch (IllegalStateException ex) {
+            return Response.status(Response.Status.CONFLICT).entity(ex.getMessage()).build();
+        }
+    }
 
 }
