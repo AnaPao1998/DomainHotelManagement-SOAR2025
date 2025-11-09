@@ -177,6 +177,7 @@ public class ApplicationResource {
         if (hotel.getHotelId() == null) {
             hotel.setHotelId(UUID.randomUUID());
         }
+        hotel.publish();          // 👈 publish it automatically
         hotels.put(hotel.getHotelId(), hotel);
         return hotel;
     }

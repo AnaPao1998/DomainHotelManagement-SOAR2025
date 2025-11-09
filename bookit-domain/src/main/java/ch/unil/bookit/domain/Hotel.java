@@ -82,12 +82,12 @@ public class Hotel {
         return Collections.unmodifiableList(rooms);
     }
 
-    // Add a photo URL/path to the hotel
+    // add a photo URL/path to the hotel
     public void addPhoto(String photoUrl) {
         this.photos.add(requireNonBlank(photoUrl, "photoUrl"));
     }
 
-    // Get the list of photos (read-only)
+    // get the list of photots (read only)
     public List<String> getPhotos() {
         return Collections.unmodifiableList(photos);
     }
@@ -112,7 +112,25 @@ public class Hotel {
     public String getAddress() { return address; }
     public BigDecimal getNightPrice() { return nightPrice; }
     public boolean isPublished() { return published; }
+    public void setName(String name) {
+        this.name = requireNonBlank(name, "name");
+    }
 
+    public void setDescription(String description) {
+        this.description = (description == null) ? "" : description;
+    }
+
+    public void setCity(String city) {
+        this.city = requireNonBlank(city, "city");
+    }
+
+    public void setCountry(String country) {
+        this.country = requireNonBlank(country, "country");
+    }
+
+    public void setAddress(String address) {
+        this.address = requireNonBlank(address, "address");
+    }
     // Helpers
     private static String requireNonBlank(String s, String field) {
         if (s == null || s.trim().isEmpty())
