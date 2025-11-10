@@ -71,6 +71,7 @@ public class GuestResource {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
     }
+
     // DEPOSIT into guest wallet
     @PUT
     @Path("/{guestId}/wallet/deposit")
