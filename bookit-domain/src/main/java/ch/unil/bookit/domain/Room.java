@@ -5,9 +5,9 @@ import java.util.*;
 import java.util.Objects;
 import java.util.UUID;
 
-public class Room {
+public class Room extends Hotel {
     private final UUID roomId;
-    private final UUID hotelId;
+    //private final UUID hotelId;
 
     public enum RoomType {
         SINGLE,
@@ -16,26 +16,26 @@ public class Room {
     }
 
     private RoomType roomType; // Type of the room (Single, Double, Deluxe)
-    private String description;
+    private String roomDescription;
     private BigDecimal pricePerNight;
     private boolean available;
 
     private String photoUrl;
 
-    public Room(UUID roomId, UUID hotelId, RoomType roomType, String description, BigDecimal pricePerNight, String photoUrl) {
+    public Room(String name, String city, String country, String address, UUID roomId, UUID hotelId, RoomType roomType, String description, BigDecimal pricePerNight, String photoUrl, String roomDescription) {
+        super(hotelId, name, description, city, country, address);
         this.roomId = Objects.requireNonNull(roomId, "roomId");
-        this.hotelId = Objects.requireNonNull(hotelId, "hotelId");
         this.roomType = Objects.requireNonNull(roomType, "roomType");
-        this.description = (description == null) ? "" : description;
         this.pricePerNight = requirePositive(pricePerNight, "pricePerNight");
         this.photoUrl = (photoUrl == null) ? "" : photoUrl;
+        this.roomDescription = roomDescription;
         this.available = true;
     }
 
     public UUID getRoomId() { return roomId; }
-    public UUID getHotelId() { return hotelId; }
+    //public UUID getHotelId() { return hotelId; }
     public RoomType getRoomType() { return roomType; }
-    public String getDescription() { return description; }
+    public String getDescription() { return roomDescription; }
     public BigDecimal getPricePerNight() { return pricePerNight; }
     public boolean isAvailable() { return available; }
     public String getPhotoUrl() { return photoUrl; }
@@ -44,7 +44,7 @@ public class Room {
         this.roomType = Objects.requireNonNull(roomType, "roomType");
     }
     public void setDescription(String description) {
-        this.description = (description == null) ? "" : description;
+        this.roomDescription = (description == null) ? "" : description;
     }
     public void setPricePerNight(BigDecimal pricePerNight) {
         this.pricePerNight = requirePositive(pricePerNight, "pricePerNight");
@@ -66,9 +66,9 @@ public class Room {
     public String toString() {
         return "Room{" +
                 "roomId=" + roomId +
-                ", hotelId=" + hotelId +
+                ", hotelId=" + super.getHotelId() +
                 ", roomType=" + roomType +
-                ", description='" + description + '\'' +
+                ", description='" + roomDescription + '\'' +
                 ", pricePerNight=" + pricePerNight +
                 ", available=" + available +
                 ", photoUrl='" + photoUrl + '\'' +

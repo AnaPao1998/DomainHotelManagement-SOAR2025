@@ -15,7 +15,7 @@ public class Hotel {
     private String address;
 
     // pricing
-    private BigDecimal nightPrice; // price per night at the hotel
+    //private BigDecimal nightPrice; // price per night at the hotel
 
     private boolean published;
 
@@ -34,15 +34,14 @@ public class Hotel {
                  String description,
                  String city,
                  String country,
-                 String address,
-                 BigDecimal nightPrice) {
+                 String address) {
         this.hotelId = Objects.requireNonNull(hotelId, "hotelId");
         this.name = requireNonBlank(name, "name");
         this.description = (description == null) ? "" : description;  // the description is optional, if it's not fill in it will not cause any errors
         this.city = requireNonBlank(city, "city");
         this.country = requireNonBlank(country, "country");
         this.address = requireNonBlank(address, "address");
-        this.nightPrice = requirePositive(nightPrice, "nightPrice");
+        //this.nightPrice = requirePositive(nightPrice, "nightPrice");
         this.published = false;
     }
 
@@ -64,9 +63,9 @@ public class Hotel {
         this.address = requireNonBlank(address, "address");
     }
 
-    public void setNightPrice(BigDecimal nightPrice) {
-        this.nightPrice = requirePositive(nightPrice, "nightPrice");
-    }
+    //public void setNightPrice(BigDecimal nightPrice) {
+        //this.nightPrice = requirePositive(nightPrice, "nightPrice");
+    //}
 
     // Add a Room to the hotel's list of rooms
     public void addRoom(Room room) {
@@ -106,7 +105,7 @@ public class Hotel {
     public String getCity() { return city; }
     public String getCountry() { return country; }
     public String getAddress() { return address; }
-    public BigDecimal getNightPrice() { return nightPrice; }
+    //public BigDecimal getNightPrice() { return nightPrice; }
     public boolean isPublished() { return published; }
 
     // Helpers
@@ -131,7 +130,6 @@ public class Hotel {
                 ", city='" + city + '\'' +
                 ", country='" + country + '\'' +
                 ", address='" + address + '\'' +
-                ", nightPrice=" + nightPrice +
                 ", published=" + published +
                 ", rooms=" + rooms.size() +
                 ", photos=" + photos.size() +
