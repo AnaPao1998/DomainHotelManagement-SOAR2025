@@ -9,7 +9,7 @@ public class HotelTest {
     @Test
     public void testHotelCreation() {
         UUID hotelId = UUID.randomUUID();
-        Hotel hotel = new Hotel(hotelId, "Hotel de Test", "Description", "Ville", "Pays", "Adresse");
+        Hotel hotel = new Hotel(hotelId, "Hotel de Test", "Description", "Ville", "Pays", "Adresse", new BigDecimal("100.00"));
 
         assertEquals(hotelId, hotel.getHotelId());
         assertEquals("Hotel de Test", hotel.getName());
@@ -17,7 +17,7 @@ public class HotelTest {
 
     @Test
     public void testPublish() {
-        Hotel hotel = new Hotel(UUID.randomUUID(), "Test", "", "City", "Country", "Addr");
+        Hotel hotel = new Hotel(UUID.randomUUID(), "Test", "", "City", "Country", "Addr", BigDecimal.ONE);
         hotel.publish();
         assertTrue(hotel.isPublished());
     }

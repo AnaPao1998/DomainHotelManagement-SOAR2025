@@ -79,8 +79,9 @@ public class ApplicationResource {
                 "Cozy place near the lake",
                 "Lausanne",
                 "Switzerland",
-                "Rue de la Paix 10")
-        ;
+                "Rue de la Paix 10",
+                new java.math.BigDecimal("120.00")
+        );
         hotel.publish(); // make it visible
         hotels.put(hotelId, hotel);
 
