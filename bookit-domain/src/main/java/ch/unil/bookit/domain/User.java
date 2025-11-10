@@ -25,9 +25,8 @@ public class User {
         this.balance = 0; /// testing
     }
 
-    // getters and setters
-
-    // userids
+    // get and set userids
+    // always get first and set next
     public UUID getUUID() {
         return uuid;
     }

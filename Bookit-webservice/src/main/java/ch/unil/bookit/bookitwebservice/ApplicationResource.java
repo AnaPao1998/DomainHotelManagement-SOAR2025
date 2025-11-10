@@ -99,7 +99,7 @@ public class ApplicationResource {
         // link hotel to manager
         manager.addHotel(hotel);
 
-        // define simple room types & prices on the manager
+        // (optional) define simple room types & prices on the manager
         manager.defineRoomTypes(java.util.Arrays.asList("STANDARD", "DELUXE"));
         manager.setRoomPrices("STANDARD", 120.0);
         manager.setRoomPrices("DELUXE", 170.0);
@@ -176,8 +176,6 @@ public class ApplicationResource {
         if (hotel.getHotelId() == null) {
             hotel.setHotelId(UUID.randomUUID());
         }
-        hotel.publish();  // publishes automatically by default, may change this later
-                          // so that the manager has to explicitly publish
         hotels.put(hotel.getHotelId(), hotel);
         return hotel;
     }

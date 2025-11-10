@@ -44,7 +44,7 @@ public class BookingResource {
         return Response.ok(new ArrayList<>(all)).build();
     }
 
-    // get a specific booking by ID
+    // ✅ Get a specific booking by ID
     @GET
     @Path("/{bookingId}")
     public Response getBooking(@PathParam("bookingId") UUID bookingId) {
