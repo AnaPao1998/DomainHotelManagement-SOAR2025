@@ -10,7 +10,7 @@ public class RoomTest {
     public void testRoomCreation() {
         UUID roomId = UUID.randomUUID();
         UUID hotelId = UUID.randomUUID();
-        Room room = new Room("Hotel de Test", "Ville", "Pays", "Adresse", roomId, hotelId, Room.RoomType.SINGLE, "Description", new BigDecimal("50.0"), "photo.jpg", "Description");
+        Room room = new Room("name: Deluxe", "Lausanne", "Switzerland", "Ouchy", roomId, hotelId, Room.RoomType.SINGLE, "Single Room", new BigDecimal("100.0"), "photo.jpg", "Description");
 
         assertEquals(roomId, room.getRoomId());
         assertEquals(Room.RoomType.SINGLE, room.getRoomType());
