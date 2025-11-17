@@ -12,6 +12,7 @@
     <modules>
         <module>bookit-domain</module>
         <module>Bookit-webservice</module>
+        <module>bookit-webapp</module>
     </modules>
 
     <properties>
