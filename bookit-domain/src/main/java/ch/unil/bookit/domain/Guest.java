@@ -1,48 +1,59 @@
 package ch.unil.bookit.domain;
 
+import ch.unil.bookit.domain.booking.Booking;
+import ch.unil.bookit.domain.booking.BookingStatus;
+
 import java.util.*;
 
-public class Guest extends User{
-    //it maps a booking's ID to the booking object
-    private Map<UUID, Booking> bookings;
-    //Default Constructor
-    public Guest(){
+public class Guest extends User {
+
+    private final Map<UUID, Booking> bookings = new TreeMap<>();
+
+    public Guest() {
         super();
-        this.bookings = new TreeMap<>();
     }
-    //Main Constructor
+
     public Guest(UUID uuid, String email, String password, String firstName, String lastName) {
-        super(uuid, email, password, firstName, lastName); //calls the parent User constructor
-        this.bookings = new TreeMap<>();
+        super(uuid, email, password, firstName, lastName); // calls the parent User constructor
     }
 
 
-    //Guest specific methods
-    //single booking
-    public Booking getBooking(UUID bookingId){
+    public Booking getBooking(UUID bookingId) {
         return this.bookings.get(bookingId);
     }
-    //list of bookings
-    public List<Booking> getBooking(){
+
+    public List<Booking> getBookings() {
         return new ArrayList<>(this.bookings.values());
     }
-    //cancel booking
-    public boolean cancelBooking(Booking bookingId){
-        if(bookingId == null){
-            return false;
-        }
-        return false;
-    }
-    //add booking
-    public void addBooking(Booking booking){
-        if (booking == null){
+
+    public void addBooking(Booking booking) {
+        if (booking == null) {
             throw new IllegalArgumentException("Booking cannot be null");
         }
 
-        if (bookings.put(booking.getBookingId(), booking) != null) {
+        if (bookings.containsKey(booking.getBookingId())) {
             throw new IllegalArgumentException("Booking already exists");
         }
+
+        booking.setGuest(this);          // link Booking -> Guest (optional but nice)
+        bookings.put(booking.getBookingId(), booking);
     }
 
-}
+    public boolean cancelBooking(UUID bookingId) {
+        if (bookingId == null) {
+            return false;
+        }
 
+        Booking booking = bookings.get(bookingId);
+        if (booking == null) {
+            return false; // booking not found for this guest
+        }
+
+        if (booking.getStatus() != BookingStatus.PENDING) {
+            return false;
+        }
+
+        booking.markCancelled();
+        return true;
+    }
+}

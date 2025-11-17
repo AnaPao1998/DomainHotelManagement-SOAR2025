@@ -1,12 +1,16 @@
 package ch.unil.bookit.bookitwebservice;
 
-import ch.unil.bookit.domain.Booking;
+import ch.unil.bookit.domain.booking.Booking;
+import ch.unil.bookit.domain.booking.BookingStatus;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
+import java.util.UUID;
 
 @Path("/bookings")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -31,7 +35,7 @@ public class BookingResource {
                 booking.getUserId(),
                 booking.getRoomTypeId()
         );
-        newBooking.setStatus(Booking.bookingStatus.PENDING);
+        newBooking.setStatus(BookingStatus.PENDING);
 
         applicationResource.getBookings().put(bookingId, newBooking);
         return Response.status(Response.Status.CREATED).entity(newBooking).build();

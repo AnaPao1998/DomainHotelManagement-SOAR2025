@@ -1,24 +1,51 @@
 package ch.unil.bookit.domain;
 
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+
 import java.math.BigDecimal;
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 public class HotelTest {
+
     @Test
     public void testHotelCreation() {
         UUID hotelId = UUID.randomUUID();
-        Hotel hotel = new Hotel(hotelId, "Hotel de Test", "Description", "Ville", "Pays", "Adresse", new BigDecimal("100.00"));
+        UUID managerId = UUID.randomUUID();
+
+        Hotel hotel = new Hotel(
+                hotelId,
+                managerId,
+                "Hotel de Test",
+                "",
+                "City",
+                "Country",
+                "Addr",
+                BigDecimal.ONE
+        );
 
         assertEquals(hotelId, hotel.getHotelId());
         assertEquals("Hotel de Test", hotel.getName());
+        assertEquals(managerId, hotel.getManagerId());
     }
 
     @Test
     public void testPublish() {
-        Hotel hotel = new Hotel(UUID.randomUUID(), "Test", "", "City", "Country", "Addr", BigDecimal.ONE);
+        UUID managerId = UUID.randomUUID();
+        Hotel hotel = new Hotel(
+                UUID.randomUUID(),
+                managerId,
+                "Test",
+                "",
+                "City",
+                "Country",
+                "Addr",
+                BigDecimal.ONE
+        );
         hotel.publish();
         assertTrue(hotel.isPublished());
     }
 }
+

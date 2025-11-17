@@ -16,7 +16,6 @@ public class GuestResource {
     @Inject
     private ApplicationResource applicationResource;
 
-    //create
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -33,7 +32,6 @@ public class GuestResource {
         return new ArrayList<>(applicationResource.getAllGuests().values());
     }
 
-    //read
     @GET
     @Path("/{guestId}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -47,7 +45,6 @@ public class GuestResource {
 
     }
 
-    //update
     @PUT
     @Path("/{guestId}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -61,7 +58,6 @@ public class GuestResource {
         }
     }
 
-    //delete
     @DELETE
     @Path("/{guestId}")
     public Response deleteGuest(@PathParam("guestId")UUID guestId) {
@@ -71,7 +67,7 @@ public class GuestResource {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
     }
-    // DEPOSIT into guest wallet
+
     @PUT
     @Path("/{guestId}/wallet/deposit")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -93,7 +89,7 @@ public class GuestResource {
         return Response.ok(guest).build();  // updated guest with new balance
     }
 
-    // WITHDRAW from guest wallet
+
     @PUT
     @Path("/{guestId}/wallet/withdraw")
     @Consumes(MediaType.APPLICATION_JSON)

@@ -26,46 +26,38 @@ class UserTest {
     @Test
     void testGetAndSetEmail() {
         User user = new User();
-
         String testEmail = "test@test.com";
 
         user.setEmail(testEmail);
-
-        String retrievedEmail = user.getEmail();
+        assertEquals(testEmail, user.getEmail());
     }
 
 
     @Test
     void testGetAndSetPassword() {
         User user = new User();
-
         String testPassword = "testPassword";
 
         user.setPassword(testPassword);
-
-        String retrievedPassword = user.getPassword();
+        assertEquals(testPassword, user.getPassword());
     }
 
     @Test
     void testGetAndSetName() {
         User user = new User();
-
         String testName = "testName";
 
         user.setFirstName(testName);
-
-        String retrievedFirstName = user.getFirstName();
+        assertEquals(testName, user.getFirstName());
     }
 
     @Test
     void testGetAndSetLastName() {
         User user = new User();
-
         String testLastName = "testLastName";
 
         user.setLastName(testLastName);
-
-        String retrievedLastName = user.getLastName();
+        assertEquals(testLastName, user.getLastName());
     }
 
     @Test

@@ -25,9 +25,11 @@ public class User {
         this.balance = 0; /// testing
     }
 
-    // get and set userids
-    // always get first and set next
     public UUID getUUID() {
+        return uuid;
+    }
+
+    public UUID getId() {
         return uuid;
     }
 
@@ -35,7 +37,6 @@ public class User {
         this.uuid = uuid;
     }
 
-    // email
     public String getEmail() {
         return email;
     }
@@ -44,7 +45,6 @@ public class User {
         this.email = email;
     }
 
-    // password
     public String getPassword() {
         return password;
     }
@@ -53,7 +53,6 @@ public class User {
         this.password = password;
     }
 
-    // first name
     public String getFirstName() {
         return firstName;
     }
@@ -62,7 +61,6 @@ public class User {
         this.firstName = firstName;
     }
 
-    // last name
     public String getLastName() {
         return lastName;
     }
@@ -71,8 +69,6 @@ public class User {
         this.lastName = lastName;
     }
 
-    // set balance - not as basic as just get and set because you need to be able to
-    // both withdraw and deposit so it's not always a value that is just called
     public int getBalance() {
         return balance;
     }

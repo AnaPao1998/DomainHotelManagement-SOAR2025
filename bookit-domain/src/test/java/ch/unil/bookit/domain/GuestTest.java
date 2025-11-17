@@ -1,4 +1,5 @@
 package ch.unil.bookit.domain;
+import ch.unil.bookit.domain.booking.Booking;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,17 +47,18 @@ public class GuestTest {
     void testGuestAddAndGetBooking(){
         testGuest.addBooking(testBooking);
 
-        assertEquals(1, testGuest.getBooking().size());
+        assertEquals(1, testGuest.getBookings().size());
         assertEquals(testBooking, testGuest.getBooking(testBooking.getBookingId()));
     }
 
     @Test
     void testAddExistingBookingFails(){
         testGuest.addBooking(testBooking);
+
         assertThrows(IllegalArgumentException.class, () -> {
-                    testGuest.addBooking(testBooking);
+            testGuest.addBooking(testBooking);
         });
 
-        assertEquals(1, testGuest.getBooking().size());
+        assertEquals(1, testGuest.getBookings().size());
     }
 }
