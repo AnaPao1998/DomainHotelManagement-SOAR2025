@@ -13,5 +13,5 @@ services:
       volumes:
           # auto deploy (
        - ./Bookit-webservice/target/Bookit-webservice-1.0-SNAPSHOT.war:/opt/payara/appserver/glassfish/domains/domain1/autodeploy/Bookit-webservice-1.0-SNAPSHOT.war
-       - ./bookit-webapp/target/bookit-webapp-1.0-SNAPSHOT.war:/opt/payara/appserver/glassfish/domains/domain1/autodeploy/bookit-webappls-1.0-SNAPSHOT.war
+       - ./bookit-webapp/target/bookit-webapp-1.0-SNAPSHOT.war:/opt/payara/appserver/glassfish/domains/domain1/autodeploy/bookit-webapp-1.0-SNAPSHOT.war
           # translate http requests into java
