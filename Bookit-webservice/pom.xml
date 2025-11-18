@@ -9,7 +9,6 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-
     <groupId>ch.unil.bookit.bookitwebservice</groupId>
     <artifactId>Bookit-webservice</artifactId>
     <version>1.0-SNAPSHOT</version>
