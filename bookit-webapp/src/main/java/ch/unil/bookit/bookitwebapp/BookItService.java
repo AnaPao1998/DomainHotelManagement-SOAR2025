@@ -21,6 +21,7 @@ public class BookItService {
     private WebTarget bookingTarget;
     private WebTarget guestTarget;
     private WebTarget managerTarget;
+    private WebTarget userTarget;
 
     @PostConstruct
     public void init() {
@@ -29,6 +30,7 @@ public class BookItService {
         bookingTarget = client.target(BASE_URL).path("bookings");
         guestTarget = client.target(BASE_URL).path("guests");
         managerTarget = client.target(BASE_URL).path("hotelmanager");
+        userTarget = client.target(BASE_URL).path("user");
     }
 
     // BOOKING OPERATIONS
@@ -80,31 +82,31 @@ public class BookItService {
 
     //get guests
     public Response getGuests(String id) {
-        Response response = guestTarget.path(id.toString()).request(MediaType.APPLICATION_JSON).get();
+        var response = guestTarget.path(id.toString()).request(MediaType.APPLICATION_JSON).get();
         return response;
     }
 
     //update guest
     public Response updateGuest(Guest guest) {
-        Response response = guestTarget.path(guest.getId().toString()).request(MediaType.APPLICATION_JSON).put(Entity.entity(guest, MediaType.APPLICATION_JSON));
+        var response = guestTarget.path(guest.getId().toString()).request(MediaType.APPLICATION_JSON).put(Entity.entity(guest, MediaType.APPLICATION_JSON));
         return response;
     }
 
     //delete guest
     public Response deleteGuest(String id) {
-        Response response = guestTarget.path(id.toString()).request(MediaType.APPLICATION_JSON).delete();
+        var response = guestTarget.path(id.toString()).request(MediaType.APPLICATION_JSON).delete();
         return response;
     }
 
     //deposit to wallet
     public Response depositToWallet(String id, Integer amount) {
-        Response response = guestTarget.path(id.toString()).path("wallet").path("deposit").request(MediaType.APPLICATION_JSON).put(Entity.entity(amount, MediaType.APPLICATION_JSON));
+        var response = guestTarget.path(id.toString()).path("wallet").path("deposit").request(MediaType.APPLICATION_JSON).put(Entity.entity(amount, MediaType.APPLICATION_JSON));
         return response;
     }
 
     //withdraw from wallet
     public Response withdrawToWallet(String id, Integer amount) {
-        Response response = guestTarget.path(id.toString()).path("wallet").path("withdraw").request(MediaType.APPLICATION_JSON).put(Entity.entity(amount, MediaType.APPLICATION_JSON));
+        var response = guestTarget.path(id.toString()).path("wallet").path("withdraw").request(MediaType.APPLICATION_JSON).put(Entity.entity(amount, MediaType.APPLICATION_JSON));
         return response;
     }
 
@@ -124,37 +126,46 @@ public class BookItService {
 
     //get hotel
     public Response getHotel(String id) {
-        Response response = managerTarget.path(id.toString()).request(MediaType.APPLICATION_JSON).get();
+        var response = managerTarget.path(id.toString()).request(MediaType.APPLICATION_JSON).get();
         return response;
     }
 
     //update hotel
     public Response updateHotel(Hotel hotel) {
-        Response response = managerTarget.path(hotel.getHotelId().toString()).request(MediaType.APPLICATION_JSON).put(Entity.entity(hotel, MediaType.APPLICATION_JSON));
+        var response = managerTarget.path(hotel.getHotelId().toString()).request(MediaType.APPLICATION_JSON).put(Entity.entity(hotel, MediaType.APPLICATION_JSON));
         return response;
     }
 
     //delete hotel
     public Response deleteHotel(String id) {
-        Response response = managerTarget.path(id.toString()).request(MediaType.APPLICATION_JSON).delete();
+        var response = managerTarget.path(id.toString()).request(MediaType.APPLICATION_JSON).delete();
         return response;
     }
 
     //get all managers
     public Response getAllManagers() {
-        Response response = managerTarget.path("all").request(MediaType.APPLICATION_JSON).get();
+        var response = managerTarget.path("all").request(MediaType.APPLICATION_JSON).get();
         return response;
     }
 
     //approve booking
     public Response approveBooking(String manager_id, String booking_id) {
-        Response response = managerTarget.path(manager_id.toString()).path("bookings").path(booking_id.toString()).path("approve").request(MediaType.APPLICATION_JSON).put(Entity.json(""));
+        var response = managerTarget.path(manager_id.toString()).path("bookings").path(booking_id.toString()).path("approve").request(MediaType.APPLICATION_JSON).put(Entity.json(""));
         return response;
     }
 
     //cancel booking
     public Response cancelBooking(String manager_id, String booking_id) {
-        Response response = managerTarget.path(manager_id.toString()).path("bookings").path(booking_id.toString()).path("cancel").request(MediaType.APPLICATION_JSON).put(Entity.json(""));
+        var response = managerTarget.path(manager_id.toString()).path("bookings").path(booking_id.toString()).path("cancel").request(MediaType.APPLICATION_JSON).put(Entity.json(""));
+        return response;
+    }
+
+    // USER OPERATIONS
+
+    //authenticate
+    public UUID authenticate(String email, String password, String role) {
+        var response = userTarget.path("authenticate").path(email).path(password).
+                path(role).request(MediaType.APPLICATION_JSON).get(UUID.class);
         return response;
     }
 

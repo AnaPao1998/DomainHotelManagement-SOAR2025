@@ -198,4 +198,22 @@ public class ApplicationResource {
         defaultManager.approveBooking(b1, guests);
         defaultManager.cancelBooking(b2, guests);
     }
+
+    public UUID authenticateGuest(String email, String password) {
+        for (Guest guest : guests.values()) {
+            if (guest.getEmail().equals(email) && guest.getPassword().equals(password)) {
+                return guest.getId();
+            }
+        }
+        return null;
+    }
+
+    public UUID authenticateManager(String email, String password) {
+        for (HotelManager manager : managers.values()) {
+            if (manager.getEmail().equals(email) && manager.getPassword().equals(password)) {
+                return manager.getId();
+            }
+        }
+        return null;
+    }
 }
