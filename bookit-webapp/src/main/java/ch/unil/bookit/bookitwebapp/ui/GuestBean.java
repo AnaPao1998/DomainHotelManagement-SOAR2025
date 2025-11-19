@@ -1,4 +1,58 @@
 package ch.unil.bookit.bookitwebapp.ui;
 
-public class GuestBean {
+import ch.unil.bookit.bookitwebapp.BookItService;
+import ch.unil.bookit.domain.*;
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.faces.context.FacesContext;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import org.primefaces.PrimeFaces;
+
+import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.UUID;
+import jakarta.ws.rs.core.Response;
+
+@SessionScoped
+@Named
+public class GuestBean extends Guest implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    private Guest guest;
+
+    @Inject
+    BookItService service;
+
+    public GuestBean() {
+        this(null, null, null, null, null);
+    }
+
+    public GuestBean(UUID uuid, String email, String password, String firstName, String lastName) {
+        super(uuid, email, password, firstName, lastName);
+        init();
+        guest = new Guest(uuid, email, password, firstName, lastName);
+    }
+
+    public void init() {
+        guest = null;
+    }
+
+    //load guest
+
+    public void loadGuest() {
+        var id = this.getUUID();
+        if (id != null) {
+            Response response = service.getGuests(id.toString());
+            guest = response.readEntity(Guest.class);
+            if (guest != null) {
+                this.setuuid(guest.getUUID());
+                this.setEmail(guest.getEmail());
+                this.setPassword(guest.getPassword());
+                this.setFirstName(guest.getFirstName());
+                this.setLastName(guest.getLastName());
+            }
+        }
+    }
 }
