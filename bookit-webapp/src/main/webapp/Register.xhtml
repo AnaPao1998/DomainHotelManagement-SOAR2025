@@ -4,8 +4,77 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-      xmlns:f="http://xmlns.jcp.org/jsf/core">
-<f:view>
-    <h:outputLabel value="Bookit-webservice Successfully Deployed."/>
-</f:view>
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+    <h:outputStylesheet name="css/styles.css"/>
+    <title>Bookit! User Registration</title>
+</h:head>
+<h:body>
+    <div align="center" style="margin-top: 50px;">
+        <div style="width: 500px; padding: 20px; border: 1px solid #ccc; border-radius: 5px;">
+
+            <h:graphicImage width="100" value="/images/logo.png"/>
+            <h2>Create New User Account</h2>
+
+            <h:form id="registerForm">
+
+                <h:messages globalOnly="true" style="color: red;"/>
+                <p:growl id="growl" showDetail="true" life="5000"/>
+
+                <h:panelGrid columns="2" style="margin: 0 auto; text-align: left; padding: 10px;">
+
+                    <h:outputLabel value="Select Role:" style="font-weight: bold;"/>
+                    <p:selectOneRadio id="selectUserRole" value="#{RegisterBean.role}"
+                                      layout="pageDirection"
+                                      required="true"
+                                      requiredMessage="You must select a role (Manager or Guest).">
+                        <f:selectItem itemLabel="Traveler (Guest)" itemValue="guest"/>
+                        <f:selectItem itemLabel="Hotel Manager" itemValue="manager"/>
+                    </p:selectOneRadio>
+
+                    <h:outputLabel for="firstName" value="First Name:"/>
+                    <h:inputText id="firstName" value="#{RegisterBean.firstName}"
+                                 required="true" requiredMessage="First Name is required."
+                                 styleClass="form-control"/>
+                    <h:message for="firstName" style="color: red;"/>
+
+                    <h:outputLabel for="lastName" value="Last Name:"/>
+                    <h:inputText id="lastName" value="#{RegisterBean.lastName}"
+                                 required="true" requiredMessage="Last Name is required."
+                                 styleClass="form-control"/>
+                    <h:message for="lastName" style="color: red;"/>
+
+                    <h:outputLabel for="email" value="Email:"/>
+                    <h:inputText id="email" value="#{RegisterBean.email}"
+                                 required="true" requiredMessage="Email is required."
+                                 autocomplete="email"
+                                 styleClass="form-control"/>
+                    <h:message for="email" style="color: red;"/>
+
+                    <h:outputLabel for="password" value="Password:"/>
+                    <h:inputSecret id="password" value="#{RegisterBean.password}"
+                                   required="true" requiredMessage="Password is required."
+                                   autocomplete="new-password"
+                                   styleClass="form-control"/>
+                    <h:message for="password" style="color: red;"/>
+
+                    <h:outputText value=""/>
+                    <h:commandButton id="registerButton" value="Sign Up"
+                                     action="#{RegisterBean.register}"
+                                     oncomplete="#{RegisterBean.reset()}"
+                                     update="registerForm growl"
+                                     style="margin-top: 10px;"/>
+                </h:panelGrid>
+
+            </h:form>
+
+            <div style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 10px;">
+                <h:outputText value="Already have an account? "/>
+                <h:link value="Log In Now" outcome="Login.xhtml"/>
+            </div>
+        </div>
+    </div>
+</h:body>
 </html>
