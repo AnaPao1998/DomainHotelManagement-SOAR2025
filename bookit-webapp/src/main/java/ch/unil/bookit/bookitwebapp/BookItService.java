@@ -142,6 +142,13 @@ public class BookItService {
         return response;
     }
 
+    // create manager
+    public Response createManager(HotelManager manager) {
+        var response = managerTarget.path("/manager").request(MediaType.APPLICATION_JSON)
+                .post(Entity.entity(manager, MediaType.APPLICATION_JSON));
+        return response;
+    }
+
     // get manager
     public Response getManager(String id) {
         var response = managerTarget.path("manager").path(id.toString()).request(MediaType.APPLICATION_JSON).get();

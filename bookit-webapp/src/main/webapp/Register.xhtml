@@ -26,7 +26,7 @@
                 <h:panelGrid columns="2" style="margin: 0 auto; text-align: left; padding: 10px;">
 
                     <h:outputLabel value="Select Role:" style="font-weight: bold;"/>
-                    <p:selectOneRadio id="selectUserRole" value="#{RegisterBean.role}"
+                    <p:selectOneRadio id="selectUserRole" value="#{registerBean.role}"
                                       layout="pageDirection"
                                       required="true"
                                       requiredMessage="You must select a role (Manager or Guest).">
@@ -35,26 +35,26 @@
                     </p:selectOneRadio>
 
                     <h:outputLabel for="firstName" value="First Name:"/>
-                    <h:inputText id="firstName" value="#{RegisterBean.firstName}"
+                    <h:inputText id="firstName" value="#{registerBean.firstName}"
                                  required="true" requiredMessage="First Name is required."
                                  styleClass="form-control"/>
                     <h:message for="firstName" style="color: red;"/>
 
                     <h:outputLabel for="lastName" value="Last Name:"/>
-                    <h:inputText id="lastName" value="#{RegisterBean.lastName}"
+                    <h:inputText id="lastName" value="#{registerBean.lastName}"
                                  required="true" requiredMessage="Last Name is required."
                                  styleClass="form-control"/>
                     <h:message for="lastName" style="color: red;"/>
 
                     <h:outputLabel for="email" value="Email:"/>
-                    <h:inputText id="email" value="#{RegisterBean.email}"
+                    <h:inputText id="email" value="#{registerBean.email}"
                                  required="true" requiredMessage="Email is required."
                                  autocomplete="email"
                                  styleClass="form-control"/>
                     <h:message for="email" style="color: red;"/>
 
                     <h:outputLabel for="password" value="Password:"/>
-                    <h:inputSecret id="password" value="#{RegisterBean.password}"
+                    <h:inputSecret id="password" value="#{registerBean.password}"
                                    required="true" requiredMessage="Password is required."
                                    autocomplete="new-password"
                                    styleClass="form-control"/>
@@ -62,8 +62,8 @@
 
                     <h:outputText value=""/>
                     <h:commandButton id="registerButton" value="Sign Up"
-                                     action="#{RegisterBean.register}"
-                                     oncomplete="#{RegisterBean.reset()}"
+                                     action="#{registerBean.register()}"
+                                     oncomplete="#{registerBean.reset()}"
                                      update="registerForm growl"
                                      style="margin-top: 10px;"/>
                 </h:panelGrid>
