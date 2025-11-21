@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+    <h:outputStylesheet library="primefaces" name="primeicons/primeicons.css"/>
+    <h:outputStylesheet name="css/styles.css" />
+
+    <title>
+        <ui:insert name="pageTitle">Bookit! - Hotel Booking</ui:insert>
+    </title>
+</h:head>
+
+<h:body>
+    <div align="center" style="margin: 15px 0;">
+
+        <p:panel style="width: 95%; max-width: 1200px; padding: 0;">
+
+            <div style="text-align: center; margin-bottom: 10px; padding-top: 10px;">
+                <h:graphicImage width="180" value="/images/logo.png" style="vertical-align: middle;"/>
+                <h:outputText value=" Bookit! - Book your way to your next getaway" style="font-size: 1.5em; font-weight: bold; margin-left: 15px;"/>
+            </div>
+
+            <ui:insert name="navigation">
+            </ui:insert>
+
+            <div style="padding: 10px 0;">
+                <ui:insert name="content">
+                    <p:messages showDetail="true" showSummary="false"/>
+                    <p:growl id="growl" showDetail="true"/>
+                </ui:insert>
+            </div>
+
+            <ui:insert name="footer">
+                <p:separator style="margin-top: 20px;"/>
+                <div style="text-align: center; font-size: 0.85em; color: #666; padding: 10px;">
+                    <h:outputText value="© #{'2025'}. Bookit! - SOAR Project. Images are wireframes provided by the project."/>
+                </div>
+            </ui:insert>
+
+        </p:panel>
+    </div>
+</h:body>
+</html>
