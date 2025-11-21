@@ -4,8 +4,68 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-      xmlns:f="http://xmlns.jcp.org/jsf/core">
-<f:view>
-    <h:outputLabel value="Bookit Service Successfully Deployed."/>
-</f:view>
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+<h:head>
+    <title>Bookit! Developer Dashboard</title>
+    <h:outputStylesheet name="css/styles.css"/>
+</h:head>
+<h:body>
+    <f:view>
+        <div align="center">
+            <h:graphicImage width="100" value="/images/logo.png" style="margin-bottom: 20px;"/>
+            <h2>Bookit! Developer Dashboard</h2>
+        </div>
+
+        <p:panel style="width: 80%; max-width: 1000px; margin-top: 20px;">
+
+            <h3>Service Management</h3>
+            <h:form>
+                <p:commandButton action="#{userData.reset()}" value="RESET ALL DATA"
+                                 onclick="return confirm('WARNING: This will erase all guests, managers, and bookings. Confirm?');"
+                                 styleClass="ui-button-danger"/>
+                <p:messages style="color: red;"/>
+            </h:form>
+
+            <hr/>
+
+            <h3>Templates</h3>
+            <ul>
+                <li><a href="templates/CommonTemplate.xhtml" target="_blank" rel="noopener noreferrer">Common Template</a></li>
+                <li><a href="templates/GuestTemplate.xhtml" target="_blank" rel="noopener noreferrer">Guest Navigation Template</a></li>
+                <li><a href="templates/ManagerTemplate.xhtml" target="_blank" rel="noopener noreferrer">Manager Navigation Template</a></li>
+            </ul>
+
+            <hr/>
+
+            <h3>Test User Interface (XHTML Pages)</h3>
+
+            <h4>Authentication &amp; Registration</h4>
+            <ul>
+                <li><a href="Login.xhtml" target="_blank" rel="noopener noreferrer">Login Page</a></li>
+                <li><a href="Register.xhtml" target="_blank" rel="noopener noreferrer">Registration Page</a></li>
+            </ul>
+
+            <h4>Guest Journey</h4>
+            <ul>
+                <li><a href="GuestHome.xhtml" target="_blank" rel="noopener noreferrer">Guest Home (Dashboard)</a></li>
+                <li><a href="SearchHotels.xhtml" target="_blank" rel="noopener noreferrer">Search Hotels</a></li>
+                <li><a href="GuestBookings.xhtml" target="_blank" rel="noopener noreferrer">My Bookings</a></li>
+                <li><a href="GuestWallet.xhtml" target="_blank" rel="noopener noreferrer">My Wallet</a></li>
+                <li><a href="GuestProfile.xhtml" target="_blank" rel="noopener noreferrer">My Profile</a></li>
+            </ul>
+
+            <h4>Manager Journey</h4>
+            <ul>
+                <li><a href="ManagerHome.xhtml" target="_blank" rel="noopener noreferrer">Manager Home (Dashboard)</a></li>
+                <li><a href="HotelManagement.xhtml" target="_blank" rel="noopener noreferrer">Hotel Management (Creation/Editing)</a></li>
+                <li><a href="BookingApproval.xhtml" target="_blank" rel="noopener noreferrer">Booking Approval</a></li>
+                <li><a href="ManagerProfile.xhtml" target="_blank" rel="noopener noreferrer">Manager Profile</a></li>
+            </ul>
+
+        </p:panel>
+
+    </f:view>
+</h:body>
 </html>
