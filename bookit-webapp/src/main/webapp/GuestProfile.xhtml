@@ -6,3 +6,124 @@
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
       xmlns:f="http://xmlns.jcp.org/jsf/core"
       xmlns:p="http://primefaces.org/ui">
+
+<ui:composition template="/templates/GuestTemplate.xhtml">
+
+    <f:metadata>
+        <f:event type="preRenderView" listener="#{guestBean.loadGuest}" />
+    </f:metadata>
+
+    <ui:define name="pageTitle">Guest | Profile</ui:define>
+
+    <ui:define name="guestContent">
+        <p:panel style="margin-top: 15px;">
+
+            <h1>#{guestBean.firstName} #{guestBean.lastName}'s Profile</h1>
+            <p:growl id="infoGrowl" showDetail="false"/>
+
+            <p:outputLabel value="Basic Information"/>
+            <h:form id="basicInfo">
+
+                <p:outputLabel for="@next" value="First Name" style="font-size: 12px;"/><br/>
+                <p:inputText id="firstname" value="#{guestBean.firstName}" required="true"
+                             requiredMessage="First name is required.">
+                    <p:ajax event="blur" update="basicInfo" listener="#{guestBean.checkIfChanged()}"/>
+                    <p:ajax event="keyup" update="basicInfo" listener="#{guestBean.checkIfChanged()}"/>
+                </p:inputText>
+                <p:message for="firstname" display="text"/>
+                <br/>
+
+                <p:outputLabel for="@next" value="Last Name" style="font-size: 12px;"/><br/>
+                <p:inputText id="lastname" value="#{guestBean.lastName}" required="true"
+                             requiredMessage="Last name is required.">
+                    <p:ajax event="blur" update="basicInfo" listener="#{guestBean.checkIfChanged()}"/>
+                    <p:ajax event="keyup" update="basicInfo" listener="#{guestBean.checkIfChanged()}"/>
+                </p:inputText>
+                <p:message for="lastname" display="text"/>
+                <br/>
+
+                <p:outputLabel for="@next" value="Email" style="font-size: 12px;"/><br/>
+                <p:inputText id="email" value="#{guestBean.email}" required="true"
+                             requiredMessage="Email is required." validatorMessage="Incorrect email format.">
+                    <p:ajax event="blur" update="basicInfo" listener="#{guestBean.checkIfChanged()}"/>
+                    <p:ajax event="keyup" update="basicInfo" listener="#{guestBean.checkIfChanged()}"/>
+                    <f:validateRegex pattern="^[^@]+@[^@]+\.[^@]+$"/>
+                </p:inputText>
+                <p:message for="email" display="text"/>
+                <br/>
+
+                <p:spacer height="30"/>
+
+                <p:commandButton id="updateButton" value="Update" disabled="#{!guestBean.changed}"
+                                 action="#{guestBean.updateGuest()}"
+                                 update="basicInfo infoGrowl"/>
+                <p:spacer width="10"/>
+
+                <p:commandButton id="undoButton" value="Undo" actionListener="#{guestBean.loadGuest()}" immediate="true"
+                                 update="basicInfo" oncomplete="window.location.reload();"/>
+
+                <p:dialog id="updateErrorDialog"
+                          widgetVar="updateErrorDialog"
+                          header="Update Failed"
+                          modal="true"
+                          resizable="true"
+                          width="250"
+                          height="50">
+                    <h:outputText id="updateErrorMessage" value="#{guestBean.dialogMessage}"/>
+                </p:dialog>
+            </h:form>
+            <br/>
+
+            <p:outputLabel value="Change Password"/>
+            <h:form id="changePasswordForm">
+
+                <p:dialog id="passwordChangeDialog"
+                          widgetVar="passwordChangeDialog"
+                          header="Password Change"
+                          modal="true"
+                          resizable="true"
+                          width="400"
+                          height="100">
+                    <h:outputText id="passwordChangeMessage" value="#{guestBean.dialogMessage}"/>
+                </p:dialog>
+
+                <p:outputLabel for="@next" value="Current Password" style="font-size: 12px;"/><br/>
+                <p:password id="currentPassword" value="#{guestBean.currentPassword}" autocomplete="new-password"
+                            redisplay="true" toggleMask="true" feedback="false"
+                            required="true" requiredMessage="Current password is required."/>
+                <p:message for="currentPassword" display="text"/>
+                <br/>
+
+                <p:outputLabel for="@next" value="New Password" style="font-size: 12px;"/><br/>
+                <p:password id="newPassword" value="#{guestBean.newPassword}" autocomplete="new-password"
+                            redisplay="true" toggleMask="true" feedback="false"
+                            required="true" requiredMessage="New password is required."/>
+                <p:message for="newPassword" display="text"/>
+                <br/>
+
+                <p:spacer height="30"/>
+
+                <p:commandButton id="changePasswordButton" value="Save"
+                                 action="#{guestBean.savePasswordChange()}"
+                                 update="changePasswordForm passwordChangeDialog infoGrowl"/>
+                <p:spacer width="10"/>
+
+                <p:commandButton id="resetPasswordButton" value="Reset"
+                                 actionListener="#{guestBean.resetPasswordChange()}" immediate="true"
+                                 update="changePasswordForm" oncomplete="window.location.reload();"/>
+            </h:form>
+            <br/>
+
+            <h:form id="balanceForm">
+                <p:outputLabel value="Wallet Balance"/>
+                <br/>
+                <h:outputLabel value="USD #{guestBean.balance}" style="font-size: 20px; font-weight: bold;"/>
+                <br/>
+                <p:spacer height="10"/>
+                <p:button value="Manage Wallet" outcome="GuestWallet.xhtml"/>
+            </h:form>
+        </p:panel>
+    </ui:define>
+
+</ui:composition>
+</html>
