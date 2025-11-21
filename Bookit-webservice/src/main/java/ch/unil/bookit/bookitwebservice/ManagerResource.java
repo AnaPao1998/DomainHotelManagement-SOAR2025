@@ -65,6 +65,17 @@ public class ManagerResource {
     }
 
     @GET
+    @Path("/manager/{managerId}")
+    public Response getManager(@PathParam("managerId") UUID managerId) {
+        HotelManager manager = applicationResource.getManager(managerId);
+        if (manager != null) {
+            return Response.ok(manager).build();
+        } else  {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+    }
+
+    @GET
     @Path("/all")
     public Response getAllManagers() {
         List<HotelManager> managers =

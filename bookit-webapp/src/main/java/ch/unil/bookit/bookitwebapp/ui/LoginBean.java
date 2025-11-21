@@ -49,7 +49,7 @@ public class LoginBean implements Serializable {
             switch (role) {
                 case "manager":
                     managerBean.setuuid(uuid);
-                    // managerBean.loadManager(); //loadManager to be implemented in managerBean
+                    managerBean.loadManager();
                     return "ManagerHome?faces-redirect=true";
                 case "guest":
                     guestBean.setuuid(uuid);

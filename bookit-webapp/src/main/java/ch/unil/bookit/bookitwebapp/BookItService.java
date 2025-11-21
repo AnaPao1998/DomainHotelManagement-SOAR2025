@@ -142,6 +142,12 @@ public class BookItService {
         return response;
     }
 
+    // get manager
+    public Response getManager(String id) {
+        var response = managerTarget.path("manager").path(id.toString()).request(MediaType.APPLICATION_JSON).get();
+        return response;
+    }
+
     //get all managers
     public Response getAllManagers() {
         var response = managerTarget.path("all").request(MediaType.APPLICATION_JSON).get();

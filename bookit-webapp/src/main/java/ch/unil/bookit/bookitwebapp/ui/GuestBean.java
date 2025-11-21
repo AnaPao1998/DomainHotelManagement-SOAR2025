@@ -21,6 +21,9 @@ public class GuestBean extends Guest implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Guest guest;
+    private String currentPassword;
+    private String newPassword;
+    private boolean changed;
 
     @Inject
     BookItService service;
@@ -37,9 +40,30 @@ public class GuestBean extends Guest implements Serializable {
 
     public void init() {
         guest = null;
+        currentPassword = null;
+        newPassword = null;
+        changed = false;
     }
 
-    //load guest
+    // password
+
+    public String getCurrentPassword() {
+        return currentPassword;
+    }
+
+    public void setCurrentPassword(String currentPassword) {
+        this.currentPassword = currentPassword;
+    }
+
+    public String getNewPassword() {
+        return newPassword;
+    }
+
+    public void setNewPassword(String newPassword) {
+        this.newPassword = newPassword;
+    }
+
+    // guest
 
     public void loadGuest() {
         var id = this.getUUID();
@@ -55,4 +79,6 @@ public class GuestBean extends Guest implements Serializable {
             }
         }
     }
+
+
 }

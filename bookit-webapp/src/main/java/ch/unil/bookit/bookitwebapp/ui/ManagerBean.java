@@ -5,6 +5,7 @@ import ch.unil.bookit.domain.*;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import jakarta.ws.rs.core.Response;
 import org.primefaces.PrimeFaces;
 
 import java.io.Serializable;
@@ -38,5 +39,20 @@ public class ManagerBean extends HotelManager implements Serializable {
     }
 
     // load manager
+
+    public void loadManager() {
+        var id = this.getUUID();
+        if (id != null) {
+            Response response = service.getManager(id.toString());
+            manager = response.readEntity(HotelManager.class);
+            if (manager != null) {
+                this.setuuid(manager.getUUID());
+                this.setEmail(manager.getEmail());
+                this.setPassword(manager.getPassword());
+                this.setFirstName(manager.getFirstName());
+                this.setLastName(manager.getLastName());
+            }
+        }
+    }
 
 }
