@@ -26,13 +26,13 @@
                 <table>
                     <tr>
                         <td style="text-align:right">
-                            <p:outputLabel value="email"/>
+                            <p:outputLabel value="Username"/>
                         </td>
                         <td style="text-align:left">
-                            <p:inputText id="email" value="#{loginBean.email}"
-                                         style="width: 300px" autocomplete="new-email"
-                                         required="true" requiredMessage="Email is required.">
-                                <p:ajax event="blur" update="email"/>
+                            <p:inputText id="username" value="#{loginBean.email}"
+                                         style="width: 300px" autocomplete="new-username"
+                                         required="true" requiredMessage="Username is required.">
+                                <p:ajax event="blur" update="username"/>
                             </p:inputText>
                         </td>
                     </tr>
