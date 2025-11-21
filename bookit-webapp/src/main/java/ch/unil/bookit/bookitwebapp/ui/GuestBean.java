@@ -68,16 +68,16 @@ public class GuestBean extends Guest implements Serializable {
     }
 
     public void savePasswordChange() throws Exception {
-        if (currentPassword == null || newPassword == null) {
+        if (currentPassword == null || newPassword == null) { // check if required fields are filled
             dialogMessage = "Please enter all the required fields.";
             PrimeFaces.current().executeScript("PF('passwordChangeDialog').show()");
-        } else if (!currentPassword.equals(guest.getPassword())) {
+        } else if (!currentPassword.equals(guest.getPassword())) { // check if the user typed their password correctly
             dialogMessage = "Passwords don't match!";
             PrimeFaces.current().executeScript("PF('passwordChangeDialog').show()");
-        } else if (currentPassword.equals(newPassword)) {
+        } else if (currentPassword.equals(newPassword)) { // check if the old password is not the same as the new one
             dialogMessage = "The new password must be different from the old password.";
             PrimeFaces.current().executeScript("PF('passwordChangeDialog').show()");
-        } else {
+        } else { // change password
             this.setPassword(newPassword);
             updateGuest();
             dialogMessage = "Password successfully changed";
