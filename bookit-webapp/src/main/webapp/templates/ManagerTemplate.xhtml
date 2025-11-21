@@ -6,21 +6,50 @@
                 xmlns:p="http://primefaces.org/ui"
                 template="/templates/CommonTemplate.xhtml">
 
+    <ui:define name="pageTitle">
+        Bookit! – Manager Area
+    </ui:define>
+
     <ui:define name="navigation">
         <h:form>
-            <p:menubar>
-                <p:menuitem value="Manager Home" icon="pi pi-home" outcome="ManagerHome.xhtml"/>
-                <p:menuitem value="Manage Hotels" icon="pi pi-building" outcome="HotelManagement.xhtml"/>
-                <p:menuitem value="Booking Approval" icon="pi pi-calendar-check" outcome="BookingApproval.xhtml"/>
-                <p:menuitem value="My Profile" icon="pi pi-user" outcome="ManagerProfile.xhtml"/>
+
+            <p:menubar styleClass="top-menu">
+
+                <p:menuitem value="Home"
+                            icon="pi pi-home"
+                            outcome="ManagerHome.xhtml"/>
+
+                <p:menuitem value="Hotels"
+                            icon="pi pi-building"
+                            outcome="HotelManagement.xhtml"/>
+
+                <p:menuitem value="Booking approval"
+                            icon="pi pi-calendar-check"
+                            outcome="BookingApproval.xhtml"/>
+
+                <p:menuitem value="My profile"
+                            icon="pi pi-user"
+                            outcome="ManagerProfile.xhtml"/>
+
                 <f:facet name="options">
-                    <p:commandButton value="Logout" icon="pi pi-power-off" action="#{loginBean.logout}" styleClass="ui-button-danger"/>
+                    <h:panelGroup styleClass="menu-options">
+
+                        <h:outputText value="Hi, #{managerBean.loggedInManager.Martha}" styleClass="menu-hello"/>
+
+                        <p:commandButton value="Logout"
+                                         icon="pi pi-power-off"
+                                         action="#{loginBean.logout}"
+                                         styleClass="ui-button-danger nav-logout-button"/>
+                    </h:panelGroup>
                 </f:facet>
+
             </p:menubar>
+
         </h:form>
     </ui:define>
 
     <ui:define name="content">
         <ui:insert name="managerContent"/>
     </ui:define>
+
 </ui:composition>

@@ -9,63 +9,95 @@
 
 <h:head>
     <title>Bookit! Developer Dashboard</title>
-    <h:outputStylesheet name="css/styles.css"/>
+    <h:outputStylesheet library="css" name="styles.css"/>
+    <h:outputStylesheet library="primefaces" name="primeicons/primeicons.css"/>
 </h:head>
-<h:body>
-    <f:view>
-        <div align="center">
-            <h:graphicImage width="100" value="/images/logo.png" style="margin-bottom: 20px;"/>
-            <h2>Bookit! Developer Dashboard</h2>
+
+<h:body class="page-body">
+
+    <div class="page-wrap">
+
+        <div class="header">
+            <h:graphicImage library="images"
+                            name="logo.png"
+                            width="120"
+                            styleClass="header-logo"/>
+
+            <div class="header-title">Bookit! Developer Dashboard</div>
         </div>
 
-        <p:panel style="width: 80%; max-width: 1000px; margin-top: 20px;">
+        <div class="content-card">
 
-            <h3>Service Management</h3>
-            <h:form>
-                <p:commandButton action="#{userData.reset()}" value="RESET ALL DATA"
-                                 onclick="return confirm('WARNING: This will erase all guests, managers, and bookings. Confirm?');"
-                                 styleClass="ui-button-danger"/>
-                <p:messages style="color: red;"/>
-            </h:form>
+            <h2 class="mb-3">Developer Tools</h2>
+            <p class="mb-3">Use this page to reset data and quickly navigate through all Bookit test pages.</p>
 
-            <hr/>
+            <div class="dashboard-grid">
 
-            <h3>Templates</h3>
-            <ul>
-                <li><a href="templates/CommonTemplate.xhtml" target="_blank" rel="noopener noreferrer">Common Template</a></li>
-                <li><a href="templates/GuestTemplate.xhtml" target="_blank" rel="noopener noreferrer">Guest Navigation Template</a></li>
-                <li><a href="templates/ManagerTemplate.xhtml" target="_blank" rel="noopener noreferrer">Manager Navigation Template</a></li>
-            </ul>
+                <p:card styleClass="dashboard-card">
+                    <f:facet name="title">
+                        <i class="pi pi-wrench"></i>&nbsp; Service Management
+                    </f:facet>
 
-            <hr/>
+                    <h:form>
+                        <p class="mb-2">Danger zone – this deletes all guests, managers and bookings.</p>
 
-            <h3>Test User Interface (XHTML Pages)</h3>
+                        <p:commandButton value="Reset All Data"
+                                         icon="pi pi-refresh"
+                                         action="#{userData.reset()}"
+                                         styleClass="ui-button-danger"
+                                         onclick="return confirm('WARNING: This will erase ALL data. Continue?');"/>
 
-            <h4>Authentication &amp; Registration</h4>
-            <ul>
-                <li><a href="Login.xhtml" target="_blank" rel="noopener noreferrer">Login Page</a></li>
-                <li><a href="Register.xhtml" target="_blank" rel="noopener noreferrer">Registration Page</a></li>
-            </ul>
+                        <p:messages styleClass="mt-2"/>
+                    </h:form>
+                </p:card>
 
-            <h4>Guest Journey</h4>
-            <ul>
-                <li><a href="GuestHome.xhtml" target="_blank" rel="noopener noreferrer">Guest Home (Dashboard)</a></li>
-                <li><a href="SearchHotels.xhtml" target="_blank" rel="noopener noreferrer">Search Hotels</a></li>
-                <li><a href="GuestBookings.xhtml" target="_blank" rel="noopener noreferrer">My Bookings</a></li>
-                <li><a href="GuestWallet.xhtml" target="_blank" rel="noopener noreferrer">My Wallet</a></li>
-                <li><a href="GuestProfile.xhtml" target="_blank" rel="noopener noreferrer">My Profile</a></li>
-            </ul>
+                <p:card styleClass="dashboard-card">
+                    <f:facet name="title">
+                        <i class="pi pi-code"></i>&nbsp; Templates
+                    </f:facet>
 
-            <h4>Manager Journey</h4>
-            <ul>
-                <li><a href="ManagerHome.xhtml" target="_blank" rel="noopener noreferrer">Manager Home (Dashboard)</a></li>
-                <li><a href="HotelManagement.xhtml" target="_blank" rel="noopener noreferrer">Hotel Management (Creation/Editing)</a></li>
-                <li><a href="BookingApproval.xhtml" target="_blank" rel="noopener noreferrer">Booking Approval</a></li>
-                <li><a href="ManagerProfile.xhtml" target="_blank" rel="noopener noreferrer">Manager Profile</a></li>
-            </ul>
+                    <ul class="link-list">
+                        <li><a href="templates/CommonTemplate.xhtml" target="_blank">Common Template</a></li>
+                        <li><a href="templates/GuestTemplate.xhtml" target="_blank">Guest Navigation Template</a></li>
+                        <li><a href="templates/ManagerTemplate.xhtml" target="_blank">Manager Navigation Template</a></li>
+                    </ul>
+                </p:card>
 
-        </p:panel>
+                <p:card styleClass="dashboard-card">
+                    <f:facet name="title">
+                        <i class="pi pi-desktop"></i>&nbsp; Test XHTML Pages
+                    </f:facet>
 
-    </f:view>
+                    <h4 class="section-label">Authentication</h4>
+                    <ul class="link-list">
+                        <li><a href="Login.xhtml" target="_blank">Login Page</a></li>
+                        <li><a href="Register.xhtml" target="_blank">Registration Page</a></li>
+                    </ul>
+
+                    <h4 class="section-label">Guest Journey</h4>
+                    <ul class="link-list">
+                        <li><a href="GuestHome.xhtml" target="_blank">Guest Home (Dashboard)</a></li>
+                        <li><a href="SearchHotels.xhtml" target="_blank">Search Hotels</a></li>
+                        <li><a href="GuestBookings.xhtml" target="_blank">My Bookings</a></li>
+                        <li><a href="GuestWallet.xhtml" target="_blank">My Wallet</a></li>
+                        <li><a href="GuestProfile.xhtml" target="_blank">My Profile</a></li>
+                    </ul>
+
+                    <h4 class="section-label">Manager Journey</h4>
+                    <ul class="link-list">
+                        <li><a href="ManagerHome.xhtml" target="_blank">Manager Home</a></li>
+                        <li><a href="HotelManagement.xhtml" target="_blank">Hotel Management</a></li>
+                        <li><a href="BookingApproval.xhtml" target="_blank">Booking Approval</a></li>
+                        <li><a href="ManagerProfile.xhtml" target="_blank">Manager Profile</a></li>
+                    </ul>
+
+                </p:card>
+
+            </div>
+
+        </div>
+
+    </div>
+
 </h:body>
 </html>

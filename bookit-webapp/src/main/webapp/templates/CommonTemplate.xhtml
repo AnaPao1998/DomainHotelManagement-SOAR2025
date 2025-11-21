@@ -9,41 +9,51 @@
 
 <h:head>
     <h:outputStylesheet library="primefaces" name="primeicons/primeicons.css"/>
-    <h:outputStylesheet name="css/styles.css" />
+    <h:outputStylesheet library="css" name="styles.css"/>
 
     <title>
         <ui:insert name="pageTitle">Bookit! - Hotel Booking</ui:insert>
     </title>
 </h:head>
 
-<h:body>
-    <div align="center" style="margin: 15px 0;">
+<h:body class="page-body">
+    <div class="page-wrap">
 
-        <p:panel style="width: 95%; max-width: 1200px; padding: 0;">
+        <!-- HEADER -->
+        <div class="header">
+            <h:graphicImage library="images"
+                            name="logo.png"
+                            width="120"
+                            styleClass="header-logo"/>
 
-            <div style="text-align: center; margin-bottom: 10px; padding-top: 10px;">
-                <h:graphicImage width="180" value="/images/logo.png" style="vertical-align: middle;"/>
-                <h:outputText value=" Bookit! - Book your way to your next getaway" style="font-size: 1.5em; font-weight: bold; margin-left: 15px;"/>
+            <div class="header-title">
+                Bookit! — Book your way to your next getaway
             </div>
+        </div>
 
-            <ui:insert name="navigation">
-            </ui:insert>
 
-            <div style="padding: 10px 0;">
-                <ui:insert name="content">
-                    <p:messages showDetail="true" showSummary="false"/>
-                    <p:growl id="growl" showDetail="true"/>
-                </ui:insert>
-            </div>
+        <div class="nav-bar">
+            <ui:insert name="navigation"/>
+        </div>
 
-            <ui:insert name="footer">
-                <p:separator style="margin-top: 20px;"/>
-                <div style="text-align: center; font-size: 0.85em; color: #666; padding: 10px;">
-                    <h:outputText value="© #{'2025'}. Bookit! - SOAR Project. Images are wireframes provided by the project."/>
-                </div>
-            </ui:insert>
 
-        </p:panel>
+        <div class="content-card">
+            <p:messages showDetail="true"
+                        showSummary="false"
+                        closable="true"
+                        styleClass="mb-2"/>
+
+            <p:growl id="growl" showDetail="true"/>
+
+            <ui:insert name="content"/>
+        </div>
+
+
+        <div class="footer">
+            <p:separator/>
+            <small>© 2025 Bookit! – SOAR Project. Images are wireframes provided by the project.</small>
+        </div>
+
     </div>
 </h:body>
 </html>

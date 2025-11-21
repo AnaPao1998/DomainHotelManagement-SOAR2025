@@ -19,6 +19,7 @@ public class AuthenticationFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
+        // no-op
     }
 
     @Override
@@ -32,7 +33,9 @@ public class AuthenticationFilter implements Filter {
         String requestURI  = req.getRequestURI();
         String path        = requestURI.substring(contextPath.length());
 
-        if (isStaticResource(requestURI, contextPath)) {
+        res.setHeader("X-Auth-Filter", "v2");
+
+        if (isStaticResource(req)) {
             chain.doFilter(request, response);
             return;
         }
@@ -67,8 +70,7 @@ public class AuthenticationFilter implements Filter {
 
         String role = (String) session.getAttribute("role");
 
-
-        // Guest
+        // Guest pages
         Set<String> guestPages = Set.of(
                 "/GuestHome.xhtml",
                 "/GuestBookings.xhtml",
@@ -77,7 +79,7 @@ public class AuthenticationFilter implements Filter {
                 "/CreateBooking.xhtml"
         );
 
-        // Manager
+        // Manager pages
         Set<String> managerPages = Set.of(
                 "/BookingApproval.xhtml",
                 "/HotelManagement.xhtml",
@@ -97,23 +99,34 @@ public class AuthenticationFilter implements Filter {
         if (allowed) {
             chain.doFilter(request, response);
         } else {
-            // Unknown role or forbidden page → back to login
             res.sendRedirect(contextPath + "/Login.xhtml");
         }
     }
 
     @Override
     public void destroy() {
+        // no-op
     }
 
-    private boolean isStaticResource(String requestURI, String contextPath) {
-        return requestURI.startsWith(contextPath + "/resources/")
-                || requestURI.contains("javax.faces.resource")
-                || requestURI.endsWith(".css")
-                || requestURI.endsWith(".js")
-                || requestURI.endsWith(".png")
-                || requestURI.endsWith(".jpg")
-                || requestURI.endsWith(".gif")
-                || requestURI.endsWith(".ico");
+    private boolean isStaticResource(HttpServletRequest req) {
+        String uri = req.getRequestURI();
+
+        return
+                uri.contains("jakarta.faces.resource") ||
+
+                        uri.contains("/resources/") ||
+
+                        // Plain static files
+                        uri.endsWith(".css") ||
+                        uri.endsWith(".js")  ||
+                        uri.endsWith(".png") ||
+                        uri.endsWith(".jpg") ||
+                        uri.endsWith(".jpeg") ||
+                        uri.endsWith(".gif") ||
+                        uri.endsWith(".ico") ||
+                        uri.endsWith(".svg") ||
+
+                        uri.endsWith(".css.xhtml") ||
+                        uri.endsWith(".js.xhtml");
     }
 }
