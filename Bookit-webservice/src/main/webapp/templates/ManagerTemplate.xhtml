@@ -1,0 +1,26 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+                xmlns:h="http://xmlns.jcp.org/jsf/html"
+                xmlns:f="http://xmlns.jcp.org/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                template="/templates/CommonTemplate.xhtml">
+
+    <ui:define name="navigation">
+        <h:form>
+            <p:menubar>
+                <p:menuitem value="Manager Home" icon="pi pi-home" outcome="ManagerHome.xhtml"/>
+                <p:menuitem value="Manage Hotels" icon="pi pi-building" outcome="HotelManagement.xhtml"/>
+                <p:menuitem value="Booking Approval" icon="pi pi-calendar-check" outcome="BookingApproval.xhtml"/>
+                <p:menuitem value="My Profile" icon="pi pi-user" outcome="ManagerProfile.xhtml"/>
+                <f:facet name="options">
+                    <p:commandButton value="Logout" icon="pi pi-power-off" action="#{loginBean.logout}" styleClass="ui-button-danger"/>
+                </f:facet>
+            </p:menubar>
+        </h:form>
+    </ui:define>
+
+    <ui:define name="content">
+        <ui:insert name="managerContent"/>
+    </ui:define>
+</ui:composition>
