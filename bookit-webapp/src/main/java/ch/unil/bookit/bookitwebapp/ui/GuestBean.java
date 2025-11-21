@@ -24,6 +24,7 @@ public class GuestBean extends Guest implements Serializable {
     private String currentPassword;
     private String newPassword;
     private boolean changed;
+    private String dialogMessage;
 
     @Inject
     BookItService service;
@@ -43,6 +44,7 @@ public class GuestBean extends Guest implements Serializable {
         currentPassword = null;
         newPassword = null;
         changed = false;
+        dialogMessage = null;
     }
 
     // password
@@ -64,6 +66,21 @@ public class GuestBean extends Guest implements Serializable {
     }
 
     // guest
+
+    public void updateGuest() {
+        try {
+            UUID uuid = this.getUUID();
+            if (uuid != null) {
+                Response updated_guest = service.updateGuest(this);
+                loadGuest();
+                changed = false;
+            }
+        } catch (Exception e) {
+            dialogMessage = e.getMessage();
+            PrimeFaces.current().executeScript("PF('updateErrorDialog').show();");
+
+        }
+    }
 
     public void loadGuest() {
         var id = this.getUUID();

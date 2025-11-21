@@ -38,7 +38,9 @@ public class ManagerBean extends HotelManager implements Serializable {
         manager = null;
     }
 
-    // load manager
+    // password
+
+    // manager -- TO DO: UPDATE MANAGER
 
     public void loadManager() {
         var id = this.getUUID();
