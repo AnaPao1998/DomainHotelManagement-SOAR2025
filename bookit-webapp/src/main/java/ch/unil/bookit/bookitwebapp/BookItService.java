@@ -154,6 +154,12 @@ public class BookItService {
         return response;
     }
 
+    //update manager
+    public Response updateManager(HotelManager manager) {
+        var response = managerTarget.path("manager").path(manager.getId().toString()).request(MediaType.APPLICATION_JSON).put(Entity.entity(manager, MediaType.APPLICATION_JSON));
+        return response;
+    }
+
     //approve booking
     public Response approveBooking(String manager_id, String booking_id) {
         var response = managerTarget.path(manager_id.toString()).path("bookings").path(booking_id.toString()).path("approve").request(MediaType.APPLICATION_JSON).put(Entity.json(""));

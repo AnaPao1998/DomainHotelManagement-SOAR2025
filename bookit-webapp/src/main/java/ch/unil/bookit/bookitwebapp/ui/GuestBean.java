@@ -123,5 +123,13 @@ public class GuestBean extends Guest implements Serializable {
         }
     }
 
+    // checks if any of the profile fields have been changed
+    public void checkIfChanged() {
+        boolean firstNameChanged = !guest.getFirstName().equals(this.getFirstName());
+        boolean lastNameChanged = !guest.getLastName().equals(this.getLastName());
+        boolean emailChanged = !guest.getEmail().equals(this.getEmail());
+        boolean passwordChanged = !guest.getPassword().equals(this.getPassword());
+        changed = firstNameChanged || lastNameChanged || emailChanged || passwordChanged;
+    }
 
 }

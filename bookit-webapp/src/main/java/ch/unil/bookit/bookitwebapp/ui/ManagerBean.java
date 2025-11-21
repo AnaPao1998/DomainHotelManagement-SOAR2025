@@ -20,6 +20,10 @@ public class ManagerBean extends HotelManager implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private HotelManager manager;
+    private String currentPassword;
+    private String newPassword;
+    private boolean changed;
+    private String dialogMessage;
 
     @Inject
     BookItService service;
@@ -36,11 +40,69 @@ public class ManagerBean extends HotelManager implements Serializable {
 
     public void init() {
         manager = null;
+        currentPassword = null;
+        newPassword = null;
+        changed = false;
+        dialogMessage = null;
     }
 
     // password
 
-    // manager -- TO DO: UPDATE MANAGER
+    public String getCurrentPassword() {
+        return currentPassword;
+    }
+
+    public void setCurrentPassword(String currentPassword) {
+        this.currentPassword = currentPassword;
+    }
+
+    public String getNewPassword() {
+        return newPassword;
+    }
+
+    public void setNewPassword(String newPassword) {
+        this.newPassword = newPassword;
+    }
+
+    public void savePasswordChange() throws Exception {
+        if (currentPassword == null || newPassword == null) { // check if required fields are filled
+            dialogMessage = "Please enter all the required fields.";
+            PrimeFaces.current().executeScript("PF('passwordChangeDialog').show()");
+        } else if (!currentPassword.equals(manager.getPassword())) { // check if the user typed their password correctly
+            dialogMessage = "Passwords don't match!";
+            PrimeFaces.current().executeScript("PF('passwordChangeDialog').show()");
+        } else if (currentPassword.equals(newPassword)) { // check if the old password is not the same as the new one
+            dialogMessage = "The new password must be different from the old password.";
+            PrimeFaces.current().executeScript("PF('passwordChangeDialog').show()");
+        } else { // change password
+            this.setPassword(newPassword);
+            updateManager();
+            dialogMessage = "Password successfully changed";
+            PrimeFaces.current().executeScript("PF('passwordChangeDialog').show()");
+            resetPasswordChange();
+        }
+    }
+
+    public void resetPasswordChange() {
+        this.currentPassword = null;
+        this.newPassword = null;
+    }
+
+    // manager
+
+    public void updateManager() {
+        try {
+            UUID uuid = this.getUUID();
+            if (uuid != null) {
+                Response updated_manager = service.updateManager(this);
+                loadManager();
+                changed = false;
+            }
+        } catch (Exception e) {
+            dialogMessage = e.getMessage();
+            PrimeFaces.current().executeScript("PF('updateErrorDialog').show();");
+        }
+    }
 
     public void loadManager() {
         var id = this.getUUID();
@@ -55,6 +117,15 @@ public class ManagerBean extends HotelManager implements Serializable {
                 this.setLastName(manager.getLastName());
             }
         }
+    }
+
+    // checks if any of the profile fields have been changed
+    public void checkIfChanged() {
+        boolean firstNameChanged = !manager.getFirstName().equals(this.getFirstName());
+        boolean lastNameChanged = !manager.getLastName().equals(this.getLastName());
+        boolean emailChanged = !manager.getEmail().equals(this.getEmail());
+        boolean passwordChanged = !manager.getPassword().equals(this.getPassword());
+        changed = firstNameChanged || lastNameChanged || emailChanged || passwordChanged;
     }
 
 }

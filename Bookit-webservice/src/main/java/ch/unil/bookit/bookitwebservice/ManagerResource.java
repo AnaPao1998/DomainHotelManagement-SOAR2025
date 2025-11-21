@@ -64,12 +64,33 @@ public class ManagerResource {
         return Response.status(Response.Status.NOT_FOUND).build();
     }
 
+    @POST
+    @Path("/manager")
+    public Response createManager(HotelManager manager) {
+        if (manager == null) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+        HotelManager newManager = applicationResource.createManager(manager);
+        return Response.status(Response.Status.CREATED).entity(newManager).build();
+    }
+
     @GET
     @Path("/manager/{managerId}")
     public Response getManager(@PathParam("managerId") UUID managerId) {
         HotelManager manager = applicationResource.getManager(managerId);
         if (manager != null) {
             return Response.ok(manager).build();
+        } else  {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+    }
+
+    @PUT
+    @Path("/manager/{managerId}")
+    public Response updateManager(@PathParam("managerId") UUID managerId, HotelManager manager) {
+        HotelManager updatedManager = applicationResource.updateManager(managerId, manager);
+        if (updatedManager != null) {
+            return Response.ok(updatedManager).build();
         } else  {
             return Response.status(Response.Status.NOT_FOUND).build();
         }

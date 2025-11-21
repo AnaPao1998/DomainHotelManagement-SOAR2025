@@ -16,6 +16,10 @@ public class HotelManager extends User {
     private final EmailService emailService = new EmailService();
     private final CurrencyConverter currencyConverter = new CurrencyConverter();
 
+    public HotelManager() {
+        super();
+    }
+
     public HotelManager(UUID uuid, String email, String password, String firstName, String lastName) {
         super(uuid, email, password, firstName, lastName);
     }

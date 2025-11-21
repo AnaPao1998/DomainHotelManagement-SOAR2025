@@ -46,7 +46,6 @@ public class ApplicationResource {
         return guests.get(id);
     }
 
-
     public Guest updateGuest(UUID id, Guest updatedGuest) {
         if(guests.containsKey(id)){
             updatedGuest.setuuid(id);
@@ -78,12 +77,27 @@ public class ApplicationResource {
         return guest;
     }
 
+    public HotelManager createManager(HotelManager manager){
+        manager.setuuid(UUID.randomUUID());
+        managers.put(manager.getUUID(), manager);
+        return manager;
+    }
+
     public Map<UUID, HotelManager> getAllManagers() {
         return managers;
     }
 
     public HotelManager getManager(UUID managerId) {
         return managers.get(managerId);
+    }
+
+    public HotelManager updateManager(UUID id, HotelManager updatedManager) {
+        if (managers.containsKey(id)) {
+            updatedManager.setuuid(id);
+            managers.put(id, updatedManager);
+            return updatedManager;
+        }
+        return null;
     }
 
     public Hotel createHotel(Hotel hotel) {
