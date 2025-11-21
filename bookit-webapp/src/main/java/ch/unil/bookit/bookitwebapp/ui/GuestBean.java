@@ -14,6 +14,8 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.UUID;
 import jakarta.ws.rs.core.Response;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @SessionScoped
 @Named
@@ -63,6 +65,30 @@ public class GuestBean extends Guest implements Serializable {
 
     public void setNewPassword(String newPassword) {
         this.newPassword = newPassword;
+    }
+
+    public void savePasswordChange() throws Exception {
+        if (currentPassword == null || newPassword == null) {
+            dialogMessage = "Please enter all the required fields.";
+            PrimeFaces.current().executeScript("PF('passwordChangeDialog').show()");
+        } else if (!currentPassword.equals(guest.getPassword())) {
+            dialogMessage = "Passwords don't match!";
+            PrimeFaces.current().executeScript("PF('passwordChangeDialog').show()");
+        } else if (currentPassword.equals(newPassword)) {
+            dialogMessage = "The new password must be different from the old password.";
+            PrimeFaces.current().executeScript("PF('passwordChangeDialog').show()");
+        } else {
+            this.setPassword(newPassword);
+            updateGuest();
+            dialogMessage = "Password successfully changed";
+            PrimeFaces.current().executeScript("PF('passwordChangeDialog').show()");
+            resetPasswordChange();
+        }
+    }
+
+    public void resetPasswordChange() {
+        this.currentPassword = null;
+        this.newPassword = null;
     }
 
     // guest
