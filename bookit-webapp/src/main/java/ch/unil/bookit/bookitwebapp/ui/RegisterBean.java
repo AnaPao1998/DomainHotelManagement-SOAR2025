@@ -26,6 +26,7 @@ public class RegisterBean implements Serializable {
     private String lastName;
     private String email;
     private String password;
+    private String confirmPassword;
     private String role;
 
     @Inject
@@ -40,13 +41,39 @@ public class RegisterBean implements Serializable {
         lastName = null;
         email = null;
         password = null;
+        confirmPassword = null;
         role = null;
     }
 
     public String register() {
         LoginBean.invalidateSession();
-        String hashedPassword = password;
         String errorMessage = null;
+
+        if (isInvalid(password) || isInvalid(confirmPassword)) { // checks if passwords are properly filled
+            FacesContext.getCurrentInstance().
+                    addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Registration failed.", "Please enter a valid password."));
+            return null;
+        }
+
+        if (!password.equals(confirmPassword)) { // checks if passwords match
+            FacesContext.getCurrentInstance()
+                    .addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Registration failed.", "Passwords do not match."));
+            return null;
+        }
+
+        String hashedPassword = password;
+
+        if (isInvalid(firstName) || isInvalid(lastName) ||  isInvalid(email) || isInvalid(password) || isInvalid(role)) { // checks if all required fields are properly filled
+            FacesContext.getCurrentInstance()
+                    .addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "All fields are required.", null));
+            return null;
+        }
+
+        if (!email.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) { // checks email format
+            FacesContext.getCurrentInstance()
+                    .addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Registration failed.", "Please enter a valid email address."));
+            return null;
+        }
 
         switch (role) {
             case "guest":
@@ -120,11 +147,23 @@ public class RegisterBean implements Serializable {
         this.password = password;
     }
 
+    public String getConfirmPassword() {
+        return confirmPassword;
+    }
+
+    public void setConfirmPassword(String confirmPassword) {
+        this.confirmPassword = confirmPassword;
+    }
+
     public String getRole() {
         return role;
     }
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public boolean isInvalid(String value) {
+        return value == null || value.isBlank();
     }
 }
