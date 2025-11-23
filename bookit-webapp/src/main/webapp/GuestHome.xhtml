@@ -6,3 +6,22 @@
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
       xmlns:f="http://xmlns.jcp.org/jsf/core"
       xmlns:p="http://primefaces.org/ui">
+
+<ui:composition template="/templates/GuestTemplate.xhtml">
+
+    <f:metadata>
+        <f:event type="preRenderView" listener="#{guestBean.loadGuest}" />
+    </f:metadata>
+
+    <ui:define name="pageTitle">Bookit | Home</ui:define>
+
+    <ui:define name="guestContent">
+        <h:panelGroup layout="block" styleClass="p-mt-3">
+            <h1>Welcome, #{guestBean.firstName}! </h1>
+            <p>Find your next stay and manage your bookings.</p>
+        </h:panelGroup>
+
+    </ui:define>
+
+</ui:composition>
+</html>
