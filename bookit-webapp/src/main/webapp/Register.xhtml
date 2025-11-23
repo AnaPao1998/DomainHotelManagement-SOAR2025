@@ -15,7 +15,7 @@
     <div align="center" style="margin-top: 50px;">
         <div style="width: 500px; padding: 20px; border: 1px solid #ccc; border-radius: 5px;">
 
-            <h:graphicImage width="100" value="/images/logo.png"/>
+            <h:graphicImage width="100" value="logo.png" library="images"/>
             <h2>Create New User Account</h2>
 
             <h:form id="registerForm">
@@ -38,7 +38,7 @@
                     <h:inputText id="firstName" value="#{registerBean.firstName}"
                                  required="true" requiredMessage="First Name is required."
                                  styleClass="form-control"/>
-                    <h:message for="firstName" style="color: red;"/>
+                    <h:message for="password" style="color: red;"/>
 
                     <h:outputLabel for="lastName" value="Last Name:"/>
                     <h:inputText id="lastName" value="#{registerBean.lastName}"
@@ -56,6 +56,13 @@
                     <h:outputLabel for="password" value="Password:"/>
                     <h:inputSecret id="password" value="#{registerBean.password}"
                                    required="true" requiredMessage="Password is required."
+                                   autocomplete="new-password"
+                                   styleClass="form-control"/>
+                    <h:message for="password" style="color: red;"/>
+
+                    <h:outputLabel for="confirmPassword" value="Confirm Password:"/>
+                    <h:inputSecret id="confirmPassword" value="#{registerBean.confirmPassword}"
+                                   required="true" requiredMessage="Confirm Password is required."
                                    autocomplete="new-password"
                                    styleClass="form-control"/>
                     <h:message for="password" style="color: red;"/>
