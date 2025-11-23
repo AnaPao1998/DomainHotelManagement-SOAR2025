@@ -133,4 +133,8 @@ public class GuestBean extends Guest implements Serializable {
         boolean passwordChanged = !guest.getPassword().equals(this.getPassword());
         changed = firstNameChanged || lastNameChanged || emailChanged || passwordChanged;
     }
+
+    public boolean isChanged() {
+        return changed;
+    }
 }
