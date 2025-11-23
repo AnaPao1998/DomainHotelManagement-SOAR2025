@@ -137,4 +137,12 @@ public class GuestBean extends Guest implements Serializable {
     public boolean isChanged() {
         return changed;
     }
+
+    public String getDialogMessage() {
+        return dialogMessage;
+    }
+
+    public void setDialogMessage(String dialogMessage) {
+        this.dialogMessage = dialogMessage;
+    }
 }
