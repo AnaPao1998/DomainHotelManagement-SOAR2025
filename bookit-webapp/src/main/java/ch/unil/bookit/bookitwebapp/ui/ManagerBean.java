@@ -136,4 +136,8 @@ public class ManagerBean extends HotelManager implements Serializable {
         changed = firstNameChanged || lastNameChanged || emailChanged || passwordChanged;
     }
 
+    // added for the managerProfile.xhtml
+    public boolean isChanged() {
+        return changed;
+    }
 }
