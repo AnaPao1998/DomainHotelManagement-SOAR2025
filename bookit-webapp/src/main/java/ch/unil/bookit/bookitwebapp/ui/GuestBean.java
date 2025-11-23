@@ -119,6 +119,8 @@ public class GuestBean extends Guest implements Serializable {
                 this.setPassword(guest.getPassword());
                 this.setFirstName(guest.getFirstName());
                 this.setLastName(guest.getLastName());
+                this.setBalance(guest.getBalance());
+                this.setBookings(guest.getBookings());
             }
         }
     }

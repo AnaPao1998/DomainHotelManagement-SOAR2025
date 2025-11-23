@@ -6,3 +6,35 @@
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
       xmlns:f="http://xmlns.jcp.org/jsf/core"
       xmlns:p="http://primefaces.org/ui">
+
+
+<ui:composition template="/templates/GuestTemplate.xhtml">
+    <ui:define name="guestContent">
+        <div class="content-card">
+            <h2>My Booking History</h2>
+
+            <h:form id="historyForm">
+                <p:dataTable var="booking" value="#{guestBean.bookings}"
+                             emptyMessage="You have no bookings yet."
+                             stripedRows="true"
+                             paginator="true" rows="5">
+
+                    <p:column headerText="Booking ID" sortBy="#{booking.bookingId}">
+                        <h:outputText value="#{booking.bookingId}" />
+                    </p:column>
+
+                    <p:column headerText="Date" sortBy="#{booking.createdAt}">
+                        <h:outputText value="#{booking.createdAt}" />
+                    </p:column>
+
+                    <p:column headerText="Status" sortBy="#{booking.status}">
+                        <p:tag value="#{booking.status}"
+                               severity="#{booking.status == 'CONFIRMED' ? 'success' : (booking.status == 'CANCELLED' ? 'danger' : 'warning')}" />
+                    </p:column>
+
+                </p:dataTable>
+            </h:form>
+        </div>
+    </ui:define>
+</ui:composition>
+</html>

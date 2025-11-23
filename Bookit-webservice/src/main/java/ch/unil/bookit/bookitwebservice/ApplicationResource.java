@@ -204,10 +204,12 @@ public class ApplicationResource {
         UUID bookingId1 = UUID.randomUUID();
         Booking b1 = new Booking(bookingId1, hotelId, guestId1, stdRoomTypeId);
         bookings.put(bookingId1, b1);
+        guest1.addBooking(b1);
 
         UUID bookingId2 = UUID.randomUUID();
         Booking b2 = new Booking(bookingId2, hotelId, guestId2, dlxRoomTypeId);
         bookings.put(bookingId2, b2);
+        guest2.addBooking(b2);
 
         defaultManager.approveBooking(b1, guests);
         defaultManager.cancelBooking(b2, guests);
