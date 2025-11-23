@@ -134,6 +134,7 @@ public class GuestBean extends Guest implements Serializable {
         changed = firstNameChanged || lastNameChanged || emailChanged || passwordChanged;
     }
 
+    
     public boolean isChanged() {
         return changed;
     }
