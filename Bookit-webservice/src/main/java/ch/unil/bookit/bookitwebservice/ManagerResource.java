@@ -104,6 +104,16 @@ public class ManagerResource {
         return Response.ok(managers).build();
     }
 
+    @DELETE
+    @Path("/hotelmanager/{managerId}")
+    public Response deleteManager(@PathParam("managerId") UUID managerId) {
+        boolean deleted = applicationResource.deleteManager(managerId);
+        if (deleted) {
+            return Response.noContent().build(); // 204
+        }
+        return Response.status(Response.Status.NOT_FOUND).build();
+    }
+
     @PUT
     @Path("/{managerId}/bookings/{bookingId}/approve")
     public Response approveBooking(
@@ -125,7 +135,7 @@ public class ManagerResource {
         }
 
         try {
-            manager.approveBooking(booking, applicationResource.getAllGuests());
+            manager.approveBooking(booking, applicationResource.getAllGuests());pull
             applicationResource.saveBooking(booking);   // keep storage in sync
             return Response.ok(booking).build();
         } catch (IllegalStateException ex) {
