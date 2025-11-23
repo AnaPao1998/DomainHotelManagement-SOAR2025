@@ -135,7 +135,7 @@ public class ManagerResource {
         }
 
         try {
-            manager.approveBooking(booking, applicationResource.getAllGuests());pull
+            manager.approveBooking(booking, applicationResource.getAllGuests());
             applicationResource.saveBooking(booking);   // keep storage in sync
             return Response.ok(booking).build();
         } catch (IllegalStateException ex) {
