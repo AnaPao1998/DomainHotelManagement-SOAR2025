@@ -46,6 +46,14 @@ public class ManagerBean extends HotelManager implements Serializable {
         dialogMessage = null;
     }
 
+    public String getDialogMessage() {
+        return dialogMessage;
+    }
+
+    public void setDialogMessage(String dialogMessage) {
+        this.dialogMessage = dialogMessage;
+    }
+
     // password
 
     public String getCurrentPassword() {
