@@ -232,4 +232,8 @@ public class ApplicationResource {
         }
         return null;
     }
+    public boolean deleteManager(UUID managerId) {
+        // Assuming managers are stored in a Map<UUID, HotelManager>
+        return getAllManagers().remove(managerId) != null;
+    }
 }

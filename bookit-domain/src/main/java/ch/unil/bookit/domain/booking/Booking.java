@@ -6,6 +6,8 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import jakarta.json.bind.annotation.JsonbTransient;
+
 
 public class Booking {
 
@@ -19,6 +21,7 @@ public class Booking {
     private Instant createdAt = Instant.now();
     private Instant updatedAt = Instant.now();
 
+    @JsonbTransient
     private Guest guest;
 
     public Booking() {

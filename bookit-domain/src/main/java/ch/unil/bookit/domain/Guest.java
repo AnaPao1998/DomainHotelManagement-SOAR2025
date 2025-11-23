@@ -56,7 +56,6 @@ public class Guest extends User {
         booking.markCancelled();
         return true;
     }
-
     public void setBookings(List<Booking> bookingList) {
         this.bookings.clear();
         if (bookingList != null) {
