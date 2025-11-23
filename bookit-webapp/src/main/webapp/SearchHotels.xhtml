@@ -7,3 +7,22 @@
       xmlns:f="http://xmlns.jcp.org/jsf/core"
       xmlns:p="http://primefaces.org/ui">
 
+<ui:composition template="/templates/GuestTemplate.xhtml">
+
+    <f:metadata>
+        <f:event type="preRenderView" listener="#{guestBean.loadGuest}" />
+    </f:metadata>
+
+    <ui:define name="pageTitle">Bookit | Search Hotels</ui:define>
+
+    <ui:define name="guestContent">
+
+        <h:panelGroup layout="block" styleClass="p-mt-3 p-mb-4">
+            <h1>Find a Hotel :</h1>
+            <p>Enter your dates and destination to start your search.</p>
+        </h:panelGroup>
+
+    </ui:define>
+
+</ui:composition>
+</html>
