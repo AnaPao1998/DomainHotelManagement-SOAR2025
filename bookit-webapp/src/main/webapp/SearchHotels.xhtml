@@ -11,6 +11,7 @@
 
     <f:metadata>
         <f:event type="preRenderView" listener="#{guestBean.loadGuest}" />
+        <f:event type="preRenderView" listener="#{guestBean.loadHotels}" />
     </f:metadata>
 
     <ui:define name="pageTitle">Bookit | Search Hotels</ui:define>
@@ -21,6 +22,53 @@
             <h1>Find a Hotel :</h1>
             <p>Enter your dates and destination to start your search.</p>
         </h:panelGroup>
+
+        <!-- Table of hotels -->
+        <p:dataTable value="#{guestBean.hotels}" var="hotel"
+                     paginator="true" rows="10"
+                     emptyMessage="No hotels found."
+                     styleClass="p-mt-3">
+
+            <!-- Hotel ID (optional, but useful for debugging) -->
+            <p:column headerText="ID">
+                <h:outputText value="#{hotel.hotelId}" />
+            </p:column>
+
+            <!-- Name -->
+            <p:column headerText="Name">
+                <h:outputText value="#{hotel.name}" />
+            </p:column>
+
+            <!-- City -->
+            <p:column headerText="City">
+                <h:outputText value="#{hotel.city}" />
+            </p:column>
+
+            <!-- Country -->
+            <p:column headerText="Country">
+                <h:outputText value="#{hotel.country}" />
+            </p:column>
+
+            <!-- Address -->
+            <p:column headerText="Address">
+                <h:outputText value="#{hotel.address}" />
+            </p:column>
+
+            <!-- Nightly price -->
+            <p:column headerText="Price / Night">
+                <h:outputText value="#{hotel.nightPrice}">
+                    <!-- Format as a number with 2 decimals -->
+                    <f:convertNumber type="number" minFractionDigits="2" maxFractionDigits="2" />
+                </h:outputText>
+            </p:column>
+
+            <!-- Published status -->
+            <p:column headerText="Status">
+                <h:outputText value="#{hotel.published ? 'Published' : 'Unpublished'}" />
+            </p:column>
+
+        </p:dataTable>
+
 
     </ui:define>
 
