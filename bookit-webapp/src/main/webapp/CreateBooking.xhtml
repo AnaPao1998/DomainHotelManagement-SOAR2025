@@ -6,3 +6,99 @@
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
       xmlns:f="http://xmlns.jcp.org/jsf/core"
       xmlns:p="http://primefaces.org/ui">
+
+<ui:composition template="/templates/GuestTemplate.xhtml">
+
+    <f:metadata>
+        <f:event type="preRenderView" listener="#{guestBean.loadGuest}" />
+    </f:metadata>
+
+    <ui:define name="pageTitle">Bookit | New Booking</ui:define>
+
+    <ui:define name="guestContent">
+
+        <h:panelGroup layout="block" styleClass="p-mt-3 p-mb-4">
+            <h1>Create a New Booking </h1>
+            <p>Please enter the criteria to find and submit your reservation.</p>
+        </h:panelGroup>
+
+        <p:growl id="infoGrowl" showDetail="true" life="4000"/>
+
+        <p:card title="1. Search Criteria" styleClass="p-shadow-2 p-mb-4">
+            <h:form id="searchForm">
+                <p:panelGrid columns="1" layout="grid" styleClass="ui-fluid">
+
+                    <div class="p-grid">
+
+                        <div class="p-col-12 p-md-4">
+                            <p:outputLabel for="city" value="City"/>
+                            <p:inputText id="city" placeholder="Destination"/>
+                        </div>
+
+                        <div class="p-col-12 p-md-3">
+                            <p:outputLabel for="checkIn" value="Check-in Date"/>
+                            <p:calendar id="checkIn" pattern="dd/MM/yyyy" mask="true" required="true"/>
+                        </div>
+
+                        <div class="p-col-12 p-md-3">
+                            <p:outputLabel for="checkOut" value="Check-out Date"/>
+                            <p:calendar id="checkOut" pattern="dd/MM/yyyy" mask="true" required="true"/>
+                        </div>
+
+                        <div class="p-col-12 p-md-2 p-d-flex p-align-end">
+                            <p:commandButton value="Search"
+                                             update=":resultsPanel infoGrowl"
+                                             icon="pi pi-search"
+                                             styleClass="ui-button-success p-mb-0"/>
+                        </div>
+                    </div>
+                </p:panelGrid>
+            </h:form>
+        </p:card>
+
+        <p:panel id="resultsPanel" header="2. Select a Hotel" styleClass="p-mt-4">
+
+            <p:dataTable var="hotel"
+                         emptyMessage="Run a search to see results here."
+                         paginator="true" rows="5">
+
+                <p:column headerText="Hotel Name">
+                    <h:outputText value="Name" />
+                </p:column>
+
+                <p:column headerText="Address">
+                    <h:outputText value="Address" />
+                </p:column>
+
+                <p:column headerText="Action" width="120" style="text-align: center;">
+                    <p:commandButton value="Select"
+                                     update=":confirmationForm:confirmationPanel"
+                                     styleClass="ui-button-primary"/>
+                </p:column>
+
+            </p:dataTable>
+        </p:panel>
+
+        <p:separator/>
+
+        <p:panel header="3. Finalize Reservation" styleClass="p-mt-4">
+            <h:form id="confirmationForm">
+
+                <h:panelGroup id="confirmationPanel">
+                    <h:outputText value="Select a hotel in Step 2 to finalize the booking."
+                                  style="color: var(--text-color-secondary);"/>
+
+                </h:panelGroup>
+
+            </h:form>
+        </p:panel>
+
+        <p:dialog widgetVar="messageDialog" header="Operation Status" modal="true" width="300">
+            <h:outputText value="#{guestBean.dialogMessage}" />
+            <p:commandButton value="Close" onclick="PF('messageDialog').hide()" type="button" styleClass="p-mt-3"/>
+        </p:dialog>
+
+    </ui:define>
+
+</ui:composition>
+</html>
