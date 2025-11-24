@@ -1,7 +1,7 @@
 package ch.unil.bookit.bookitwebapp;
 import ch.unil.bookit.domain.*;
 
-        import ch.unil.bookit.domain.booking.Booking;
+import ch.unil.bookit.domain.booking.Booking;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.client.Client;
