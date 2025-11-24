@@ -7,34 +7,50 @@
       xmlns:f="http://xmlns.jcp.org/jsf/core"
       xmlns:p="http://primefaces.org/ui">
 
-
 <ui:composition template="/templates/GuestTemplate.xhtml">
+
+    <f:metadata>
+        <f:event type="preRenderView" listener="#{guestBean.loadGuest}" />
+    </f:metadata>
+
+    <ui:define name="pageTitle">Bookit | My Bookings</ui:define>
+
     <ui:define name="guestContent">
         <div class="content-card">
-            <h2>My Booking History</h2>
+            <h1>My Booking History</h1>
+            <p:growl id="infoGrowl" showDetail="true" life="4000"/>
 
             <h:form id="historyForm">
-                <p:dataTable var="booking" value="#{guestBean.bookings}"
-                             emptyMessage="You have no bookings yet."
-                             stripedRows="true"
-                             paginator="true" rows="5">
 
-                    <p:column headerText="Booking ID" sortBy="#{booking.bookingId}">
+                <p:dataTable var="booking" value="#{guestBean.bookings}"
+                             emptyMessage="You do not have any bookings yet."
+                             stripedRows="true"
+                             paginator="true" rows="5"
+                             resizableColumns="true">
+
+                    <p:column headerText="Booking ID" sortBy="#{booking.bookingId}" width="300">
                         <h:outputText value="#{booking.bookingId}" />
                     </p:column>
 
-                    <p:column headerText="Date" sortBy="#{booking.createdAt}">
-                        <h:outputText value="#{booking.createdAt}" />
+                    <p:column headerText="Hotel ID" sortBy="#{booking.hotelId}">
+                        <h:outputText value="#{booking.hotelId}" />
                     </p:column>
 
-                    <p:column headerText="Status" sortBy="#{booking.status}">
+                    <p:column headerText="Date Booked" sortBy="#{booking.createdAt}">
+                        <h:outputText value="#{guestBean.getFormattedDate(booking.createdAt)}" />
+                    </p:column>
+
+                    <p:column headerText="Status" sortBy="#{booking.status}" width="120" style="text-align: center;">
                         <p:tag value="#{booking.status}"
                                severity="#{booking.status == 'CONFIRMED' ? 'success' : (booking.status == 'CANCELLED' ? 'danger' : 'warning')}" />
                     </p:column>
 
                 </p:dataTable>
+
             </h:form>
+
         </div>
     </ui:define>
+
 </ui:composition>
 </html>

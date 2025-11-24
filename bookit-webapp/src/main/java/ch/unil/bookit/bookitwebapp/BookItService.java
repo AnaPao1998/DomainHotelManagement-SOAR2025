@@ -1,6 +1,8 @@
 package ch.unil.bookit.bookitwebapp;
-import ch.unil.bookit.domain.*;
 
+import ch.unil.bookit.domain.Guest;
+import ch.unil.bookit.domain.Hotel;
+import ch.unil.bookit.domain.HotelManager;
 import ch.unil.bookit.domain.booking.Booking;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -12,8 +14,8 @@ import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.UUID;
 
 @ApplicationScoped
 public class BookItService {
@@ -63,6 +65,16 @@ public class BookItService {
     public Response deleteBooking(String id) {
         Response response = bookingTarget.path(id.toString()).request(MediaType.APPLICATION_JSON).delete();
         return response;
+    }
+
+    //booking per guest
+    public List<Booking> getBookingsForGuest(UUID guestId) {
+        //GET /api/bookings/guest/{guestId}
+        return bookingTarget
+                .path("guest")
+                .path(guestId.toString())
+                .request(MediaType.APPLICATION_JSON)
+                .get(new GenericType<List<Booking>>() {});
     }
 
     // GUEST OPERATIONS
