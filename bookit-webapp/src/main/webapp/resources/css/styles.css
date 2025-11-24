@@ -178,3 +178,34 @@
     color: #666;
     font-size: 0.85rem;
 }
+
+.register-grid {
+    margin: 0 auto;
+    padding: 10px;
+    text-align: left;
+}
+
+.label-col {
+    width: 140px;
+    text-align: right;
+    padding-right: 8px;
+    vertical-align: middle;
+}
+
+.field-col {
+    width: 220px;
+}
+
+.message-col {
+    width: 140px;
+}
+
+.form-control {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.field-error {
+    color: red;
+    font-size: 0.85em;
+}
