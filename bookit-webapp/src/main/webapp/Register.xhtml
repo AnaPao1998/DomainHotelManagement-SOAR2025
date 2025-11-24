@@ -15,10 +15,7 @@
     <div align="center" style="margin-top: 50px;">
         <div style="width: 500px; padding: 20px; border: 1px solid #ccc; border-radius: 5px;">
 
-            <h:graphicImage library="images"
-                            name="logoBookit.png"
-                            width="120"
-                            styleClass="header-logo"/>
+            <h:graphicImage width="100" value="logo.png" library="images"/>
             <h2>Create New User Account</h2>
 
             <h:form id="registerForm">
@@ -26,9 +23,7 @@
                 <h:messages globalOnly="true" style="color: red;"/>
                 <p:growl id="growl" showDetail="true" life="5000"/>
 
-                <h:panelGrid columns="3"
-                             styleClass="register-grid"
-                             columnClasses="label-col,field-col,message-col">
+                <h:panelGrid columns="2" style="margin: 0 auto; text-align: left; padding: 10px;">
 
                     <h:outputLabel value="Select Role:" style="font-weight: bold;"/>
                     <p:selectOneRadio id="selectUserRole" value="#{registerBean.role}"
@@ -38,40 +33,39 @@
                         <f:selectItem itemLabel="Traveler (Guest)" itemValue="guest"/>
                         <f:selectItem itemLabel="Hotel Manager" itemValue="manager"/>
                     </p:selectOneRadio>
-                    <h:message for="selectUserRole" styleClass="field-error"/>
 
                     <h:outputLabel for="firstName" value="First Name:"/>
                     <h:inputText id="firstName" value="#{registerBean.firstName}"
                                  required="true" requiredMessage="First Name is required."
                                  styleClass="form-control"/>
-                    <h:message for="firstName" styleClass="field-error"/>
+                    <h:message for="password" style="color: red;"/>
 
                     <h:outputLabel for="lastName" value="Last Name:"/>
                     <h:inputText id="lastName" value="#{registerBean.lastName}"
                                  required="true" requiredMessage="Last Name is required."
                                  styleClass="form-control"/>
-                    <h:message for="lastName" styleClass="field-error"/>
+                    <h:message for="lastName" style="color: red;"/>
 
                     <h:outputLabel for="email" value="Email:"/>
                     <h:inputText id="email" value="#{registerBean.email}"
                                  required="true" requiredMessage="Email is required."
                                  autocomplete="email"
                                  styleClass="form-control"/>
-                    <h:message for="email" styleClass="field-error"/>
+                    <h:message for="email" style="color: red;"/>
 
                     <h:outputLabel for="password" value="Password:"/>
                     <h:inputSecret id="password" value="#{registerBean.password}"
                                    required="true" requiredMessage="Password is required."
                                    autocomplete="new-password"
                                    styleClass="form-control"/>
-                    <h:message for="password" styleClass="field-error"/>
+                    <h:message for="password" style="color: red;"/>
 
                     <h:outputLabel for="confirmPassword" value="Confirm Password:"/>
                     <h:inputSecret id="confirmPassword" value="#{registerBean.confirmPassword}"
                                    required="true" requiredMessage="Confirm Password is required."
                                    autocomplete="new-password"
                                    styleClass="form-control"/>
-                    <h:message for="confirmPassword" styleClass="field-error"/>
+                    <h:message for="password" style="color: red;"/>
 
                     <h:outputText value=""/>
                     <h:commandButton id="registerButton" value="Sign Up"
@@ -79,7 +73,6 @@
                                      oncomplete="#{registerBean.reset()}"
                                      update="registerForm growl"
                                      style="margin-top: 10px;"/>
-                    <h:outputText value=""/>
                 </h:panelGrid>
 
             </h:form>
