@@ -180,7 +180,15 @@ public class BookItService {
         var response = managerTarget.path(manager_id.toString()).path("bookings").path(booking_id.toString()).path("cancel").request(MediaType.APPLICATION_JSON).put(Entity.json(""));
         return response;
     }
-
+    //get bookings per guest
+    public List<Booking> getBookingsForGuest(UUID guestId) {
+        //GET /api/bookings/guest/{guestId}
+        return bookingTarget
+                .path("guest")
+                .path(guestId.toString())
+                .request(MediaType.APPLICATION_JSON)
+                .get(new GenericType<List<Booking>>() {});
+    }
     // USER OPERATIONS
 
     //authenticate

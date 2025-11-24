@@ -67,7 +67,29 @@ public class Booking {
         this.status = status;
         this.updatedAt = Instant.now();
     }
+    public void setBookingId(UUID bookingId) {
+        this.bookingId = bookingId;
+    }
 
+    public void setHotelId(UUID hotelId) {
+        this.hotelId = hotelId;
+    }
+
+    public void setUserId(UUID userId) {
+        this.userId = userId;
+    }
+
+    public void setRoomTypeId(UUID roomTypeId) {
+        this.roomTypeId = roomTypeId;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
+    }
     public Guest resolveGuest(Map<UUID, Guest> guests) {
         if (guests == null) {
             throw new IllegalArgumentException("Guest map cannot be null");

@@ -3,6 +3,7 @@ package ch.unil.bookit.bookitwebapp.ui;
 import ch.unil.bookit.bookitwebapp.BookItService;
 import ch.unil.bookit.domain.Guest;
 import ch.unil.bookit.domain.Hotel;
+import ch.unil.bookit.domain.booking.Booking;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -15,6 +16,8 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.FacesContext;
 
 @SessionScoped
 @Named
@@ -134,9 +137,8 @@ public class GuestBean extends Guest implements Serializable {
                 this.setFirstName(guest.getFirstName());
                 this.setLastName(guest.getLastName());
                 this.setBalance(guest.getBalance());
-                //List<Booking> freshBookings = service.getBookingsForGuest(id);
-                //this.setBookings(freshBookings);
-
+                List<Booking> freshBookings = service.getBookingsForGuest(id);
+                this.setBookings(freshBookings);
             }
         }
     }
@@ -170,5 +172,19 @@ public class GuestBean extends Guest implements Serializable {
                 .withZone(ZoneId.systemDefault());
 
         return formatter.format(instant);
+    }
+
+    public void cancelBooking(Booking booking) {
+        try {
+            booking.markCancelled();
+            service.updateBooking(booking);
+            loadGuest();
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Booking Cancelled", "Your booking has been cancelled."));
+
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Could not cancel booking."));
+        }
     }
 }

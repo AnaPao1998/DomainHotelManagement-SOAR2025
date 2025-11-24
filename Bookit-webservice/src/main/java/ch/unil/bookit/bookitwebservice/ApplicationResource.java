@@ -206,6 +206,12 @@ public class ApplicationResource {
         bookings.put(bookingId1, b1);
         guest1.addBooking(b1);
 
+        UUID pendingBookingId = UUID.randomUUID();
+        Booking pendingBooking = new Booking(pendingBookingId, hotelId, guestId1, dlxRoomTypeId);
+        pendingBooking.setStatus(ch.unil.bookit.domain.booking.BookingStatus.PENDING);
+        bookings.put(pendingBookingId, pendingBooking);
+        guest1.addBooking(pendingBooking);
+
         UUID bookingId2 = UUID.randomUUID();
         Booking b2 = new Booking(bookingId2, hotelId, guestId2, dlxRoomTypeId);
         bookings.put(bookingId2, b2);

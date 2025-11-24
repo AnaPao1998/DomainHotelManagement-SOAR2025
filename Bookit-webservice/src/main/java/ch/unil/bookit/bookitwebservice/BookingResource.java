@@ -53,7 +53,6 @@ public class BookingResource {
         return Response.ok(new ArrayList<>(all)).build();
     }
 
-    // ✅ Get a specific booking by ID
     @GET
     @Path("/{bookingId}")
     public Response getBooking(@PathParam("bookingId") UUID bookingId) {
@@ -95,5 +94,23 @@ public class BookingResource {
             return Response.status(Response.Status.NOT_FOUND)
                     .entity("Booking not found: " + bookingId).build();
         }
+    }
+
+    //GET /api/bookings/guest/{guestId}
+    @GET
+    @Path("/guest/{guestId}")
+    public Response getBookingsByGuest(@PathParam("guestId") UUID guestId) {
+        ArrayList<Booking> guestBookings = new ArrayList<>();
+
+        //all bookings in the system
+        for (Booking b : applicationResource.getBookings().values()) {
+            //if the booking's User ID matches the requested Guest ID, add it
+            if (b.getUserId() != null && b.getUserId().equals(guestId)) {
+                guestBookings.add(b);
+            }
+        }
+
+        //return the filtered list
+        return Response.ok(guestBookings).build();
     }
 }
