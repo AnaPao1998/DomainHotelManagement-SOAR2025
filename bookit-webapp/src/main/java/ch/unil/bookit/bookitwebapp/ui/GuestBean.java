@@ -2,14 +2,19 @@ package ch.unil.bookit.bookitwebapp.ui;
 
 import ch.unil.bookit.bookitwebapp.BookItService;
 import ch.unil.bookit.domain.*;
+import ch.unil.bookit.domain.booking.Booking;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import org.primefaces.PrimeFaces;
 
+import ch.unil.bookit.domain.Hotel;
+import jakarta.ws.rs.core.Response;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.UUID;
@@ -120,7 +125,9 @@ public class GuestBean extends Guest implements Serializable {
                 this.setFirstName(guest.getFirstName());
                 this.setLastName(guest.getLastName());
                 this.setBalance(guest.getBalance());
-                this.setBookings(guest.getBookings());
+                List<Booking> freshBookings = service.getBookingsForGuest(id);
+                this.setBookings(freshBookings);
+
             }
         }
     }
@@ -145,5 +152,14 @@ public class GuestBean extends Guest implements Serializable {
 
     public void setDialogMessage(String dialogMessage) {
         this.dialogMessage = dialogMessage;
+    }
+
+
+    public String getFormattedDate(java.time.Instant instant) {
+        if (instant == null) return "";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy")
+                .withZone(ZoneId.systemDefault());
+
+        return formatter.format(instant);
     }
 }
