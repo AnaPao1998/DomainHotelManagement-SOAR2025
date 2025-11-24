@@ -62,29 +62,7 @@ public class Booking {
         this.status = BookingStatus.COMPLETED;
         this.updatedAt = Instant.now();
     }
-    public void setBookingId(UUID bookingId) {
-        this.bookingId = bookingId;
-    }
 
-    public void setHotelId(UUID hotelId) {
-        this.hotelId = hotelId;
-    }
-
-    public void setUserId(UUID userId) {
-        this.userId = userId;
-    }
-
-    public void setRoomTypeId(UUID roomTypeId) {
-        this.roomTypeId = roomTypeId;
-    }
-
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
-    }
     public void setStatus(BookingStatus status) {
         this.status = status;
         this.updatedAt = Instant.now();

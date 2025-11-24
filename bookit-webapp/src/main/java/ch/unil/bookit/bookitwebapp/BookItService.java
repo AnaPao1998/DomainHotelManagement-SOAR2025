@@ -65,17 +65,6 @@ public class BookItService {
         return response;
     }
 
-
-    //booking per guest
-    public List<Booking> getBookingsForGuest(UUID guestId) {
-        //GET /api/bookings/guest/{guestId}
-        return bookingTarget
-                .path("guest")
-                .path(guestId.toString())
-                .request(MediaType.APPLICATION_JSON)
-                .get(new GenericType<List<Booking>>() {});
-    }
-
     // GUEST OPERATIONS
 
     //create guest
