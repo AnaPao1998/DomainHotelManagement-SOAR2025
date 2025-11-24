@@ -3,7 +3,6 @@ package ch.unil.bookit.bookitwebapp.ui;
 import ch.unil.bookit.bookitwebapp.BookItService;
 import ch.unil.bookit.domain.Guest;
 import ch.unil.bookit.domain.Hotel;
-import ch.unil.bookit.domain.booking.Booking;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -135,8 +134,8 @@ public class GuestBean extends Guest implements Serializable {
                 this.setFirstName(guest.getFirstName());
                 this.setLastName(guest.getLastName());
                 this.setBalance(guest.getBalance());
-                List<Booking> freshBookings = service.getBookingsForGuest(id);
-                this.setBookings(freshBookings);
+                //List<Booking> freshBookings = service.getBookingsForGuest(id);
+                //this.setBookings(freshBookings);
 
             }
         }
