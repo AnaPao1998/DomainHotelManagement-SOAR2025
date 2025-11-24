@@ -1,5 +1,6 @@
 package ch.unil.bookit.bookitwebservice;
 
+import ch.unil.bookit.domain.Guest;
 import ch.unil.bookit.domain.booking.Booking;
 import ch.unil.bookit.domain.booking.BookingStatus;
 import jakarta.inject.Inject;
@@ -38,6 +39,10 @@ public class BookingResource {
         newBooking.setStatus(BookingStatus.PENDING);
 
         applicationResource.getBookings().put(bookingId, newBooking);
+        Guest guest = applicationResource.getGuest(booking.getUserId());
+        if (guest != null) {
+            guest.addBooking(newBooking);
+        }
         return Response.status(Response.Status.CREATED).entity(newBooking).build();
     }
 
