@@ -31,6 +31,21 @@ public class GuestBean extends Guest implements Serializable {
     @Inject
     BookItService service;
 
+    // getting list of hotels
+    private List<Hotel> hotels;
+    public List<Hotel> getHotels() {
+        return hotels;
+    }
+    public void loadHotels() {
+        try {
+            // Call the REST endpoint: GET /api/hotelmanager
+            hotels = service.getAllHotels();
+        } catch (Exception e) {
+            // show dialog or log if needed
+            hotels = Collections.emptyList();
+        }
+    }
+
     public GuestBean() {
         this(null, null, null, null, null);
     }

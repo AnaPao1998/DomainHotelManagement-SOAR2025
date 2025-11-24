@@ -91,12 +91,31 @@ public class Hotel {
     public UUID getHotelId() { return hotelId; }
     public void setHotelId(UUID hotelId) { this.hotelId = hotelId; }
     public String getName() { return name; }
+    public void setName(String name) {
+        this.name = name;
+    }
     public String getDescription() { return description; }
+    public void setDescription(String description) {
+        this.description = description;
+    }
     public String getCity() { return city; }
+    public void setCity(String city) {
+        this.city = city;
+    }
+
     public String getCountry() { return country; }
+    public void setCountry(String country) {
+        this.country = country;
+    }
     public String getAddress() { return address; }
+    public void setAddress(String address) {
+        this.address = address;
+    }
     public BigDecimal getNightPrice() { return nightPrice; }
     public boolean isPublished() { return published; }
+    public void setPublished(boolean published) {
+        this.published = published;
+    }
 
     private static String requireNonBlank(String s, String field) {
         if (s == null || s.trim().isEmpty())
@@ -108,6 +127,20 @@ public class Hotel {
         if (v == null || v.signum() <= 0)
             throw new IllegalArgumentException(field + " must be > 0");
         return v;
+    }
+    public void setRooms(List<Room> rooms) {
+        this.rooms.clear();
+        if (rooms != null) this.rooms.addAll(rooms);
+    }
+
+    public void setPhotos(List<String> photos) {
+        this.photos.clear();
+        if (photos != null) this.photos.addAll(photos);
+    }
+
+    public void setAmenities(List<String> amenities) {
+        this.amenities.clear();
+        if (amenities != null) this.amenities.addAll(amenities);
     }
 
     @Override
