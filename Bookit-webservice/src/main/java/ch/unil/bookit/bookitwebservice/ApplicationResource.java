@@ -8,6 +8,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -155,6 +156,8 @@ public class ApplicationResource {
         UUID bookingId = UUID.randomUUID();
         Booking booking = new Booking(bookingId, hotelId, guestId, roomTypeId);
         bookings.put(bookingId, booking);
+        booking.setCreatedAt(Instant.now());
+        booking.setUpdatedAt(Instant.now());
 
         Guest guest = guests.get(guestId);
         if (guest != null) {
@@ -163,9 +166,18 @@ public class ApplicationResource {
         return booking;
     }
 
+    public java.util.List<Booking> getBookingsForGuest(UUID guestId) {
+        if (guestId == null) {
+            return java.util.Collections.emptyList();
+        }
+
+        return bookings.values().stream()
+                .filter(b -> guestId.equals(b.getUserId()))
+                .toList();
+    }
 
     private void populateApplicationState() {
-        // ---- Guests ----
+
         UUID guestId1 = UUID.randomUUID();
         UUID guestId2 = UUID.randomUUID();
 
@@ -241,5 +253,29 @@ public class ApplicationResource {
     public boolean deleteManager(UUID managerId) {
         // Assuming managers are stored in a Map<UUID, HotelManager>
         return getAllManagers().remove(managerId) != null;
+    }
+
+    public Booking createBooking(Booking booking) {
+        if (booking == null) {
+            throw new IllegalArgumentException("Booking cannot be null");
+        }
+
+        if (booking.getBookingId() == null) {
+            booking.setBookingId(UUID.randomUUID());
+        }
+
+        if (booking.getCreatedAt() == null) {
+            booking.setCreatedAt(java.time.Instant.now());
+        }
+        booking.setUpdatedAt(java.time.Instant.now());
+
+        bookings.put(booking.getBookingId(), booking);
+
+        Guest g = guests.get(booking.getUserId());
+        if (g != null) {
+            g.addBooking(booking);
+        }
+
+        return booking;
     }
 }

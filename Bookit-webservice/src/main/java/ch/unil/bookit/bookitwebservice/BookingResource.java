@@ -1,8 +1,6 @@
 package ch.unil.bookit.bookitwebservice;
 
-import ch.unil.bookit.domain.Guest;
 import ch.unil.bookit.domain.booking.Booking;
-import ch.unil.bookit.domain.booking.BookingStatus;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -29,21 +27,18 @@ public class BookingResource {
                     .entity("Booking cannot be null").build();
         }
 
-        UUID bookingId = UUID.randomUUID();
-        Booking newBooking = new Booking(
-                bookingId,
-                booking.getHotelId(),
-                booking.getUserId(),
-                booking.getRoomTypeId()
-        );
-        newBooking.setStatus(BookingStatus.PENDING);
-
-        applicationResource.getBookings().put(bookingId, newBooking);
-        Guest guest = applicationResource.getGuest(booking.getUserId());
-        if (guest != null) {
-            guest.addBooking(newBooking);
+        try {
+            Booking created = applicationResource.createBooking(
+                    booking.getHotelId(),
+                    booking.getUserId(),
+                    booking.getRoomTypeId()
+            );
+            return Response.status(Response.Status.CREATED).entity(created).build();
+        } catch (Exception ex) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Error creating booking: " + ex.getMessage())
+                    .build();
         }
-        return Response.status(Response.Status.CREATED).entity(newBooking).build();
     }
 
 

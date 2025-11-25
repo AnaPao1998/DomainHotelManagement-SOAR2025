@@ -4,7 +4,10 @@ import ch.unil.bookit.bookitwebapp.BookItService;
 import ch.unil.bookit.domain.Guest;
 import ch.unil.bookit.domain.Hotel;
 import ch.unil.bookit.domain.booking.Booking;
+import ch.unil.bookit.domain.booking.BookingStatus;
 import jakarta.enterprise.context.SessionScoped;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.FacesContext;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.ws.rs.core.Response;
@@ -16,8 +19,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import jakarta.faces.application.FacesMessage;
-import jakarta.faces.context.FacesContext;
 
 @SessionScoped
 @Named
@@ -29,9 +30,17 @@ public class GuestBean extends Guest implements Serializable {
     private String newPassword;
     private boolean changed;
     private String dialogMessage;
+    private Hotel selectedHotelForBooking;
+    private UUID selectedRoomTypeId;
+
+
 
     @Inject
     BookItService service;
+
+    @Inject
+    LoginBean loginBean;
+
 
     // getting list of hotels
     private List<Hotel> hotels;
@@ -47,6 +56,11 @@ public class GuestBean extends Guest implements Serializable {
             hotels = Collections.emptyList();
         }
     }
+
+    private java.util.List<String> roomTypeOptions =
+            java.util.Arrays.asList("Standard Room", "Deluxe Room", "Suite");
+
+    private String selectedRoomTypeCode;
 
     public GuestBean() {
         this(null, null, null, null, null);
@@ -131,7 +145,7 @@ public class GuestBean extends Guest implements Serializable {
             Response response = service.getGuests(id.toString());
             guest = response.readEntity(Guest.class);
             if (guest != null) {
-                this.setuuid(guest.getUUID());
+                this.setuuid(guest.getId());
                 this.setEmail(guest.getEmail());
                 this.setPassword(guest.getPassword());
                 this.setFirstName(guest.getFirstName());
@@ -152,6 +166,33 @@ public class GuestBean extends Guest implements Serializable {
         changed = firstNameChanged || lastNameChanged || emailChanged || passwordChanged;
     }
 
+    public Hotel getSelectedHotelForBooking() {
+        return selectedHotelForBooking;
+    }
+
+    public void setSelectedHotelForBooking(Hotel selectedHotelForBooking) {
+        this.selectedHotelForBooking = selectedHotelForBooking;
+    }
+
+    public UUID getSelectedRoomTypeId() {
+        return selectedRoomTypeId;
+    }
+
+    public void setSelectedRoomTypeId(UUID selectedRoomTypeId) {
+        this.selectedRoomTypeId = selectedRoomTypeId;
+    }
+
+    public java.util.List<String> getRoomTypeOptions() {
+        return roomTypeOptions;
+    }
+
+    public String getSelectedRoomTypeCode() {
+        return selectedRoomTypeCode;
+    }
+
+    public void setSelectedRoomTypeCode(String selectedRoomTypeCode) {
+        this.selectedRoomTypeCode = selectedRoomTypeCode;
+    }
 
     public boolean isChanged() {
         return changed;
@@ -172,6 +213,89 @@ public class GuestBean extends Guest implements Serializable {
                 .withZone(ZoneId.systemDefault());
 
         return formatter.format(instant);
+    }
+
+    public String startBookingFromSearch(Hotel hotel) {
+        this.selectedHotelForBooking = hotel;
+        this.selectedRoomTypeId = null;   // keep reset just in case
+        this.selectedRoomTypeCode = null; // user must pick one on CreateBooking.xhtml
+        return "CreateBooking.xhtml?faces-redirect=true";
+    }
+
+    public void confirmBooking() {
+        try {
+            // 1. Basic checks
+            if (selectedHotelForBooking == null) {
+                dialogMessage = "Internal error: no hotel selected. Please go back to Search Hotels.";
+                PrimeFaces.current().executeScript("PF('messageDialog').show()");
+                return;
+            }
+
+            if (selectedRoomTypeCode == null || selectedRoomTypeCode.isBlank()) {
+                dialogMessage = "Please select a room type.";
+                PrimeFaces.current().executeScript("PF('messageDialog').show()");
+                return;
+            }
+
+            UUID guestId = this.getUUID();
+
+            if (guestId == null && loginBean != null
+                    && loginBean.getEmail() != null
+                    && loginBean.getPassword() != null) {
+
+                try {
+                    guestId = service.authenticate(
+                            loginBean.getEmail(),
+                            loginBean.getPassword(),
+                            "guest"
+                    );
+                    if (guestId != null) {
+                        this.setuuid(guestId); // store it back in the session bean
+                    }
+                } catch (Exception ignored) {
+                }
+            }
+
+            if (guestId == null) {
+                dialogMessage = "Could not determine the logged-in guest. "
+                        + "Please log out and log in again before booking.";
+                PrimeFaces.current().executeScript("PF('messageDialog').show()");
+                return;
+            }
+
+            Booking booking = new Booking();
+            booking.setHotelId(selectedHotelForBooking.getHotelId());
+            booking.setUserId(guestId);
+
+            UUID roomTypeId = UUID.nameUUIDFromBytes(
+                    selectedRoomTypeCode.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            booking.setRoomTypeId(roomTypeId);
+            booking.setStatus(BookingStatus.PENDING);
+
+            Response response = service.createBooking(booking);
+            int status = response.getStatus();
+            String serverMsg = "";
+            try {
+                serverMsg = response.readEntity(String.class);
+            } catch (Exception ignore) {
+            }
+
+            if (status >= 200 && status < 300) {
+                dialogMessage = "Booking successfully created!";
+                // reload guest data + bookings
+                loadGuest();
+            } else {
+                dialogMessage = "Failed to create booking. Server returned: "
+                        + status
+                        + (serverMsg != null && !serverMsg.isBlank() ? " – " + serverMsg : "");
+            }
+
+            PrimeFaces.current().executeScript("PF('messageDialog').show()");
+
+        } catch (Exception e) {
+            dialogMessage = "Unexpected error while creating booking: " + e.getMessage();
+            PrimeFaces.current().executeScript("PF('messageDialog').show()");
+        }
     }
 
     public void cancelBooking(Booking booking) {
