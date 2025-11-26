@@ -19,8 +19,8 @@
     <ui:define name="guestContent">
 
         <h:panelGroup layout="block" styleClass="p-mt-3 p-mb-4">
-            <h1>Find a Hotel :</h1>
-            <p>Enter your dates and destination to start your search.</p>
+            <h1>Find a Hotel:</h1>
+            <p>Enter your dates and destination to start your search</p>
         </h:panelGroup>
 
         <p:dataTable value="#{guestBean.hotels}" var="hotel"
@@ -28,11 +28,7 @@
                      emptyMessage="No hotels found."
                      styleClass="p-mt-3">
 
-            <p:column headerText="ID">
-                <h:outputText value="#{hotel.hotelId}" />
-            </p:column>
-
-            <p:column headerText="Photo" style="width:140px">
+             <p:column headerText="Photo" style="width:140px">
                 <h:graphicImage library="hotels"
                                 name="#{hotel.imageUrl}"
                                 width="100"

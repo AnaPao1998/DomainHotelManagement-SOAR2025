@@ -22,37 +22,48 @@
 
             <h:form id="historyForm">
 
+
                 <p:dataTable var="booking" value="#{guestBean.bookings}"
                              emptyMessage="You do not have any bookings yet."
                              stripedRows="true"
-                             paginator="true" rows="5"
-                             resizableColumns="true">
+                             paginator="true" rows="5">
 
-                    <p:column headerText="Booking ID" sortBy="#{booking.bookingId}" width="300">
-                        <h:outputText value="#{booking.bookingId}" />
+                    <p:column headerText="Hotel" style="width: 150px; text-align: center;">
+                        <p:graphicImage library="hotels"
+                                        name="#{guestBean.getHotel(booking.hotelId).imageUrl}"
+                                        width="120" style="border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);"/>
                     </p:column>
 
-                    <p:column headerText="Hotel ID" sortBy="#{booking.hotelId}">
-                        <h:outputText value="#{booking.hotelId}" />
+                    <p:column headerText="Details">
+                        <h:outputText value="#{guestBean.getHotel(booking.hotelId).name}"
+                                      style="font-weight: bold; font-size: 1.1em; display: block;"/>
+                        <h:outputText value="#{guestBean.getHotel(booking.hotelId).city}, #{guestBean.getHotel(booking.hotelId).country}"
+                                      style="color: gray; font-size: 0.9em;"/>
                     </p:column>
 
-                    <p:column headerText="Date Booked" sortBy="#{booking.createdAt}">
+                    <p:column headerText="Price" sortBy="#{guestBean.getHotel(booking.hotelId).nightPrice}" width="100">
+                        <h:outputText value="#{guestBean.getHotel(booking.hotelId).nightPrice}" style="font-weight: bold;">
+                            <f:convertNumber type="currency" currencySymbol="CHF" />
+                        </h:outputText>
+                        <h:outputText value=" / night" style="font-size: 0.8em; color: gray;"/>
+                    </p:column>
+
+                    <p:column headerText="Date Booked" sortBy="#{booking.createdAt}" width="150">
                         <h:outputText value="#{guestBean.getFormattedDate(booking.createdAt)}" />
                     </p:column>
 
-                    <p:column headerText="Status" sortBy="#{booking.status}" width="120" style="text-align: center;">
+                    <p:column headerText="Status" sortBy="#{booking.status}" width="100" style="text-align: center;">
                         <p:tag value="#{booking.status}"
                                severity="#{booking.status == 'CONFIRMED' ? 'success' : (booking.status == 'CANCELLED' ? 'danger' : 'warning')}" />
                     </p:column>
 
-                    <p:column headerText="Actions" style="text-align: center; width: 120px;">
+                    <p:column headerText="Action" width="100" style="text-align: center;">
                         <p:commandButton icon="pi pi-times"
-                                         value="Cancel"
-                                         styleClass="ui-button-danger ui-button-outlined"
+                                         styleClass="rounded-button ui-button-danger ui-button-flat"
+                                         title="Cancel Booking"
                                          actionListener="#{guestBean.cancelBooking(booking)}"
                                          update="@form :infoGrowl"
                                          rendered="#{booking.status == 'PENDING'}">
-
                             <p:confirm header="Confirm Cancellation"
                                        message="Are you sure you want to cancel this booking?"
                                        icon="pi pi-exclamation-triangle"/>

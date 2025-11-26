@@ -311,4 +311,17 @@ public class GuestBean extends Guest implements Serializable {
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Could not cancel booking."));
         }
     }
+
+    public Hotel getHotel(UUID hotelId) {
+        if (hotelId == null) return null;
+        try {
+            Response response = service.getHotel(hotelId.toString());
+            if (response.getStatus() == 200) {
+                return response.readEntity(Hotel.class);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }
