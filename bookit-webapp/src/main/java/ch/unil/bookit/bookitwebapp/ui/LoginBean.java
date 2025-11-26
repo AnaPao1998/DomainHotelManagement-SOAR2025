@@ -1,16 +1,16 @@
 package ch.unil.bookit.bookitwebapp.ui;
 
 import ch.unil.bookit.bookitwebapp.BookItService;
-import jakarta.enterprise.context.RequestScoped;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
-import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.servlet.http.HttpSession;
 
 import java.io.Serializable;
+import java.util.UUID;
+
 @SessionScoped
 @Named
 public class LoginBean implements Serializable {
@@ -90,6 +90,10 @@ public class LoginBean implements Serializable {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public UUID getLoggedInManagerId() {
+        return managerBean.getManagerId();
     }
 
     public static HttpSession getSession(boolean create) {

@@ -1,7 +1,7 @@
 package ch.unil.bookit.bookitwebapp.ui;
 
 import ch.unil.bookit.bookitwebapp.BookItService;
-import ch.unil.bookit.domain.*;
+import ch.unil.bookit.domain.HotelManager;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -9,9 +9,6 @@ import jakarta.ws.rs.core.Response;
 import org.primefaces.PrimeFaces;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
-import java.util.EnumSet;
-import java.util.List;
 import java.util.UUID;
 
 @SessionScoped
@@ -73,16 +70,16 @@ public class ManagerBean extends HotelManager implements Serializable {
     }
 
     public void savePasswordChange() throws Exception {
-        if (currentPassword == null || newPassword == null) { // check if required fields are filled
+        if (currentPassword == null || newPassword == null) {
             dialogMessage = "Please enter all the required fields.";
             PrimeFaces.current().executeScript("PF('passwordChangeDialog').show()");
-        } else if (!currentPassword.equals(manager.getPassword())) { // check if the user typed their password correctly
+        } else if (!currentPassword.equals(manager.getPassword())) {
             dialogMessage = "Passwords don't match!";
             PrimeFaces.current().executeScript("PF('passwordChangeDialog').show()");
-        } else if (currentPassword.equals(newPassword)) { // check if the old password is not the same as the new one
+        } else if (currentPassword.equals(newPassword)) {
             dialogMessage = "The new password must be different from the old password.";
             PrimeFaces.current().executeScript("PF('passwordChangeDialog').show()");
-        } else { // change password
+        } else {
             this.setPassword(newPassword);
             updateManager();
             dialogMessage = "Password successfully changed";
@@ -113,7 +110,7 @@ public class ManagerBean extends HotelManager implements Serializable {
     }
 
     public void loadManager() {
-        var id = this.getUUID();
+        UUID id = this.getUUID();
         if (id != null) {
             Response response = service.getManager(id.toString());
             manager = response.readEntity(HotelManager.class);
@@ -129,6 +126,10 @@ public class ManagerBean extends HotelManager implements Serializable {
 
     // checks if any of the profile fields have been changed
     public void checkIfChanged() {
+        if (manager == null) {
+            changed = false;
+            return;
+        }
         boolean firstNameChanged = !manager.getFirstName().equals(this.getFirstName());
         boolean lastNameChanged = !manager.getLastName().equals(this.getLastName());
         boolean emailChanged = !manager.getEmail().equals(this.getEmail());
@@ -136,8 +137,11 @@ public class ManagerBean extends HotelManager implements Serializable {
         changed = firstNameChanged || lastNameChanged || emailChanged || passwordChanged;
     }
 
-    // added for the managerProfile.xhtml
     public boolean isChanged() {
         return changed;
+    }
+
+    public UUID getManagerId() {
+        return this.getUUID();
     }
 }

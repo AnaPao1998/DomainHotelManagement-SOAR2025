@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-
 @ApplicationScoped
 public class ApplicationResource {
     private Map<UUID, Guest> guests;
@@ -177,7 +176,7 @@ public class ApplicationResource {
     }
 
     private void populateApplicationState() {
-
+        
         UUID guestId1 = UUID.randomUUID();
         UUID guestId2 = UUID.randomUUID();
 
@@ -188,49 +187,112 @@ public class ApplicationResource {
         Guest guest2 = new Guest(guestId2, "bogdanic.duska@gmail.com", "pass123", "Duska", "Bogdanic");
         guests.put(guestId2, guest2);
 
-        HotelManager defaultManager = managerRegistry.getDefaultManager();
-        managers.put(defaultManager.getId(), defaultManager);
+        HotelManager manager = managerRegistry.getDefaultManager();
+        managers.put(manager.getId(), manager);
 
+        String[][] seed = {
+                {"Bookit Inn", "Cozy place near the lake", "Lausanne", "Switzerland", "Rue de la Paix 10", "120.00", "hotel1.jpg"},
+                {"Alpine Retreat", "Mountain view hotel with spa", "Zermatt", "Switzerland", "Matterhornstrasse 5", "230.00", "hotel2.jpg"},
+                {"Leman Palace", "Elegant lakeside hotel", "Geneva", "Switzerland", "Quai du Mont-Blanc 20", "320.00", "hotel3.jpg"},
+                {"City Central Hotel", "Right in the old town", "Zurich", "Switzerland", "Bahnhofstrasse 50", "210.00", "hotel4.jpg"},
+                {"Sunrise Beach Resort", "Sea view and cocktails", "Nice", "France", "Promenade des Anglais 7", "190.00", "hotel5.jpg"},
+                {"Canal View Lodge", "Quiet spot near canals", "Bruges", "Belgium", "Spiegelrei 3", "160.00", "hotel6.jpg"},
+                {"Royal Arden Hotel", "Business & conference center", "Brussels", "Belgium", "Avenue Louise 120", "220.00", "hotel7.jpg"},
+                {"Mountain Cabin Hotel", "Rustic vibes, hiking paths", "Chamonix", "France", "Route du Tour 15", "180.00", "hotel8.jpg"},
+                {"Harbour Lights Inn", "Harbour and seafood nearby", "Hamburg", "Germany", "Fischmarkt 12", "170.00", "hotel9.jpg"},
+                {"Old Town Boutique", "Boutique rooms in city center", "Prague", "Czech Republic", "Karlova 9", "150.00", "hotel10.jpg"}
+        };
+
+        Hotel firstHotel = null;
+
+        for (String[] h : seed) {
+            Hotel created = createHotelForManager(
+                    manager,
+                    h[0], // name
+                    h[1], // description
+                    h[2], // city
+                    h[3], // country
+                    h[4], // address
+                    h[5], // price
+                    h[6]  // imageUrl
+            );
+            if (firstHotel == null) {
+                firstHotel = created;
+            }
+        }
+
+        // Room Types & prices
+        manager.defineRoomTypes(java.util.Arrays.asList("STANDARD", "DELUXE"));
+        manager.setRoomPrices("STANDARD", 120.0);
+        manager.setRoomPrices("DELUXE", 170.0);
+
+        // roomType IDs for demo bookings
+        UUID stdTypeId = UUID.randomUUID();
+        UUID dlxTypeId = UUID.randomUUID();
+
+        // Demo bookings for first hotel
+        if (firstHotel != null) {
+            UUID hotelId = firstHotel.getHotelId();
+
+            UUID bookingId1 = UUID.randomUUID();
+            Booking b1 = new Booking(bookingId1, hotelId, guestId1, stdTypeId);
+            b1.setStatus(ch.unil.bookit.domain.booking.BookingStatus.PENDING);
+            bookings.put(bookingId1, b1);
+            guest1.addBooking(b1);
+
+            UUID bookingId2 = UUID.randomUUID();
+            Booking b2 = new Booking(bookingId2, hotelId, guestId2, dlxTypeId);
+            b2.setStatus(ch.unil.bookit.domain.booking.BookingStatus.PENDING);
+            bookings.put(bookingId2, b2);
+            guest2.addBooking(b2);
+
+            UUID bookingId3 = UUID.randomUUID();
+            Booking b3 = new Booking(bookingId3, hotelId, guestId1, stdTypeId);
+            b3.setStatus(ch.unil.bookit.domain.booking.BookingStatus.PENDING);
+            bookings.put(bookingId3, b3);
+            guest1.addBooking(b3);
+
+            UUID bookingId4 = UUID.randomUUID();
+            Booking b4 = new Booking(bookingId4, hotelId, guestId2, dlxTypeId);
+            b4.setStatus(ch.unil.bookit.domain.booking.BookingStatus.PENDING);
+            bookings.put(bookingId4, b4);
+            guest2.addBooking(b4);
+
+            manager.approveBooking(b1, guests);
+            manager.cancelBooking(b2, guests);
+        }
+    }
+
+    private Hotel createHotelForManager(
+            HotelManager manager,
+            String name,
+            String description,
+            String city,
+            String country,
+            String address,
+            String price,
+            String imageUrl
+    ) {
         UUID hotelId = UUID.randomUUID();
+
         Hotel hotel = new Hotel(
                 hotelId,
-                defaultManager.getId(),
-                "Bookit Inn",
-                "Cozy place near the lake",
-                "Lausanne",
-                "Switzerland",
-                "Rue de la Paix 10",
-                new java.math.BigDecimal("120.00")
+                manager.getId(),
+                name,
+                description,
+                city,
+                country,
+                address,
+                new java.math.BigDecimal(price)
         );
+
         hotel.publish();
+        hotel.setImageUrl(imageUrl);
+
         hotels.put(hotelId, hotel);
-        defaultManager.addHotel(hotel);
+        manager.addHotel(hotel);
 
-        defaultManager.defineRoomTypes(java.util.Arrays.asList("STANDARD", "DELUXE"));
-        defaultManager.setRoomPrices("STANDARD", 120.0);
-        defaultManager.setRoomPrices("DELUXE", 170.0);
-
-        UUID stdRoomTypeId = UUID.randomUUID();
-        UUID dlxRoomTypeId = UUID.randomUUID();
-
-        UUID bookingId1 = UUID.randomUUID();
-        Booking b1 = new Booking(bookingId1, hotelId, guestId1, stdRoomTypeId);
-        bookings.put(bookingId1, b1);
-        guest1.addBooking(b1);
-
-        UUID pendingBookingId = UUID.randomUUID();
-        Booking pendingBooking = new Booking(pendingBookingId, hotelId, guestId1, dlxRoomTypeId);
-        pendingBooking.setStatus(ch.unil.bookit.domain.booking.BookingStatus.PENDING);
-        bookings.put(pendingBookingId, pendingBooking);
-        guest1.addBooking(pendingBooking);
-
-        UUID bookingId2 = UUID.randomUUID();
-        Booking b2 = new Booking(bookingId2, hotelId, guestId2, dlxRoomTypeId);
-        bookings.put(bookingId2, b2);
-        guest2.addBooking(b2);
-
-        defaultManager.approveBooking(b1, guests);
-        defaultManager.cancelBooking(b2, guests);
+        return hotel;
     }
 
     public UUID authenticateGuest(String email, String password) {
@@ -250,8 +312,8 @@ public class ApplicationResource {
         }
         return null;
     }
+
     public boolean deleteManager(UUID managerId) {
-        // Assuming managers are stored in a Map<UUID, HotelManager>
         return getAllManagers().remove(managerId) != null;
     }
 

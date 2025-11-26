@@ -180,6 +180,33 @@ public class BookItService {
         var response = managerTarget.path(manager_id.toString()).path("bookings").path(booking_id.toString()).path("cancel").request(MediaType.APPLICATION_JSON).put(Entity.json(""));
         return response;
     }
+
+    public List<Hotel> getHotelsForManager(UUID managerId) {
+        return getAllHotels();
+    }
+
+
+    public Hotel createHotelAndReturn(Hotel hotel) {
+        return managerTarget
+                .request(MediaType.APPLICATION_JSON)
+                .post(Entity.entity(hotel, MediaType.APPLICATION_JSON), Hotel.class);
+    }
+
+    public Hotel updateHotelAndReturn(Hotel hotel) {
+        return managerTarget
+                .path(hotel.getHotelId().toString())
+                .request(MediaType.APPLICATION_JSON)
+                .put(Entity.entity(hotel, MediaType.APPLICATION_JSON), Hotel.class);
+    }
+
+    //delete hotel by UUID
+    public void deleteHotel(UUID hotelId) {
+        managerTarget
+                .path(hotelId.toString())
+                .request(MediaType.APPLICATION_JSON)
+                .delete();
+    }
+
     //get bookings per guest
     public List<Booking> getBookingsForGuest(UUID guestId) {
         //GET /api/bookings/guest/{guestId}

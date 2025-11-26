@@ -13,6 +13,15 @@ public class Hotel {
     private String city;
     private String country;
     private String address;
+    private String imageUrl;
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
 
     // pricing
     private BigDecimal nightPrice;

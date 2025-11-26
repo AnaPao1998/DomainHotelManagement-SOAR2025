@@ -32,6 +32,15 @@
                 <h:outputText value="#{hotel.hotelId}" />
             </p:column>
 
+            <p:column headerText="Photo" style="width:140px">
+                <h:graphicImage library="hotels"
+                                name="#{hotel.imageUrl}"
+                                width="100"
+                                style="border-radius:8px"
+                                rendered="#{not empty hotel.imageUrl}" />
+            </p:column>
+
+
             <p:column headerText="Name">
                 <h:outputText value="#{hotel.name}" />
             </p:column>
@@ -50,8 +59,9 @@
 
             <p:column headerText="Price / Night">
                 <h:outputText value="#{hotel.nightPrice}">
-                    <!-- Format as a number with 2 decimals -->
-                    <f:convertNumber type="number" minFractionDigits="2" maxFractionDigits="2" />
+                    <f:convertNumber type="number"
+                                     minFractionDigits="2"
+                                     maxFractionDigits="2" />
                 </h:outputText>
             </p:column>
 
@@ -65,9 +75,7 @@
                                  update=":growl"/>
             </p:column>
 
-
         </p:dataTable>
-
 
     </ui:define>
 

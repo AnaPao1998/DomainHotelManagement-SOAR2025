@@ -7,20 +7,27 @@ import java.util.UUID;
 @ApplicationScoped
 public class ManagerRegistry {
 
+    private static final UUID DEFAULT_MANAGER_ID =
+            UUID.fromString("11111111-1111-1111-1111-111111111111");
+
     private final HotelManager defaultManager;
 
     public ManagerRegistry() {
         this.defaultManager = new HotelManager(
-                UUID.fromString("11111111-1111-1111-1111-111111111111"),
+                DEFAULT_MANAGER_ID,
                 "manager@bookit.com",
-                "secret",
-                "Default",
-                "Manager"
+                "managerPass",   // <— same password you use for login
+                "Marta",
+                "Keller"
         );
     }
 
     public HotelManager getDefaultManager() {
         return defaultManager;
+    }
+
+    public UUID getDefaultManagerId() {
+        return DEFAULT_MANAGER_ID;
     }
 }
 

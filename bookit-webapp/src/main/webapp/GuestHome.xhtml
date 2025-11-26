@@ -16,9 +16,82 @@
     <ui:define name="pageTitle">Bookit | Home</ui:define>
 
     <ui:define name="guestContent">
-        <h:panelGroup layout="block" styleClass="p-mt-3">
-            <h1>Welcome, #{guestBean.firstName}! </h1>
-            <p>Find your next stay and manage your bookings.</p>
+
+        <style type="text/css">
+            .welcome-hero {
+                display: flex;
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+
+            .suitcase-wrapper {
+                margin-top: 1rem;
+                display: flex;
+                justify-content: center;
+                align-items: flex-end;
+                height: 80px;
+                position: relative;
+            }
+
+            .suitcase-track {
+                position: relative;
+                width: 140px;
+                animation: suitcase-move 5s infinite alternate ease-in-out;
+            }
+
+            .suitcase-icon {
+                font-size: 3rem;
+                color: #f97316; /* orange */
+                animation: suitcase-bounce 1.2s infinite ease-in-out;
+            }
+
+            .suitcase-shadow {
+                position: absolute;
+                bottom: 8px;
+                width: 90px;
+                height: 10px;
+                border-radius: 999px;
+                background: rgba(0, 0, 0, 0.08);
+                filter: blur(2px);
+                animation: suitcase-shadow 5s infinite alternate ease-in-out;
+            }
+
+            @keyframes suitcase-move {
+                from { transform: translateX(-40px); }
+                to   { transform: translateX(40px); }
+            }
+
+            @keyframes suitcase-bounce {
+                0%, 100% { transform: translateY(0); }
+                50%      { transform: translateY(-8px); }
+            }
+
+            @keyframes suitcase-shadow {
+                from {
+                    transform: translateX(-40px) scaleX(0.9);
+                    opacity: 0.6;
+                }
+                to {
+                    transform: translateX(40px) scaleX(1.05);
+                    opacity: 0.4;
+                }
+            }
+        </style>
+
+        <h:panelGroup layout="block" styleClass="p-mt-3 welcome-hero">
+
+            <div class="welcome-copy">
+                <h1>Welcome, #{guestBean.firstName}!</h1>
+                <p>Find your next stay and manage your bookings.</p>
+            </div>
+
+            <div class="suitcase-wrapper">
+                <div class="suitcase-track">
+                    <i class="pi pi-briefcase suitcase-icon"></i>
+                </div>
+                <div class="suitcase-shadow"></div>
+            </div>
+
         </h:panelGroup>
 
     </ui:define>

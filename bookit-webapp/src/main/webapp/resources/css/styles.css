@@ -209,3 +209,62 @@
     color: red;
     font-size: 0.85em;
 }
+
+.welcome-hero {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.suitcase-wrapper {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    height: 80px;
+    position: relative;
+}
+
+.suitcase-track {
+    position: relative;
+    width: 140px;
+    animation: suitcase-move 5s infinite alternate ease-in-out;
+}
+
+.suitcase-icon {
+    font-size: 3rem;
+    color: #f97316;
+    animation: suitcase-bounce 1.2s infinite ease-in-out;
+}
+
+.suitcase-shadow {
+    position: absolute;
+    bottom: 8px;
+    width: 90px;
+    height: 10px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.08);
+    filter: blur(2px);
+    animation: suitcase-shadow 5s infinite alternate ease-in-out;
+}
+
+@keyframes suitcase-move {
+    from { transform: translateX(-40px); }
+    to   { transform: translateX(40px); }
+}
+
+@keyframes suitcase-bounce {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-8px); }
+}
+
+@keyframes suitcase-shadow {
+    from {
+        transform: translateX(-40px) scaleX(0.9);
+        opacity: 0.6;
+    }
+    to {
+        transform: translateX(40px) scaleX(1.05);
+        opacity: 0.4;
+    }
+}
