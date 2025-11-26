@@ -204,6 +204,7 @@ public class ApplicationResource {
         };
 
         Hotel firstHotel = null;
+        Hotel secondHotel = null;
 
         for (String[] h : seed) {
             Hotel created = createHotelForManager(
@@ -218,6 +219,8 @@ public class ApplicationResource {
             );
             if (firstHotel == null) {
                 firstHotel = created;
+            } else if (secondHotel == null) {
+                secondHotel = created; // Alpine Retreat
             }
         }
 
@@ -231,35 +234,37 @@ public class ApplicationResource {
         UUID dlxTypeId = UUID.randomUUID();
 
         // Demo bookings for first hotel
-        if (firstHotel != null) {
-            UUID hotelId = firstHotel.getHotelId();
-
-            UUID bookingId1 = UUID.randomUUID();
-            Booking b1 = new Booking(bookingId1, hotelId, guestId1, stdTypeId);
+        if (firstHotel != null && secondHotel != null) {
+            //Booking 1: Ana
+            UUID b1_Id = UUID.randomUUID();
+            Booking b1 = new Booking(b1_Id, firstHotel.getHotelId(), guestId1, stdTypeId);
             b1.setStatus(ch.unil.bookit.domain.booking.BookingStatus.PENDING);
-            bookings.put(bookingId1, b1);
+            bookings.put(b1_Id, b1);
             guest1.addBooking(b1);
 
-            UUID bookingId2 = UUID.randomUUID();
-            Booking b2 = new Booking(bookingId2, hotelId, guestId2, dlxTypeId);
+            //Booking 2: Ana
+            UUID b2_Id = UUID.randomUUID();
+            Booking b2 = new Booking(b2_Id, secondHotel.getHotelId(), guestId1, dlxTypeId);
             b2.setStatus(ch.unil.bookit.domain.booking.BookingStatus.PENDING);
-            bookings.put(bookingId2, b2);
-            guest2.addBooking(b2);
+            bookings.put(b2_Id, b2);
+            guest1.addBooking(b2);
 
-            UUID bookingId3 = UUID.randomUUID();
-            Booking b3 = new Booking(bookingId3, hotelId, guestId1, stdTypeId);
+            //Booking 3: Duska
+            UUID b3_Id = UUID.randomUUID();
+            Booking b3 = new Booking(b3_Id, firstHotel.getHotelId(), guestId2, stdTypeId);
             b3.setStatus(ch.unil.bookit.domain.booking.BookingStatus.PENDING);
-            bookings.put(bookingId3, b3);
-            guest1.addBooking(b3);
+            bookings.put(b3_Id, b3);
+            guest2.addBooking(b3);
 
-            UUID bookingId4 = UUID.randomUUID();
-            Booking b4 = new Booking(bookingId4, hotelId, guestId2, dlxTypeId);
+            //Booking 4: Duska
+            UUID b4_Id = UUID.randomUUID();
+            Booking b4 = new Booking(b4_Id, secondHotel.getHotelId(), guestId2, dlxTypeId);
             b4.setStatus(ch.unil.bookit.domain.booking.BookingStatus.PENDING);
-            bookings.put(bookingId4, b4);
+            bookings.put(b4_Id, b4);
             guest2.addBooking(b4);
 
             manager.approveBooking(b1, guests);
-            manager.cancelBooking(b2, guests);
+            //manager.cancelBooking(b2, guests);
         }
     }
 
