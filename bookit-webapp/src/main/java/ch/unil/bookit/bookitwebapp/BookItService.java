@@ -13,6 +13,7 @@ import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import java.util.Collections;
 
 import java.util.List;
 import java.util.UUID;
@@ -216,6 +217,24 @@ public class BookItService {
                 .request(MediaType.APPLICATION_JSON)
                 .get(new GenericType<List<Booking>>() {});
     }
+
+    //get hotel by manager
+    // get all hotels associated with the currently logged-in manager -> for HotelManagement.xhtml
+    public List<Hotel> getHotelsByManager(UUID managerId) {
+        // has an endpoint that handles the path: BASE_URL/hotelmanager/{managerId}/hotels
+        try {
+            var response = managerTarget
+                    .path(managerId.toString())
+                    .path("hotels")
+                    .request(MediaType.APPLICATION_JSON)
+                    .get(new GenericType<List<Hotel>>() {});
+            return response;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
+    }
+
     // USER OPERATIONS
 
     //authenticate

@@ -6,3 +6,99 @@
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
       xmlns:f="http://xmlns.jcp.org/jsf/core"
       xmlns:p="http://primefaces.org/ui">
+
+<ui:composition template="/templates/ManagerTemplate.xhtml">
+
+    <f:metadata>
+        <f:event type="preRenderView" listener="#{managerBean.loadManager}" />
+        <f:event type="preRenderView" listener="#{hotelBean.loadAllHotels}" />
+    </f:metadata>
+
+    <ui:define name="pageTitle">Manager | Hotel Management</ui:define>
+
+    <ui:define name="managerContent">
+
+        <h:panelGroup layout="block" styleClass="p-mt-3 p-mb-4">
+            <h1>Hotel Management</h1>
+            <p>List of hotels associated with your account, #{managerBean.firstName}.</p>
+        </h:panelGroup>
+
+        <p:growl id="infoGrowl" showDetail="true" life="4000"/>
+
+        <p:card title="Your Establishments" styleClass="p-shadow-2">
+            <h:form id="hotelManagementForm">
+
+                <p:commandButton value="Add New Hotel"
+                                 icon="pi pi-plus"
+                                 actionListener="#{hotelBean.initNewHotel}"
+                                 update=":editHotelDialogForm:editPanel"
+                                 oncomplete="PF('editHotelDialog').show()"
+                                 styleClass="ui-button-success p-mb-3"/>
+
+                <p:dataTable var="hotel" value="#{hotelBean.allHotels}"
+                             emptyMessage="You do not manage any hotels yet."
+                             paginator="true" rows="10"
+                             styleClass="p-datatable-striped">
+
+                    <p:column headerText="Name" sortBy="#{hotel.name}">
+                        <h:outputText value="#{hotel.name}" />
+                    </p:column>
+
+                    <p:column headerText="Address">
+                        <h:outputText value="#{hotel.address}" />
+                    </p:column>
+
+                    <p:column headerText="UUID (Unique Identifier)" width="300">
+                        <h:outputText value="#{hotel.hotelId}" />
+                    </p:column>
+
+                    <p:column headerText="Actions" width="150" style="text-align: center;">
+                        <p:commandButton icon="pi pi-pencil" title="Edit"
+                                         actionListener="#{hotelBean.setSelectedHotel(hotel)}"
+                                         update=":editHotelDialogForm:editPanel"
+                                         oncomplete="PF('editHotelDialog').show()"
+                                         styleClass="ui-button-outlined p-mr-2"/>
+
+                        <p:commandButton icon="pi pi-trash" title="Delete"
+                                         action="#{hotelBean.deleteHotel(hotel.hotelId)}"
+                                         update="@form infoGrowl"
+                                         styleClass="ui-button-danger">
+                            <p:confirm header="Confirmation" message="Are you sure you want to delete this hotel?" icon="pi pi-exclamation-triangle" />
+                        </p:commandButton>
+                    </p:column>
+
+                </p:dataTable>
+
+                <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                    <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary" icon="pi pi-times" />
+                    <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes ui-button-danger" icon="pi pi-check" />
+                </p:confirmDialog>
+
+            </h:form>
+        </p:card>
+
+        <p:dialog header="#{hotelBean.isCreatingNewHotel ? 'Add Hotel' : 'Edit Hotel'}"
+                  widgetVar="editHotelDialog" modal="true" width="500">
+            <h:form id="editHotelDialogForm">
+                <p:panelGrid id="editPanel" columns="1" layout="grid" styleClass="ui-fluid">
+
+                    <p:outputLabel for="hotelName" value="Hotel Name"/>
+                    <p:inputText id="hotelName" value="#{hotelBean.selectedHotel.name}" required="true" />
+
+                    <p:outputLabel for="hotelAddress" value="Address"/>
+                    <p:inputText id="hotelAddress" value="#{hotelBean.selectedHotel.address}" required="true" />
+
+                </p:panelGrid>
+
+                <p:commandButton value="Save"
+                                 action="#{hotelBean.saveHotel}"
+                                 update=":hotelManagementForm:hotelManagementForm infoGrowl"
+                                 oncomplete="if (!args.validationFailed) { PF('editHotelDialog').hide(); }"
+                                 styleClass="ui-button-primary p-mt-3"/>
+                <p:commandButton value="Cancel" type="button" onclick="PF('editHotelDialog').hide()" styleClass="ui-button-secondary p-ml-2 p-mt-3"/>
+            </h:form>
+        </p:dialog>
+
+    </ui:define>
+</ui:composition>
+</html>
