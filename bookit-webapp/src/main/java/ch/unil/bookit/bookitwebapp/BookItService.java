@@ -244,6 +244,22 @@ public class BookItService {
         return response;
     }
 
+    public List<Booking> getPendingBookingsForManager(UUID managerId) {
+        // par ex: GET /api/hotelmanager/{managerId}/bookings/pending
+        try {
+            var response = managerTarget
+                    .path(managerId.toString())
+                    .path("bookings")
+                    .path("pending")
+                    .request(MediaType.APPLICATION_JSON)
+                    .get(new GenericType<List<Booking>>() {});
+            return response;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
+    }
+
 }
 
 

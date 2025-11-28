@@ -7,9 +7,15 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.ws.rs.core.Response;
 import org.primefaces.PrimeFaces;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.application.FacesMessage;
+import ch.unil.bookit.domain.booking.Booking;
+import ch.unil.bookit.domain.Hotel;
 
 import java.io.Serializable;
 import java.util.UUID;
+import java.util.Collections;
+import java.util.List;
 
 @SessionScoped
 @Named
@@ -21,6 +27,7 @@ public class ManagerBean extends HotelManager implements Serializable {
     private String newPassword;
     private boolean changed;
     private String dialogMessage;
+    private List<Booking> pendingBookings;
 
     @Inject
     BookItService service;
@@ -111,6 +118,7 @@ public class ManagerBean extends HotelManager implements Serializable {
 
     public void loadManager() {
         UUID id = this.getUUID();
+        System.out.println("DEBUG ManagerBean: UUID before service call: " + id);
         if (id != null) {
             Response response = service.getManager(id.toString());
             manager = response.readEntity(HotelManager.class);
@@ -144,4 +152,71 @@ public class ManagerBean extends HotelManager implements Serializable {
     public UUID getManagerId() {
         return this.getUUID();
     }
+
+    public List<Booking> getPendingBookings() { return pendingBookings; }
+    public void setPendingBookings(List<Booking> pendingBookings) { this.pendingBookings = pendingBookings; }
+    public void setManager(HotelManager manager) { this.manager = manager; }
+
+    public void loadPendingBookings() {
+        UUID managerId = this.getUUID();
+        if (managerId != null) {
+            try {
+                this.pendingBookings = service.getPendingBookingsForManager(managerId);
+                if (this.pendingBookings == null) {
+                    this.pendingBookings = Collections.emptyList();
+                }
+            } catch (Exception e) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Load Error", "Failed to load bookings: " + e.getMessage()));
+                this.pendingBookings = Collections.emptyList();
+            }
+        } else {
+            this.pendingBookings = Collections.emptyList();
+        }
+    }
+
+    public void approveBooking(Booking booking) {
+        UUID managerId = this.getUUID();
+        if (managerId != null && booking != null) {
+            try {
+                service.approveBooking(managerId.toString(), booking.getBookingId().toString());
+                loadPendingBookings();
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Booking approved."));
+            } catch (Exception e) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Failed to approve booking: " + e.getMessage()));
+            }
+        }
+    }
+
+    public void cancelBooking(Booking booking) {
+        UUID managerId = this.getUUID();
+        if (managerId != null && booking != null) {
+            try {
+                service.cancelBooking(managerId.toString(), booking.getBookingId().toString());
+                loadPendingBookings();
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Booking rejected."));
+            } catch (Exception e) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Failed to reject booking: " + e.getMessage()));
+            }
+        }
+    }
+
+    public String getHotelName(UUID hotelId) {
+        if (hotelId == null) return "N/A";
+        try {
+            Response response = service.getHotel(hotelId.toString());
+            if (response.getStatus() == 200) {
+                Hotel h = response.readEntity(Hotel.class);
+                return h.getName();
+            }
+        } catch (Exception e) {
+            System.err.println("Error fetching hotel name for " + hotelId + ": " + e.getMessage());
+        }
+        return "Hotel Not Found";
+    }
+
 }

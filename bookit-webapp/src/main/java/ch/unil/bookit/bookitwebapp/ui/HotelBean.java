@@ -25,6 +25,7 @@ public class HotelBean implements Serializable {
     @Inject
     ManagerBean managerBean; // Inject the ManagerBean to get the ID of the logged-in manager
 
+    private List<Hotel> hotels;
     private List<Hotel> allHotels;
     private Hotel selectedHotel;
     private boolean isCreatingNewHotel;
@@ -39,7 +40,7 @@ public class HotelBean implements Serializable {
     // Loads all hotels associated with the currently logged-in manager. -> for HotelManagement.xhtml
     public void loadAllHotels() {
         UUID managerId = managerBean.getManagerId();
-
+        System.out.println("Manager ID: " + managerId);
         if (managerId != null) {
             try {
                 // Use the new service method to fetch filtered hotels
@@ -47,12 +48,14 @@ public class HotelBean implements Serializable {
                 if (this.allHotels == null) {
                     this.allHotels = Collections.emptyList();
                 }
+                System.out.println("DEBUG HotelBean: Number of hotels received: " + this.allHotels.size());
             } catch (Exception e) {
-                FacesContext.getCurrentInstance().addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Load Error", "Failed to load hotels: " + e.getMessage()));
+                System.err.println("ERROR HotelBean: Failed to fetch hotels: " + e.getMessage());
+                e.printStackTrace();
                 this.allHotels = Collections.emptyList();
             }
         } else {
+            System.out.println("Manager ID is NULL, hotels list will be empty.");
             this.allHotels = Collections.emptyList();
         }
     }

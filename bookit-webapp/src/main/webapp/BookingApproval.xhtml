@@ -6,3 +6,93 @@
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
       xmlns:f="http://xmlns.jcp.org/jsf/core"
       xmlns:p="http://primefaces.org/ui">
+
+
+<ui:composition template="/templates/ManagerTemplate.xhtml">
+
+    <f:metadata>
+        <f:event type="preRenderView" listener="#{managerBean.loadManager}" />
+        <f:event type="preRenderView" listener="#{managerBean.loadPendingBookings}" />
+    </f:metadata>
+
+    <ui:define name="pageTitle">Manager | Booking Approval</ui:define>
+
+    <ui:define name="managerContent">
+
+        <h:panelGroup layout="block" styleClass="p-mt-3 p-mb-4">
+            <h1>Booking Approval</h1>
+            <p>Review and manage new booking requests for your hotels, **#{managerBean.firstName}**.</p>
+        </h:panelGroup>
+
+        <p:growl id="infoGrowl" showDetail="true" life="4000"/>
+
+        <p:card title="Pending Requests" styleClass="p-shadow-2">
+            <h:form id="bookingApprovalForm">
+
+                <p:dataTable var="booking"
+                             value="#{managerBean.pendingBookings}"
+                             emptyMessage="No pending booking requests found."
+                             paginator="true" rows="10"
+                             styleClass="p-datatable-striped">
+
+                    <p:column headerText="Hotel">
+                        <h:outputText value="#{managerBean.getHotelName(booking.hotelId)}" />
+                    </p:column>
+
+                    <p:column headerText="Guest ID">
+                        <h:outputText value="#{booking.userId}" />
+                    </p:column>
+
+                    <p:column headerText="Check-in Date" sortBy="#{booking.checkInDate}">
+                        <h:outputText value="#{booking.checkInDate}">
+                            <f:convertDateTime pattern="dd/MM/yyyy"/>
+                        </h:outputText>
+                    </p:column>
+
+                    <p:column headerText="Check-out Date" sortBy="#{booking.checkOutDate}">
+                        <h:outputText value="#{booking.checkOutDate}">
+                            <f:convertDateTime pattern="dd/MM/yyyy"/>
+                        </h:outputText>
+                    </p:column>
+
+                    <p:column headerText="Room Type ID">
+                        <h:outputText value="#{booking.roomTypeId}" />
+                    </p:column>
+
+                    <p:column headerText="Status" width="100">
+                        <h:outputText value="#{booking.status}" style="font-weight: bold; color: orange;"/>
+                    </p:column>
+
+                    <p:column headerText="Actions" width="180" style="text-align: center;">
+
+                        <p:commandButton icon="pi pi-check" title="Approve"
+                                         actionListener="#{managerBean.approveBooking(booking)}"
+                                         update="@form :infoGrowl"
+                                         styleClass="ui-button-success p-mr-2"/>
+
+                        <p:commandButton icon="pi pi-times" title="Reject"
+                                         styleClass="ui-button-danger">
+
+                            <p:confirm header="Confirmation"
+                                       message="Are you sure you want to reject this booking?"
+                                       icon="pi pi-exclamation-triangle" />
+                        </p:commandButton>
+                    </p:column>
+
+                </p:dataTable>
+
+                <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                    <p:commandButton value="No" type="button"
+                                     styleClass="ui-confirmdialog-no ui-button-secondary" icon="pi pi-times" />
+                    <p:commandButton value="Yes" type="button"
+                                     actionListener="#{managerBean.cancelBooking}"
+                                     styleClass="ui-confirmdialog-yes ui-button-danger" icon="pi pi-check"
+                                     update="@form :infoGrowl"/>
+                </p:confirmDialog>
+
+            </h:form>
+        </p:card>
+
+    </ui:define>
+</ui:composition>
+</html>

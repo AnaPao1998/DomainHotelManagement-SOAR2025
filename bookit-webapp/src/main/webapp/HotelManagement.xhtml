@@ -35,39 +35,44 @@
                                  oncomplete="PF('editHotelDialog').show()"
                                  styleClass="ui-button-success p-mb-3"/>
 
-                <p:dataTable var="hotel" value="#{hotelBean.allHotels}"
-                             emptyMessage="You do not manage any hotels yet."
-                             paginator="true" rows="10"
-                             styleClass="p-datatable-striped">
+                <h:dataTable value="#{hotelBean.allHotels}" var="hotel"
+                             styleClass="hotels-table"
+                             headerClass="hotels-table-header"
+                             rowClasses="hotels-table-row"
+                             rendered="#{not empty hotelBean.allHotels}">
 
-                    <p:column headerText="Name" sortBy="#{hotel.name}">
-                        <h:outputText value="#{hotel.name}" />
-                    </p:column>
+                    <h:column>
+                        <f:facet name="header">
+                            <h:outputText value="Name"/>
+                        </f:facet>
+                        <h:outputText value="#{hotel.name}"/>
+                    </h:column>
 
-                    <p:column headerText="Address">
-                        <h:outputText value="#{hotel.address}" />
-                    </p:column>
+                    <h:column>
+                        <f:facet name="header">
+                            <h:outputText value="Address"/>
+                        </f:facet>
+                        <h:outputText value="#{hotel.address}"/>
+                    </h:column>
 
-                    <p:column headerText="UUID (Unique Identifier)" width="300">
-                        <h:outputText value="#{hotel.hotelId}" />
-                    </p:column>
+                    <h:column>
+                        <f:facet name="header">
+                            <h:outputText value="UUID"/>
+                        </f:facet>
+                        <h:outputText value="#{hotel.hotelId}"/>
+                    </h:column>
 
-                    <p:column headerText="Actions" width="150" style="text-align: center;">
-                        <p:commandButton icon="pi pi-pencil" title="Edit"
-                                         actionListener="#{hotelBean.setSelectedHotel(hotel)}"
-                                         update=":editHotelDialogForm:editPanel"
-                                         oncomplete="PF('editHotelDialog').show()"
-                                         styleClass="ui-button-outlined p-mr-2"/>
+                    <h:column>
+                        <f:facet name="header">
+                            <h:outputText value="Actions"/>
+                        </f:facet>
+                        <h:outputText value="[Actions CRUD]"/>
+                    </h:column>
+                </h:dataTable>
 
-                        <p:commandButton icon="pi pi-trash" title="Delete"
-                                         action="#{hotelBean.deleteHotel(hotel.hotelId)}"
-                                         update="@form infoGrowl"
-                                         styleClass="ui-button-danger">
-                            <p:confirm header="Confirmation" message="Are you sure you want to delete this hotel?" icon="pi pi-exclamation-triangle" />
-                        </p:commandButton>
-                    </p:column>
-
-                </p:dataTable>
+                <h:panelGroup rendered="#{empty hotelBean.allHotels}">
+                    <p>You do not manage any hotels yet.</p>
+                </h:panelGroup>
 
                 <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
                     <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no ui-button-secondary" icon="pi pi-times" />
