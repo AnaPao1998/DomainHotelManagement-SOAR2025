@@ -11,8 +11,7 @@
 <ui:composition template="/templates/ManagerTemplate.xhtml">
 
     <f:metadata>
-        <f:event type="preRenderView" listener="#{managerBean.loadManager}" />
-        <f:event type="preRenderView" listener="#{managerBean.loadPendingBookings}" />
+        <f:event type="preRenderView" listener="#{managerBean.initManagerPage}" />
     </f:metadata>
 
     <ui:define name="pageTitle">Manager | Booking Approval</ui:define>
@@ -43,15 +42,8 @@
                         <h:outputText value="#{booking.userId}" />
                     </p:column>
 
-                    <p:column headerText="Check-in Date" sortBy="#{booking.checkInDate}">
-                        <h:outputText value="#{booking.checkInDate}">
-                            <f:convertDateTime pattern="dd/MM/yyyy"/>
-                        </h:outputText>
-                    </p:column>
-
-                    <p:column headerText="Check-out Date" sortBy="#{booking.checkOutDate}">
-                        <h:outputText value="#{booking.checkOutDate}">
-                            <f:convertDateTime pattern="dd/MM/yyyy"/>
+                    <p:column headerText="Check-in Date" sortBy="#{booking.createdAt}">
+                        <h:outputText value="#{booking.createdAt}">
                         </h:outputText>
                     </p:column>
 

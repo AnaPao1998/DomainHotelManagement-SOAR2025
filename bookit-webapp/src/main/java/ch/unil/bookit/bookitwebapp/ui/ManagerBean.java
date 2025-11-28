@@ -115,6 +115,15 @@ public class ManagerBean extends HotelManager implements Serializable {
             PrimeFaces.current().executeScript("PF('updateErrorDialog').show();");
         }
     }
+    public void initManagerPage() {
+        loadManager();
+
+
+        loadPendingBookings();
+
+        System.out.println("DEBUG initManagerPage: pendingBookings size = " +
+                (pendingBookings == null ? "null" : pendingBookings.size()));
+    }
 
     public void loadManager() {
         UUID id = this.getUUID();
@@ -158,22 +167,22 @@ public class ManagerBean extends HotelManager implements Serializable {
     public void setManager(HotelManager manager) { this.manager = manager; }
 
     public void loadPendingBookings() {
-        UUID managerId = this.getUUID();
-        if (managerId != null) {
-            try {
-                this.pendingBookings = service.getPendingBookingsForManager(managerId);
-                if (this.pendingBookings == null) {
-                    this.pendingBookings = Collections.emptyList();
-                }
-            } catch (Exception e) {
-                FacesContext.getCurrentInstance().addMessage(null,
-                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Load Error", "Failed to load bookings: " + e.getMessage()));
-                this.pendingBookings = Collections.emptyList();
-            }
-        } else {
+        // TEMP: hardcode for testing
+        UUID managerId = UUID.fromString("11111111-1111-1111-1111-111111111111");
+        System.out.println("DEBUG LoadPendingBookings: managerId = " + managerId);
+
+        try {
+            List<Booking> freshBookings = service.getPendingBookingsForManager(managerId);
+            this.pendingBookings = (freshBookings != null) ? freshBookings : Collections.emptyList();
+        } catch (Exception e) {
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Load Error",
+                            "Failed to load bookings: " + e.getMessage()));
             this.pendingBookings = Collections.emptyList();
         }
     }
+
+
 
     public void approveBooking(Booking booking) {
         UUID managerId = this.getUUID();

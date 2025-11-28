@@ -176,4 +176,20 @@ public class ManagerResource {
                     .build();
         }
     }
+
+    @GET
+    @Path("/{managerId}/bookings/pending")
+    public Response getPendingBookings(@PathParam("managerId") UUID managerId) {
+        List<Booking> pendingBookings = new ArrayList<>();
+
+        for (Booking b : applicationResource.getBookings().values()) {
+            if (b.getStatus() == ch.unil.bookit.domain.booking.BookingStatus.PENDING) {
+                Hotel hotel = applicationResource.getHotel(b.getHotelId());
+                if (hotel != null && hotel.getManagerId().equals(managerId)) {
+                    pendingBookings.add(b);
+                }
+            }
+        }
+        return Response.ok(pendingBookings).build();
+    }
 }
