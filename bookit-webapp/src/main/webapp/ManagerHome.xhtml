@@ -13,101 +13,95 @@
         Manager Account Management
     </ui:define>
 
-    <ui:define name="content">
+    <f:metadata>
+        <f:event type="preRenderView" listener="#{managerBean.loadManager}" />
+    </f:metadata>
 
-        <h:panelGroup layout="block" styleClass="admin-header">
-            <h1>Account Settings</h1>
-            <p>Manage your profile information and login credentials.</p>
+    <ui:define name="pageTitle">Bookit | Home</ui:define>
+
+    <ui:define name="managerContent">
+
+        <style type="text/css">
+            .welcome-hero {
+                display: flex;
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+
+            .suitcase-wrapper {
+                margin-top: 1rem;
+                display: flex;
+                justify-content: center;
+                align-items: flex-end;
+                height: 80px;
+                position: relative;
+            }
+
+            .suitcase-track {
+                position: relative;
+                width: 140px;
+                animation: suitcase-move 5s infinite alternate ease-in-out;
+            }
+
+            .suitcase-icon {
+                font-size: 3rem;
+                color: #f97316; /* orange */
+                animation: suitcase-bounce 1.2s infinite ease-in-out;
+            }
+
+            .suitcase-shadow {
+                position: absolute;
+                bottom: 8px;
+                width: 90px;
+                height: 10px;
+                border-radius: 999px;
+                background: rgba(0, 0, 0, 0.08);
+                filter: blur(2px);
+                animation: suitcase-shadow 5s infinite alternate ease-in-out;
+            }
+
+            @keyframes suitcase-move {
+                from { transform: translateX(-40px); }
+                to   { transform: translateX(40px); }
+            }
+
+            @keyframes suitcase-bounce {
+                0%, 100% { transform: translateY(0); }
+                50%      { transform: translateY(-8px); }
+            }
+
+            @keyframes suitcase-shadow {
+                from {
+                    transform: translateX(-40px) scaleX(0.9);
+                    opacity: 0.6;
+                }
+                to {
+                    transform: translateX(40px) scaleX(1.05);
+                    opacity: 0.4;
+                }
+            }
+        </style>
+
+        <h:panelGroup layout="block" styleClass="p-mt-3 welcome-hero">
+
+            <div class="welcome-copy">
+                <h1>Welcome, #{managerBean.firstName} in your account !</h1>
+                <p> Review the status of your hotels and the booking approval. </p>
+                <p> Use the navigation above to access your establishments and validate new reservations. </p>
+                <p> Your success starts here ! </p>
+            </div>
+
+            <div class="suitcase-wrapper">
+                <div class="suitcase-track">
+                    <i class="pi pi-briefcase suitcase-icon"></i>
+                </div>
+                <div class="suitcase-shadow"></div>
+            </div>
+
         </h:panelGroup>
 
-        <p:separator style="margin-top: 15px; margin-bottom: 30px;"/>
-
-        <div class="p-grid p-justify-center">
-
-            <div class="p-col-12 p-lg-6 profile-section">
-                <p:panel header="Update Profile" styleClass="profile-panel">
-
-                    <h:form id="profileForm">
-                        <p:messages id="profileMessages" showDetail="true" autoUpdate="true" closable="true" />
-
-                        <p:panelGrid columns="1" layout="grid" styleClass="ui-fluid">
-
-                            <p:outputLabel for="firstName" value="First Name:" />
-                            <p:inputText id="firstName"
-                                         value="#{managerBean.firstName}"
-                                         required="true"
-                                         placeholder="Your first name" />
-
-                            <p:outputLabel for="lastName" value="Last Name:" />
-                            <p:inputText id="lastName"
-                                         value="#{managerBean.lastName}"
-                                         required="true"
-                                         placeholder="Your last name" />
-
-                            <p:outputLabel for="email" value="Email:" />
-                            <p:inputText id="email"
-                                         value="#{managerBean.email}"
-                                         required="true"
-                                         placeholder="Your email address" />
-
-                        </p:panelGrid>
-
-                        <p:commandButton value="Save Changes"
-                                         actionListener="#{managerBean.checkIfChanged}"
-                                         action="#{managerBean.updateManager}"
-                                         update="@form :globalDialog"
-                                         styleClass="ui-button-primary save-button p-mt-3" />
-
-                    </h:form>
-                </p:panel>
-            </div>
-
-            <div class="p-col-12 p-lg-6 password-section">
-                <p:panel header="Change Password" styleClass="password-panel">
-
-                    <h:form id="passwordForm">
-                        <p:messages id="passwordMessages" showDetail="true" autoUpdate="true" closable="true" />
-
-                        <p:panelGrid columns="1" layout="grid" styleClass="ui-fluid">
-
-                            <p:outputLabel for="currentPass" value="Current Password:" />
-                            <p:password id="currentPass"
-                                        value="#{managerBean.currentPassword}"
-                                        required="true"
-                                        placeholder="Current password"
-                                        feedback="false"/>
-
-                            <p:outputLabel for="newPass" value="New Password:" />
-                            <p:password id="newPass"
-                                        value="#{managerBean.newPassword}"
-                                        required="true"
-                                        placeholder="New password"
-                                        feedback="true"
-                                        toggleMask="true"/>
-
-                        </p:panelGrid>
-
-                        <p:commandButton value="Update Password"
-                                         action="#{managerBean.savePasswordChange}"
-                                         update="@form :globalDialog"
-                                         styleClass="ui-button-warning save-button p-mt-3" />
-
-                    </h:form>
-                </p:panel>
-            </div>
-
-        </div>
-
-        <p:dialog widgetVar="passwordChangeDialog" modal="true" header="Password Change Status" id="globalDialog">
-            <h:outputText value="#{managerBean.dialogMessage}" />
-            <p:commandButton value="Close" onclick="PF('passwordChangeDialog').hide()" type="button" class="p-mt-3"/>
-        </p:dialog>
-
-        <p:dialog widgetVar="updateErrorDialog" modal="true" header="Update Error" id="errorDialog">
-            <h:outputText value="#{managerBean.dialogMessage}" />
-            <p:commandButton value="Close" onclick="PF('updateErrorDialog').hide()" type="button" class="p-mt-3"/>
-        </p:dialog>
 
     </ui:define>
+
 </ui:composition>
 </html>
