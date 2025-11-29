@@ -11,7 +11,7 @@ import jakarta.faces.context.FacesContext;
 import jakarta.faces.application.FacesMessage;
 import ch.unil.bookit.domain.booking.Booking;
 import ch.unil.bookit.domain.Hotel;
-
+import jakarta.servlet.http.HttpSession;
 import java.io.Serializable;
 import java.util.UUID;
 import java.util.Collections;
@@ -115,31 +115,25 @@ public class ManagerBean extends HotelManager implements Serializable {
             PrimeFaces.current().executeScript("PF('updateErrorDialog').show();");
         }
     }
-    public void initManagerPage() {
-        loadManager();
-
-
-        loadPendingBookings();
-
-        System.out.println("DEBUG initManagerPage: pendingBookings size = " +
-                (pendingBookings == null ? "null" : pendingBookings.size()));
-    }
-
     public void loadManager() {
         UUID id = this.getUUID();
-        System.out.println("DEBUG ManagerBean: UUID before service call: " + id);
+        //System.out.println("DEBUG ManagerBean: UUID before service call: " + id);
         if (id != null) {
             Response response = service.getManager(id.toString());
             manager = response.readEntity(HotelManager.class);
             if (manager != null) {
-                this.setuuid(manager.getUUID());
+                this.setuuid(manager.getId());
                 this.setEmail(manager.getEmail());
                 this.setPassword(manager.getPassword());
                 this.setFirstName(manager.getFirstName());
                 this.setLastName(manager.getLastName());
+
+                List<Booking> fresh = service.getPendingBookingsForManager(id);
+                this.pendingBookings = (fresh != null) ? fresh : Collections.emptyList();
             }
         }
     }
+
 
     // checks if any of the profile fields have been changed
     public void checkIfChanged() {
@@ -167,8 +161,8 @@ public class ManagerBean extends HotelManager implements Serializable {
     public void setManager(HotelManager manager) { this.manager = manager; }
 
     public void loadPendingBookings() {
-        // TEMP: hardcode for testing
-        UUID managerId = UUID.fromString("11111111-1111-1111-1111-111111111111");
+        UUID managerId = this.getUUID();
+        //UUID managerId = UUID.fromString("11111111-1111-1111-1111-111111111111");
         System.out.println("DEBUG LoadPendingBookings: managerId = " + managerId);
 
         try {
@@ -181,8 +175,6 @@ public class ManagerBean extends HotelManager implements Serializable {
             this.pendingBookings = Collections.emptyList();
         }
     }
-
-
 
     public void approveBooking(Booking booking) {
         UUID managerId = this.getUUID();

@@ -11,7 +11,7 @@
 <ui:composition template="/templates/ManagerTemplate.xhtml">
 
     <f:metadata>
-        <f:event type="preRenderView" listener="#{managerBean.initManagerPage}" />
+        <f:event type="preRenderView" listener="#{managerBean.loadManager()}" />
     </f:metadata>
 
     <ui:define name="pageTitle">Manager | Booking Approval</ui:define>

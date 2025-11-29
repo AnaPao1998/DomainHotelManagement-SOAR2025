@@ -20,9 +20,9 @@ public class ApplicationResource {
     private Map<UUID, Booking>  bookings;
     private Map<UUID, HotelManager>  managers;
 
-    @Inject
+    /*@Inject
     private ManagerRegistry managerRegistry;
-
+    */
     @PostConstruct
     public void init() {
         guests = new HashMap<>();
@@ -102,16 +102,23 @@ public class ApplicationResource {
 
     public Hotel createHotel(Hotel hotel) {
 
-        HotelManager manager = managerRegistry.getDefaultManager();
-
-        if (!managers.containsKey(manager.getId())) {
-            managers.put(manager.getId(), manager);
+        if (hotel.getManagerId() == null) {
+            throw new IllegalArgumentException("Manager ID is required");
         }
+
+
+        if (!managers.containsKey(hotel.getManagerId())) {
+            throw new IllegalArgumentException("Manager not found");
+        }
+
+
+        HotelManager manager = managers.get(hotel.getManagerId());
 
         if (hotel.getHotelId() == null) {
             hotel.setHotelId(UUID.randomUUID());
         }
-        hotel.setManagerId(manager.getId());
+
+
         manager.addHotel(hotel);
 
         hotels.put(hotel.getHotelId(), hotel);
@@ -187,8 +194,9 @@ public class ApplicationResource {
         Guest guest2 = new Guest(guestId2, "bogdanic.duska@gmail.com", "pass123", "Duska", "Bogdanic");
         guests.put(guestId2, guest2);
 
-        HotelManager manager = managerRegistry.getDefaultManager();
-        managers.put(manager.getId(), manager);
+        UUID managerId = UUID.randomUUID();
+        HotelManager manager = new HotelManager(managerId, "manager@bookit.com", "pass123", "Marta", "Keller");
+        managers.put(managerId, manager);
 
         String[][] seed = {
                 {"Bookit Inn", "Cozy place near the lake", "Lausanne", "Switzerland", "Rue de la Paix 10", "120.00", "hotel1.jpg"},
@@ -207,21 +215,10 @@ public class ApplicationResource {
         Hotel secondHotel = null;
 
         for (String[] h : seed) {
-            Hotel created = createHotelForManager(
-                    manager,
-                    h[0], // name
-                    h[1], // description
-                    h[2], // city
-                    h[3], // country
-                    h[4], // address
-                    h[5], // price
-                    h[6]  // imageUrl
-            );
-            if (firstHotel == null) {
-                firstHotel = created;
-            } else if (secondHotel == null) {
-                secondHotel = created; // Alpine Retreat
-            }
+            // Pass the local 'manager' object
+            Hotel created = createHotelForManager(manager, h[0], h[1], h[2], h[3], h[4], h[5], h[6]);
+            if (firstHotel == null) firstHotel = created;
+            else if (secondHotel == null) secondHotel = created;
         }
 
         // Room Types & prices

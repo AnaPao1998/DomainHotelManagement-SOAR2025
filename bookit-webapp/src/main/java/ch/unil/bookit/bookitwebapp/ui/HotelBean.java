@@ -78,8 +78,16 @@ public class HotelBean implements Serializable {
 
     private void createHotel() {
         try {
-            //  backend should associate the new Hotel with the manager's ID
+            UUID managerId = managerBean.getManagerId();
+
+            if (managerId == null) {
+                throw new Exception("You must be logged in as a manager to create a hotel.");
+            }
+
+            selectedHotel.setManagerId(managerId);
+
             service.createHotel(selectedHotel);
+
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Hotel '" + selectedHotel.getName() + "' created successfully."));
         } catch (Exception e) {
