@@ -20,7 +20,7 @@
 
         <h:panelGroup layout="block" styleClass="p-mt-3 p-mb-4">
             <h1>Booking Approval</h1>
-            <p>Review and manage new booking requests for your hotels, **#{managerBean.firstName}**.</p>
+            <p>Review and manage new booking requests for your hotels, #{managerBean.firstName}.</p>
         </h:panelGroup>
 
         <p:growl id="infoGrowl" showDetail="true" life="4000"/>
@@ -32,54 +32,65 @@
                              value="#{managerBean.pendingBookings}"
                              emptyMessage="No pending booking requests found."
                              paginator="true" rows="10"
-                             styleClass="p-datatable-striped">
+                             styleClass="p-datatable-striped"
+                             rowKey="#{booking.bookingId}">
 
-                    <p:column headerText="Hotel">
-                        <h:outputText value="#{managerBean.getHotelName(booking.hotelId)}" />
+                    <p:column headerText="Photo" width="100" style="text-align: center;">
+                        <p:graphicImage library="hotels"
+                                        name="#{managerBean.getHotelImage(booking.hotelId)}"
+                                        width="80"
+                                        style="border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"/>
                     </p:column>
 
-                    <p:column headerText="Guest ID">
-                        <h:outputText value="#{booking.userId}" />
+                    <p:column headerText="Hotel">
+                        <h:outputText value="#{managerBean.getHotelName(booking.hotelId)}" style="font-weight: bold;"/>
+                    </p:column>
+
+                    <p:column headerText="Guest Name">
+                        <h:outputText value="#{managerBean.getGuestName(booking.userId)}" />
                     </p:column>
 
                     <p:column headerText="Check-in Date" sortBy="#{booking.createdAt}">
-                        <h:outputText value="#{booking.createdAt}">
-                        </h:outputText>
+                        <h:outputText value="#{managerBean.getFormattedDate(booking.createdAt)}" />
                     </p:column>
 
-                    <p:column headerText="Room Type ID">
-                        <h:outputText value="#{booking.roomTypeId}" />
-                    </p:column>
-
-                    <p:column headerText="Status" width="100">
-                        <h:outputText value="#{booking.status}" style="font-weight: bold; color: orange;"/>
+                    <p:column headerText="Status" width="100" style="text-align: center;">
+        <span class="customer-badge status-pending"
+              style="background: #FFF4DE; color: #FFA117; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 12px;">
+            #{booking.status}
+        </span>
                     </p:column>
 
                     <p:column headerText="Actions" width="180" style="text-align: center;">
 
-                        <p:commandButton icon="pi pi-check" title="Approve"
+                        <p:commandButton icon="pi pi-check"
+                                         title="Approve"
                                          actionListener="#{managerBean.approveBooking(booking)}"
                                          update="@form :infoGrowl"
-                                         styleClass="ui-button-success p-mr-2"/>
+                                         process="@this"  styleClass="ui-button-success p-mr-2"/>
 
-                        <p:commandButton icon="pi pi-times" title="Reject"
-                                         styleClass="ui-button-danger">
-
+                        <p:commandButton icon="pi pi-times"
+                                         title="Reject"
+                                         actionListener="#{managerBean.cancelBooking(booking)}"
+                                         update="@form :infoGrowl"
+                                         process="@this"  styleClass="ui-button-danger">
                             <p:confirm header="Confirmation"
                                        message="Are you sure you want to reject this booking?"
                                        icon="pi pi-exclamation-triangle" />
                         </p:commandButton>
+
                     </p:column>
 
                 </p:dataTable>
 
-                <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" responsive="true" width="350">
+
                     <p:commandButton value="No" type="button"
-                                     styleClass="ui-confirmdialog-no ui-button-secondary" icon="pi pi-times" />
+                                     styleClass="ui-confirmdialog-no ui-button-flat"/>
+
                     <p:commandButton value="Yes" type="button"
-                                     actionListener="#{managerBean.cancelBooking}"
-                                     styleClass="ui-confirmdialog-yes ui-button-danger" icon="pi pi-check"
-                                     update="@form :infoGrowl"/>
+                                     styleClass="ui-confirmdialog-yes ui-button-danger" />
+
                 </p:confirmDialog>
 
             </h:form>
