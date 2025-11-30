@@ -118,6 +118,7 @@ public class ApplicationResource {
             hotel.setHotelId(UUID.randomUUID());
         }
 
+        hotel.publish();
 
         manager.addHotel(hotel);
 
