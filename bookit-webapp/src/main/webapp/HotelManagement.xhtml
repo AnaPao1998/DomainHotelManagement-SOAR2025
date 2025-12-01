@@ -11,7 +11,6 @@
 
     <f:metadata>
         <f:event type="preRenderView" listener="#{managerBean.loadManager}" />
-        <f:event type="preRenderView" listener="#{hotelBean.loadAllHotels}" />
     </f:metadata>
 
     <ui:define name="pageTitle">Manager | Hotel Management</ui:define>
@@ -46,6 +45,22 @@
                             <h:outputText value="Name"/>
                         </f:facet>
                         <h:outputText value="#{hotel.name}"/>
+                    </h:column>
+                    <h:column>
+                        <f:facet name="header"><h:outputText value="City"/></f:facet>
+                        <h:outputText value="#{hotel.city}"/>
+                    </h:column>
+
+                    <h:column>
+                        <f:facet name="header"><h:outputText value="Country"/></f:facet>
+                        <h:outputText value="#{hotel.country}"/>
+                    </h:column>
+
+                    <h:column>
+                        <f:facet name="header"><h:outputText value="Price"/></f:facet>
+                        <h:outputText value="#{hotel.nightPrice}">
+                            <f:convertNumber type="currency" currencySymbol="CHF" />
+                        </h:outputText>
                     </h:column>
 
                     <h:column>
@@ -88,10 +103,27 @@
                 <p:panelGrid id="editPanel" columns="1" layout="grid" styleClass="ui-fluid">
 
                     <p:outputLabel for="hotelName" value="Hotel Name"/>
-                    <p:inputText id="hotelName" value="#{hotelBean.selectedHotel.name}" required="true" />
+                    <p:inputText id="hotelName" value="#{hotelBean.selectedHotel.name}" required="true"
+                                 requiredMessage="Name is required"/>
+
+                    <p:outputLabel for="hotelCity" value="City"/>
+                    <p:inputText id="hotelCity" value="#{hotelBean.selectedHotel.city}" required="true"
+                                 requiredMessage="City is required" placeholder="e.g. Lausanne"/>
+
+                    <p:outputLabel for="hotelCountry" value="Country"/>
+                    <p:inputText id="hotelCountry" value="#{hotelBean.selectedHotel.country}" required="true"
+                                 requiredMessage="Country is required" placeholder="e.g. Switzerland"/>
+
+                    <p:outputLabel for="hotelPrice" value="Price per Night"/>
+                    <p:inputNumber id="hotelPrice" value="#{hotelBean.selectedHotel.nightPrice}"
+                                   decimalSeparator="." thousandSeparator=","
+                                   minValue="0" required="true"
+                                   requiredMessage="Price is required"/>
 
                     <p:outputLabel for="hotelAddress" value="Address"/>
-                    <p:inputText id="hotelAddress" value="#{hotelBean.selectedHotel.address}" required="true" />
+                    <p:inputText id="hotelAddress" value="#{hotelBean.selectedHotel.address}" required="true"
+                                 requiredMessage="Address is required"/>
+
 
                 </p:panelGrid>
 

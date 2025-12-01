@@ -120,24 +120,26 @@ public class ManagerBean extends HotelManager implements Serializable {
         }
     }
     public void loadManager() {
-        UUID id = this.getUUID();
-        System.out.println("DEBUG ManagerBean: UUID before service call: " + id);
+        UUID id = this.getUUID();  // set by LoginBean.login()
+        System.out.println("DEBUG ManagerBean[" + System.identityHashCode(this) +
+                "]: UUID before service call: " + id);
+
         if (id != null) {
             Response response = service.getManager(id.toString());
             manager = response.readEntity(HotelManager.class);
             if (manager != null) {
-                this.setuuid(manager.getId());
+                // DO NOT override uuid
                 this.setEmail(manager.getEmail());
                 this.setPassword(manager.getPassword());
                 this.setFirstName(manager.getFirstName());
                 this.setLastName(manager.getLastName());
+                // and if you want: loadPendingBookings() or loadHotelsForManager() here
 
                 List<Booking> fresh = service.getPendingBookingsForManager(id);
                 this.pendingBookings = (fresh != null) ? fresh : Collections.emptyList();
             }
         }
     }
-
 
     // checks if any of the profile fields have been changed
     public void checkIfChanged() {
@@ -257,4 +259,19 @@ public class ManagerBean extends HotelManager implements Serializable {
 
         return formatter.format(instant);
     }
+
+    public Hotel getHotel(UUID hotelId) {
+        if (hotelId == null) return null;
+
+        try {
+            Response response = service.getHotel(hotelId.toString());
+            if (response.getStatus() == 200) {
+                return response.readEntity(Hotel.class);
+            }
+        } catch (Exception e) {
+            System.err.println("Error fetching hotel for " + hotelId + ": " + e.getMessage());
+        }
+        return null;
+    }
+
 }
