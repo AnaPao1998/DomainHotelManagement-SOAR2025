@@ -1,6 +1,7 @@
 package ch.unil.bookit.bookitwebapp.ui;
 
 import ch.unil.bookit.bookitwebapp.BookItService;
+import ch.unil.bookit.domain.Guest;
 import ch.unil.bookit.domain.HotelManager;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.inject.Inject;
@@ -13,6 +14,8 @@ import ch.unil.bookit.domain.booking.Booking;
 import ch.unil.bookit.domain.Hotel;
 import jakarta.servlet.http.HttpSession;
 import java.io.Serializable;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 import java.util.Collections;
 import java.util.List;
@@ -219,5 +222,38 @@ public class ManagerBean extends HotelManager implements Serializable {
         }
         return "Hotel Not Found";
     }
+    public String getGuestName(UUID userId) {
+        if (userId == null) return "Unknown";
+        try {
+            Response response = service.getGuests(userId.toString());
+            if (response.getStatus() == 200) {
+                Guest g = response.readEntity(Guest.class);
+                return g.getFirstName() + " " + g.getLastName();
+            }
+        } catch (Exception e) {
+            System.err.println("Error fetching guest: " + e.getMessage());
+        }
+        return "Unknown Guest";
+    }
 
+    public String getHotelImage(UUID hotelId) {
+        if (hotelId == null) return "default.jpg"; // fallback image
+        try {
+            Response response = service.getHotel(hotelId.toString());
+            if (response.getStatus() == 200) {
+                Hotel h = response.readEntity(Hotel.class);
+                return h.getImageUrl();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "default.jpg";
+    }
+    public String getFormattedDate(java.time.Instant instant) {
+        if (instant == null) return "";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy")
+                .withZone(ZoneId.systemDefault());
+
+        return formatter.format(instant);
+    }
 }
