@@ -28,6 +28,8 @@ public class RegisterBean implements Serializable {
     private String password;
     private String confirmPassword;
     private String role;
+    private String managerCode;
+    private static final String REQUIRED_MANAGER_CODE = "BOOKIT2025";
 
     @Inject
     BookItService service;
@@ -73,6 +75,16 @@ public class RegisterBean implements Serializable {
             FacesContext.getCurrentInstance()
                     .addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Registration failed.", "Please enter a valid email address."));
             return null;
+        }
+
+        if ("manager".equals(role)) {
+            if (managerCode == null || !managerCode.equals(REQUIRED_MANAGER_CODE)) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                                "Registration failed.",
+                                "Invalid Manager Access Code. You are not authorized."));
+                return null;
+            }
         }
 
         switch (role) {
@@ -166,4 +178,7 @@ public class RegisterBean implements Serializable {
     public boolean isInvalid(String value) {
         return value == null || value.isBlank();
     }
+
+    public String getManagerCode() { return managerCode; }
+    public void setManagerCode(String managerCode) { this.managerCode = managerCode; }
 }
