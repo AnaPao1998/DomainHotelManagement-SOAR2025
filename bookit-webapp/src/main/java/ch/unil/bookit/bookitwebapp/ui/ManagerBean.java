@@ -32,6 +32,7 @@ public class ManagerBean extends HotelManager implements Serializable {
     private String dialogMessage;
     private List<Booking> pendingBookings;
 
+
     @Inject
     BookItService service;
 
@@ -120,7 +121,7 @@ public class ManagerBean extends HotelManager implements Serializable {
     }
     public void loadManager() {
         UUID id = this.getUUID();
-        //System.out.println("DEBUG ManagerBean: UUID before service call: " + id);
+        System.out.println("DEBUG ManagerBean: UUID before service call: " + id);
         if (id != null) {
             Response response = service.getManager(id.toString());
             manager = response.readEntity(HotelManager.class);

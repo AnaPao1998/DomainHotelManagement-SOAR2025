@@ -11,84 +11,90 @@
     <h:outputStylesheet name="css/styles.css"/>
     <title>Bookit! User Registration</title>
 </h:head>
-<h:body>
-    <div align="center" style="margin-top: 50px;">
-        <div style="width: 500px; padding: 20px; border: 1px solid #ccc; border-radius: 5px;">
+<h:body style="background-color: #f5f5f5;"> <div align="center" style="margin-top: 50px;">
 
+    <p:panel style="width: 550px; text-align: left;">
+
+        <div align="center">
             <h:graphicImage library="images"
                             name="logoBookit.png"
                             width="120"
                             styleClass="header-logo"/>
-            <h2>Create New User Account</h2>
-
-            <h:form id="registerForm">
-
-                <h:messages globalOnly="true" style="color: red;"/>
-                <p:growl id="growl" showDetail="true" life="5000"/>
-
-                <h:panelGrid columns="3"
-                             styleClass="register-grid"
-                             columnClasses="label-col,field-col,message-col">
-
-                    <h:outputLabel value="Select Role:" style="font-weight: bold;"/>
-                    <p:selectOneRadio id="selectUserRole" value="#{registerBean.role}"
-                                      layout="pageDirection"
-                                      required="true"
-                                      requiredMessage="You must select a role (Manager or Guest).">
-                        <f:selectItem itemLabel="Traveler (Guest)" itemValue="guest"/>
-                        <f:selectItem itemLabel="Hotel Manager" itemValue="manager"/>
-                    </p:selectOneRadio>
-                    <h:message for="selectUserRole" styleClass="field-error"/>
-
-                    <h:outputLabel for="firstName" value="First Name:"/>
-                    <h:inputText id="firstName" value="#{registerBean.firstName}"
-                                 required="true" requiredMessage="First Name is required."
-                                 styleClass="form-control"/>
-                    <h:message for="firstName" styleClass="field-error"/>
-
-                    <h:outputLabel for="lastName" value="Last Name:"/>
-                    <h:inputText id="lastName" value="#{registerBean.lastName}"
-                                 required="true" requiredMessage="Last Name is required."
-                                 styleClass="form-control"/>
-                    <h:message for="lastName" styleClass="field-error"/>
-
-                    <h:outputLabel for="email" value="Email:"/>
-                    <h:inputText id="email" value="#{registerBean.email}"
-                                 required="true" requiredMessage="Email is required."
-                                 autocomplete="email"
-                                 styleClass="form-control"/>
-                    <h:message for="email" styleClass="field-error"/>
-
-                    <h:outputLabel for="password" value="Password:"/>
-                    <h:inputSecret id="password" value="#{registerBean.password}"
-                                   required="true" requiredMessage="Password is required."
-                                   autocomplete="new-password"
-                                   styleClass="form-control"/>
-                    <h:message for="password" styleClass="field-error"/>
-
-                    <h:outputLabel for="confirmPassword" value="Confirm Password:"/>
-                    <h:inputSecret id="confirmPassword" value="#{registerBean.confirmPassword}"
-                                   required="true" requiredMessage="Confirm Password is required."
-                                   autocomplete="new-password"
-                                   styleClass="form-control"/>
-                    <h:message for="confirmPassword" styleClass="field-error"/>
-
-                    <h:outputText value=""/>
-                    <h:commandButton id="registerButton" value="Sign Up"
-                                     action="#{registerBean.register()}"
-                                     oncomplete="#{registerBean.reset()}"
-                                     update="registerForm growl"
-                                     style="margin-top: 10px;"/>
-                    <h:outputText value=""/>
-                </h:panelGrid>
-
-            </h:form>
-
-            <div style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 10px;">
-                <h:outputText value="Already have an account? "/>
-                <h:link value="Log In Now" outcome="Login.xhtml"/>
-            </div>
+            <h2 style="font-family: 'Segoe UI', sans-serif; color: #333;">Create New User Account</h2>
         </div>
-    </div>
+
+        <h:form id="registerForm">
+
+            <p:messages globalOnly="true" showDetail="true" closable="true"/>
+            <p:growl id="growl" showDetail="true" life="5000"/>
+
+            <p:panelGrid columns="2"
+                         layout="grid"
+                         styleClass="ui-fluid"
+                         columnClasses="p-col-4, p-col-8">
+
+                <p:outputLabel for="selectUserRole" value="Select Role:"/>
+                <p:selectOneRadio id="selectUserRole" value="#{registerBean.role}"
+                                  layout="responsive" columns="2" required="true"
+                                  requiredMessage="You must select a role.">
+                    <f:selectItem itemLabel="Traveler" itemValue="guest"/>
+                    <f:selectItem itemLabel="Manager" itemValue="manager"/>
+                    <p:ajax update="@form" process="@this"/>
+                </p:selectOneRadio>
+
+                <p:outputLabel for="managerCode" value="Access Code:"
+                               style="color: #d9534f; font-weight: bold;"
+                               rendered="#{registerBean.role eq 'manager'}"/>
+
+                <p:password id="managerCode" value="#{registerBean.managerCode}"
+                            placeholder="Admin Secret Key"
+                            required="#{registerBean.role eq 'manager'}"
+                            requiredMessage="Access code is required."
+                            toggleMask="true"
+                            rendered="#{registerBean.role eq 'manager'}"/>
+
+                <p:outputLabel for="firstName" value="First Name:"/>
+                <p:inputText id="firstName" value="#{registerBean.firstName}" required="true"
+                             requiredMessage="First Name is required."/>
+
+                <p:outputLabel for="lastName" value="Last Name:"/>
+                <p:inputText id="lastName" value="#{registerBean.lastName}" required="true"
+                             requiredMessage="Last Name is required."/>
+
+                <p:outputLabel for="email" value="Email:"/>
+                <p:inputText id="email" value="#{registerBean.email}" required="true"
+                             requiredMessage="Email is required."/>
+
+                <p:outputLabel for="password" value="Password:"/>
+                <p:password id="password" value="#{registerBean.password}" required="true"
+                            toggleMask="true" feedback="true"
+                            requiredMessage="Password is required."/>
+
+                <p:outputLabel for="confirmPassword" value="Confirm Password:"/>
+                <p:password id="confirmPassword" value="#{registerBean.confirmPassword}" required="true"
+                            toggleMask="true"
+                            requiredMessage="Confirm Password is required."/>
+
+            </p:panelGrid>
+
+            <div align="center" style="margin-top: 20px;">
+                <p:commandButton id="registerButton" value="Sign Up"
+                                 action="#{registerBean.register()}"
+                                 oncomplete="#{registerBean.reset()}"
+                                 update="registerForm growl"
+                                 icon="pi pi-user-plus"
+                                 styleClass="ui-button-primary"
+                                 style="width: 200px;"/>
+            </div>
+
+        </h:form>
+
+        <div style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 10px; text-align: center;">
+            <h:outputText value="Already have an account? "/>
+            <p:link value="Log In Now" outcome="Login.xhtml" style="font-weight: bold;"/>
+        </div>
+
+    </p:panel>
+</div>
 </h:body>
 </html>
