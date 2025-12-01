@@ -33,35 +33,18 @@ public class GuestBean extends Guest implements Serializable {
     private Hotel selectedHotelForBooking;
     private UUID selectedRoomTypeId;
 
-
-
+    //
+    // Injections
+    //
     @Inject
     BookItService service;
 
     @Inject
     LoginBean loginBean;
 
-
-    // getting list of hotels
-    private List<Hotel> hotels;
-    public List<Hotel> getHotels() {
-        return hotels;
-    }
-    public void loadHotels() {
-        try {
-            // Call the REST endpoint: GET /api/hotelmanager
-            hotels = service.getAllHotels();
-        } catch (Exception e) {
-            // show dialog or log if needed
-            hotels = Collections.emptyList();
-        }
-    }
-
-    private java.util.List<String> roomTypeOptions =
-            java.util.Arrays.asList("Standard Room", "Deluxe Room", "Suite");
-
-    private String selectedRoomTypeCode;
-
+    //
+    // Guest Setup
+    //
     public GuestBean() {
         this(null, null, null, null, null);
     }
@@ -79,25 +62,70 @@ public class GuestBean extends Guest implements Serializable {
         changed = false;
         dialogMessage = null;
     }
+    public void loadGuest() {
+        var id = this.getUUID();
+        if (id != null) {
+            Response response = service.getGuests(id.toString());
+            guest = response.readEntity(Guest.class);
+            if (guest != null) {
+                this.setuuid(guest.getId());
+                this.setEmail(guest.getEmail());
+                this.setPassword(guest.getPassword());
+                this.setFirstName(guest.getFirstName());
+                this.setLastName(guest.getLastName());
+                this.setBalance(guest.getBalance());
+                List<Booking> freshBookings = service.getBookingsForGuest(id);
+                this.setBookings(freshBookings);
+            }
+        }
+    }
+    public void updateGuest() {
+        try {
+            UUID uuid = this.getUUID();
+            if (uuid != null) {
+                Response updated_guest = service.updateGuest(this);
+                loadGuest();
+                changed = false;
+            }
+        } catch (Exception e) {
+            dialogMessage = e.getMessage();
+            PrimeFaces.current().executeScript("PF('updateErrorDialog').show();");
 
-    // password
+        }
+    }
 
+    // checks if any of the profile fields have been changed
+    public void checkIfChanged() {
+        boolean firstNameChanged = !guest.getFirstName().equals(this.getFirstName());
+        boolean lastNameChanged = !guest.getLastName().equals(this.getLastName());
+        boolean emailChanged = !guest.getEmail().equals(this.getEmail());
+        boolean passwordChanged = !guest.getPassword().equals(this.getPassword());
+        changed = firstNameChanged || lastNameChanged || emailChanged || passwordChanged;
+    }
+    public boolean isChanged() {
+        return changed;
+    }
+
+
+    //
+    // Password
+    //
+
+    // Getters and Setters
     public String getCurrentPassword() {
         return currentPassword;
     }
-
     public void setCurrentPassword(String currentPassword) {
         this.currentPassword = currentPassword;
     }
-
     public String getNewPassword() {
         return newPassword;
     }
-
     public void setNewPassword(String newPassword) {
         this.newPassword = newPassword;
     }
 
+    // Password change
     public void savePasswordChange() throws Exception {
         if (currentPassword == null || newPassword == null) { // check if required fields are filled
             dialogMessage = "Please enter all the required fields.";
@@ -116,72 +144,63 @@ public class GuestBean extends Guest implements Serializable {
             resetPasswordChange();
         }
     }
-
     public void resetPasswordChange() {
         this.currentPassword = null;
         this.newPassword = null;
     }
 
-    // guest
 
-    public void updateGuest() {
-        try {
-            UUID uuid = this.getUUID();
-            if (uuid != null) {
-                Response updated_guest = service.updateGuest(this);
-                loadGuest();
-                changed = false;
-            }
-        } catch (Exception e) {
-            dialogMessage = e.getMessage();
-            PrimeFaces.current().executeScript("PF('updateErrorDialog').show();");
+    //
+    // Hotels
+    //
 
-        }
-    }
-
-    public void loadGuest() {
-        var id = this.getUUID();
-        if (id != null) {
-            Response response = service.getGuests(id.toString());
-            guest = response.readEntity(Guest.class);
-            if (guest != null) {
-                this.setuuid(guest.getId());
-                this.setEmail(guest.getEmail());
-                this.setPassword(guest.getPassword());
-                this.setFirstName(guest.getFirstName());
-                this.setLastName(guest.getLastName());
-                this.setBalance(guest.getBalance());
-                List<Booking> freshBookings = service.getBookingsForGuest(id);
-                this.setBookings(freshBookings);
-            }
-        }
-    }
-
-    // checks if any of the profile fields have been changed
-    public void checkIfChanged() {
-        boolean firstNameChanged = !guest.getFirstName().equals(this.getFirstName());
-        boolean lastNameChanged = !guest.getLastName().equals(this.getLastName());
-        boolean emailChanged = !guest.getEmail().equals(this.getEmail());
-        boolean passwordChanged = !guest.getPassword().equals(this.getPassword());
-        changed = firstNameChanged || lastNameChanged || emailChanged || passwordChanged;
-    }
-
+    // Getters and Setters
     public Hotel getSelectedHotelForBooking() {
         return selectedHotelForBooking;
     }
-
     public void setSelectedHotelForBooking(Hotel selectedHotelForBooking) {
         this.selectedHotelForBooking = selectedHotelForBooking;
     }
+    public Hotel getHotel(UUID hotelId) {
+        if (hotelId == null) return null;
+        try {
+            Response response = service.getHotel(hotelId.toString());
+            if (response.getStatus() == 200) {
+                return response.readEntity(Hotel.class);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
+    private List<Hotel> hotels;
+    public List<Hotel> getHotels() {
+        return hotels;
+    }
+
+    public void loadHotels() {
+        try {
+            // Call the REST endpoint: GET /api/hotelmanager
+            hotels = service.getAllHotels();
+        } catch (Exception e) {
+            // show dialog or log if needed
+            hotels = Collections.emptyList();
+        }
+    }
+
+
+    //
+    // Room types
+    //
+
+    // Getters and Setters
     public UUID getSelectedRoomTypeId() {
         return selectedRoomTypeId;
     }
-
     public void setSelectedRoomTypeId(UUID selectedRoomTypeId) {
         this.selectedRoomTypeId = selectedRoomTypeId;
     }
-
     public java.util.List<String> getRoomTypeOptions() {
         return roomTypeOptions;
     }
@@ -194,19 +213,26 @@ public class GuestBean extends Guest implements Serializable {
         this.selectedRoomTypeCode = selectedRoomTypeCode;
     }
 
-    public boolean isChanged() {
-        return changed;
-    }
+    // set room type options
+    private java.util.List<String> roomTypeOptions =
+            java.util.Arrays.asList("Standard Room", "Deluxe Room", "Suite");
 
+    private String selectedRoomTypeCode;
+
+
+    //
+    // Booking
+    //
+
+    // which is this dialog Message for?
     public String getDialogMessage() {
         return dialogMessage;
     }
-
     public void setDialogMessage(String dialogMessage) {
         this.dialogMessage = dialogMessage;
     }
 
-
+    // for "Date Booked"
     public String getFormattedDate(java.time.Instant instant) {
         if (instant == null) return "";
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy")
@@ -312,16 +338,4 @@ public class GuestBean extends Guest implements Serializable {
         }
     }
 
-    public Hotel getHotel(UUID hotelId) {
-        if (hotelId == null) return null;
-        try {
-            Response response = service.getHotel(hotelId.toString());
-            if (response.getStatus() == 200) {
-                return response.readEntity(Hotel.class);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
 }
