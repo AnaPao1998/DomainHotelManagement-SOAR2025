@@ -14,7 +14,7 @@ public class HotelManager extends User {
     private final Map<String, Double> roomPrices = new HashMap<>();
 
     private final EmailService emailService = new EmailService();
-    private final CurrencyConverter currencyConverter = new CurrencyConverter();
+    // private final CurrencyConverter currencyConverter = new CurrencyConverter();
 
     public HotelManager() {
         super();
@@ -49,10 +49,10 @@ public class HotelManager extends User {
         roomPrices.put(roomType, price);
     }
 
-    public double getConvertedPrice(String roomType, String targetCurrency) {
-        double basePrice = roomPrices.getOrDefault(roomType, 0.0);
-        return currencyConverter.convert("USD", targetCurrency, basePrice);
-    }
+//    public double getConvertedPrice(String roomType, String targetCurrency) {
+//        double basePrice = roomPrices.getOrDefault(roomType, 0.0);
+//        return currencyConverter.convert("USD", targetCurrency, basePrice);
+//    }
 
     public void approveBooking(Booking booking, Map<UUID, Guest> guests) {
 
