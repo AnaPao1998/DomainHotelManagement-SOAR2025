@@ -2,17 +2,26 @@ package ch.unil.bookit.domain;
 
 import ch.unil.bookit.domain.booking.Booking;
 import ch.unil.bookit.domain.booking.BookingStatus;
-import ch.unil.bookit.domain.services.CurrencyConverter;
+// import ch.unil.bookit.domain.services.CurrencyConverter;
 import ch.unil.bookit.domain.services.EmailService;
-
+import jakarta.persistence.*;
 import java.util.*;
 
+@Entity
+@Table(name = "hotel_managers")
+@DiscriminatorValue("MANAGER")
 public class HotelManager extends User {
 
+    @Transient
     private final List<Hotel> hotels = new ArrayList<>();
+
+    @Transient
     private List<String> roomTypes = new ArrayList<>();
+
+    @Transient
     private final Map<String, Double> roomPrices = new HashMap<>();
 
+    @Transient
     private final EmailService emailService = new EmailService();
     // private final CurrencyConverter currencyConverter = new CurrencyConverter();
 
@@ -33,20 +42,6 @@ public class HotelManager extends User {
 
     public List<Hotel> getHotels() {
         return Collections.unmodifiableList(hotels);
-    }
-
-    public void defineRoomTypes(List<String> types) {
-        this.roomTypes = (types == null) ? new ArrayList<>() : new ArrayList<>(types);
-    }
-
-    public void setRoomPrices(String roomType, double price) {
-        if (!roomTypes.contains(roomType)) {
-            throw new IllegalArgumentException("Room type " + roomType + " does not exist.");
-        }
-        if (price < 0) {
-            throw new IllegalArgumentException("Price must be non-negative.");
-        }
-        roomPrices.put(roomType, price);
     }
 
 //    public double getConvertedPrice(String roomType, String targetCurrency) {
@@ -88,5 +83,19 @@ public class HotelManager extends User {
                 "Booking Cancelled",
                 "Your booking has been cancelled. Please contact us for further details."
         );
+    }
+
+    public void defineRoomTypes(List<String> types) {
+        this.roomTypes = (types == null) ? new ArrayList<>() : new ArrayList<>(types);
+    }
+
+    public void setRoomPrices(String roomType, double price) {
+        if (!roomTypes.contains(roomType)) {
+            throw new IllegalArgumentException("Room type " + roomType + " does not exist.");
+        }
+        if (price < 0) {
+            throw new IllegalArgumentException("Price must be non-negative.");
+        }
+        roomPrices.put(roomType, price);
     }
 }

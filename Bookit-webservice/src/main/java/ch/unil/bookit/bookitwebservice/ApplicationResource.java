@@ -7,6 +7,9 @@ import ch.unil.bookit.domain.booking.Booking;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -15,6 +18,19 @@ import java.util.UUID;
 
 @ApplicationScoped
 public class ApplicationResource {
+    private EntityManagerFactory emf;
+    private EntityManager getEntityManagerSafe() {
+        try {
+            if (emf == null) {
+                emf = Persistence.createEntityManagerFactory("bookitPU");
+            }
+            return emf.createEntityManager();
+        } catch (Exception e) {
+            // Log but DO NOT break the app
+            e.printStackTrace();
+            return null;
+        }
+    }
     private Map<UUID, Guest> guests;
     private Map<UUID, Hotel> hotels;
     private Map<UUID, Booking>  bookings;
@@ -32,11 +48,33 @@ public class ApplicationResource {
         populateApplicationState();
     }
 
-    public Guest createGuest(Guest guest){
+    /// ////////////////////
+    /// GUEST FUNCTIONS ////
+    /// ////////////////////
+    public Guest createGuest(Guest guest) {
         guest.setuuid(UUID.randomUUID());
-        guests.put(guest.getUUID(), guest);
+        guests.put(guest.getUUID(), guest);   // existing behavior: keep this
+
+        EntityManager em = getEntityManagerSafe();
+        if (em != null) {
+            try {
+                em.getTransaction().begin();
+                em.persist(guest);
+                em.getTransaction().commit();
+            } catch (Exception e) {
+                e.printStackTrace();
+                if (em.getTransaction().isActive()) {
+                    em.getTransaction().rollback();
+                }
+                // IMPORTANT: we swallow the error so login/app keeps working
+            } finally {
+                em.close();
+            }
+        }
+
         return guest;
     }
+
 
     public Map<UUID, Guest> getAllGuests() {
         return guests;
@@ -77,11 +115,33 @@ public class ApplicationResource {
         return guest;
     }
 
-    public HotelManager createManager(HotelManager manager){
+
+    /// //////////////////////
+    /// MANAGER FUNCTIONS ////
+    /// //////////////////////
+    public HotelManager createManager(HotelManager manager) {
         manager.setuuid(UUID.randomUUID());
-        managers.put(manager.getUUID(), manager);
+        managers.put(manager.getUUID(), manager);   // keep in-memory
+
+        EntityManager em = getEntityManagerSafe();
+        if (em != null) {
+            try {
+                em.getTransaction().begin();
+                em.persist(manager);
+                em.getTransaction().commit();
+            } catch (Exception e) {
+                e.printStackTrace();
+                if (em.getTransaction().isActive()) {
+                    em.getTransaction().rollback();
+                }
+            } finally {
+                em.close();
+            }
+        }
+
         return manager;
     }
+
 
     public Map<UUID, HotelManager> getAllManagers() {
         return managers;
@@ -100,6 +160,10 @@ public class ApplicationResource {
         return null;
     }
 
+
+    /// ////////////////////
+    /// HOTEL FUNCTIONS ////
+    /// ////////////////////
     public Hotel createHotel(Hotel hotel) {
 
         if (hotel.getManagerId() == null) {
@@ -147,6 +211,10 @@ public class ApplicationResource {
         return hotels.remove(id) != null;
     }
 
+
+    /// //////////////////////
+    /// BOOKING FUNCTIONS ////
+    /// //////////////////////
     public Map<UUID, Booking> getBookings() {
         return bookings;
     }

@@ -20,60 +20,16 @@ public class ManagerResource {
     @Inject
     private ApplicationResource applicationResource;
 
-    @POST
-    public Response createHotel(Hotel hotel) {
-        if (hotel == null) {
-            return Response.status(Response.Status.BAD_REQUEST).build();
-        }
-
-        Hotel created = applicationResource.createHotel(hotel);
-        return Response.status(Response.Status.CREATED).entity(created).build();
-    }
-
+    // get all managers
     @GET
-    public List<Hotel> getAllHotels() {
-        return new ArrayList<>(applicationResource.getAllHotels().values());
+    @Path("/all")
+    public Response getAllManagers() {
+        List<HotelManager> managers =
+                new ArrayList<>(applicationResource.getAllManagers().values());
+        return Response.ok(managers).build();
     }
 
-    @GET
-    @Path("/{hotelId}")
-    public Response getHotel(@PathParam("hotelId") UUID hotelId) {
-        Hotel hotel = applicationResource.getHotel(hotelId);
-        if (hotel != null) {
-            return Response.ok(hotel).build();
-        }
-        return Response.status(Response.Status.NOT_FOUND).build();
-    }
-
-    @PUT
-    @Path("/{hotelId}")
-    public Response updateHotel(@PathParam("hotelId") UUID hotelId, Hotel hotel) {
-        Hotel updatedHotel = applicationResource.updateHotel(hotelId, hotel);
-        if (updatedHotel != null) {
-            return Response.ok(updatedHotel).build();
-        }
-        return Response.status(Response.Status.NOT_FOUND).build();
-    }
-
-    @DELETE
-    @Path("/{hotelId}")
-    public Response deleteHotel(@PathParam("hotelId") UUID hotelId) {
-        if (applicationResource.deleteHotel(hotelId)) {
-            return Response.noContent().build();
-        }
-        return Response.status(Response.Status.NOT_FOUND).build();
-    }
-
-    @POST
-    @Path("/manager")
-    public Response createManager(HotelManager manager) {
-        if (manager == null) {
-            return Response.status(Response.Status.BAD_REQUEST).build();
-        }
-        HotelManager newManager = applicationResource.createManager(manager);
-        return Response.status(Response.Status.CREATED).entity(newManager).build();
-    }
-
+    // get single manager
     @GET
     @Path("/manager/{managerId}")
     public Response getManager(@PathParam("managerId") UUID managerId) {
@@ -85,6 +41,18 @@ public class ManagerResource {
         }
     }
 
+    // create manager
+    @POST
+    @Path("/manager")
+    public Response createManager(HotelManager manager) {
+        if (manager == null) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+        HotelManager newManager = applicationResource.createManager(manager);
+        return Response.status(Response.Status.CREATED).entity(newManager).build();
+    }
+
+    // update manager
     @PUT
     @Path("/manager/{managerId}")
     public Response updateManager(@PathParam("managerId") UUID managerId, HotelManager manager) {
@@ -96,14 +64,7 @@ public class ManagerResource {
         }
     }
 
-    @GET
-    @Path("/all")
-    public Response getAllManagers() {
-        List<HotelManager> managers =
-                new ArrayList<>(applicationResource.getAllManagers().values());
-        return Response.ok(managers).build();
-    }
-
+    // delete manager
     @DELETE
     @Path("/hotelmanager/{managerId}")
     public Response deleteManager(@PathParam("managerId") UUID managerId) {
@@ -114,6 +75,58 @@ public class ManagerResource {
         return Response.status(Response.Status.NOT_FOUND).build();
     }
 
+
+    // get all hotels
+    @GET
+    public List<Hotel> getAllHotels() {
+        return new ArrayList<>(applicationResource.getAllHotels().values());
+    }
+
+    // get single hotel
+    @GET
+    @Path("/{hotelId}")
+    public Response getHotel(@PathParam("hotelId") UUID hotelId) {
+        Hotel hotel = applicationResource.getHotel(hotelId);
+        if (hotel != null) {
+            return Response.ok(hotel).build();
+        }
+        return Response.status(Response.Status.NOT_FOUND).build();
+    }
+
+    // create hotel
+    @POST
+    public Response createHotel(Hotel hotel) {
+        if (hotel == null) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+
+        Hotel created = applicationResource.createHotel(hotel);
+        return Response.status(Response.Status.CREATED).entity(created).build();
+    }
+
+    // update hotel
+    @PUT
+    @Path("/{hotelId}")
+    public Response updateHotel(@PathParam("hotelId") UUID hotelId, Hotel hotel) {
+        Hotel updatedHotel = applicationResource.updateHotel(hotelId, hotel);
+        if (updatedHotel != null) {
+            return Response.ok(updatedHotel).build();
+        }
+        return Response.status(Response.Status.NOT_FOUND).build();
+    }
+
+    // delete hotel
+    @DELETE
+    @Path("/{hotelId}")
+    public Response deleteHotel(@PathParam("hotelId") UUID hotelId) {
+        if (applicationResource.deleteHotel(hotelId)) {
+            return Response.noContent().build();
+        }
+        return Response.status(Response.Status.NOT_FOUND).build();
+    }
+
+
+    // approve booking
     @PUT
     @Path("/{managerId}/bookings/{bookingId}/approve")
     public Response approveBooking(
@@ -146,6 +159,7 @@ public class ManagerResource {
         }
     }
 
+    // cancel booking
     @PUT
     @Path("/{managerId}/bookings/{bookingId}/cancel")
     public Response cancelBooking(
@@ -177,6 +191,7 @@ public class ManagerResource {
         }
     }
 
+    // get pending bookings
     @GET
     @Path("/{managerId}/bookings/pending")
     public Response getPendingBookings(@PathParam("managerId") UUID managerId) {

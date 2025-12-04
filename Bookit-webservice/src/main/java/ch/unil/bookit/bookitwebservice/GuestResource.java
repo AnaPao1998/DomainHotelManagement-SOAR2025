@@ -16,22 +16,14 @@ public class GuestResource {
     @Inject
     private ApplicationResource applicationResource;
 
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response createGuest(Guest guest) {
-        if (guest == null) {
-            return Response.status(Response.Status.BAD_REQUEST).build();
-        }
-        Guest newGuest = applicationResource.createGuest(guest);
-        return Response.status(Response.Status.CREATED).entity(newGuest).build();
-    }
+    // get all guests
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<Guest> getAllGuests() {
         return new ArrayList<>(applicationResource.getAllGuests().values());
     }
 
+    // get single guest
     @GET
     @Path("/{guestId}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -45,6 +37,19 @@ public class GuestResource {
 
     }
 
+    // create guest
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response createGuest(Guest guest) {
+        if (guest == null) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+        Guest newGuest = applicationResource.createGuest(guest);
+        return Response.status(Response.Status.CREATED).entity(newGuest).build();
+    }
+
+    // update guest
     @PUT
     @Path("/{guestId}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -58,6 +63,7 @@ public class GuestResource {
         }
     }
 
+    // delete guest
     @DELETE
     @Path("/{guestId}")
     public Response deleteGuest(@PathParam("guestId")UUID guestId) {
@@ -68,6 +74,8 @@ public class GuestResource {
         }
     }
 
+    // deposit guest wallet
+    // deprecated
     @PUT
     @Path("/{guestId}/wallet/deposit")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -89,7 +97,8 @@ public class GuestResource {
         return Response.ok(guest).build();  // updated guest with new balance
     }
 
-
+    // withdraw guest wallet
+    // deprecated
     @PUT
     @Path("/{guestId}/wallet/withdraw")
     @Consumes(MediaType.APPLICATION_JSON)

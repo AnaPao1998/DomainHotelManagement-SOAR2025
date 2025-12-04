@@ -2,11 +2,15 @@ package ch.unil.bookit.domain;
 
 import ch.unil.bookit.domain.booking.Booking;
 import ch.unil.bookit.domain.booking.BookingStatus;
-
+import jakarta.persistence.*;
 import java.util.*;
 
+@Entity
+@Table(name = "guests")
+@DiscriminatorValue("GUEST")
 public class Guest extends User {
 
+    @Transient
     private final Map<UUID, Booking> bookings = new TreeMap<>();
 
     public Guest() {
