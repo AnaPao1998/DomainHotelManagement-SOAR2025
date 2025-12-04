@@ -2,28 +2,35 @@ services:
   db:
     container_name: database
     image: mysql:8.0.43
-    env_file: .env
+    env_file:
+      - .env
     volumes:
       - db_data:/var/lib/mysql
     ports:
       - "3307:3306"
   # payara service
   payara:
-      container_name: payara-ws
-      image: payara/server-full:6.2025.8-jdk17
-      environment:
-          SECURE_ADMIN: "true"
-          ADMIN_USER: "admin"
-          ADMIN_PASSWORD: "admin"
-      ports:
+    container_name: payara-ws
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    env_file:
+      - .env
+    environment:
+      SECURE_ADMIN: "true"
+      ADMIN_USER: "admin"
+      ADMIN_PASSWORD: "admin"
+
+    ports:
         - "8080:8080" # apps
         - "4848:4848" # admin console
-      volumes:
+    volumes:
           # auto deploy (
        - ./Bookit-webservice/target/Bookit-webservice-1.0-SNAPSHOT.war:/opt/payara/appserver/glassfish/domains/domain1/autodeploy/Bookit-webservice-1.0-SNAPSHOT.war
        - ./bookit-webapp/target/bookit-webapp-1.0-SNAPSHOT.war:/opt/payara/appserver/glassfish/domains/domain1/autodeploy/bookit-webapp-1.0-SNAPSHOT.war
           # translate http requests into java
        - ./docker/post-boot-commands.asadmin:/opt/payara/config/post-boot-commands.asadmin:ro
        - ./docker/pre-boot-commands.asadmin:/opt/payara/config/pre-boot-commands.asadmin:ro
+
 volumes:
   db_data:
