@@ -23,7 +23,6 @@
             <property name="jakarta.persistence.jdbc.password"
                       value="pw"/>
 
-            <!-- Schema handling + logging -->
             <property name="jakarta.persistence.schema-generation.database.action"
                       value="create"/>
             <property name="eclipselink.logging.level"

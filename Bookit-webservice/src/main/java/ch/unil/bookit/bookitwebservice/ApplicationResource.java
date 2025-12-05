@@ -7,9 +7,7 @@ import ch.unil.bookit.domain.booking.Booking;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
+import jakarta.persistence.*;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -80,9 +78,34 @@ public class ApplicationResource {
         return guests;
     }
 
-    public Guest getGuest(UUID id){
-        return guests.get(id);
+    public Guest getGuest(UUID id) {
+        if (id == null) {
+            return null;
+        }
+
+        Guest guest = guests.get(id);
+        if (guest != null) {
+            return guest;
+        }
+
+        EntityManager em = getEntityManagerSafe();
+        if (em != null) {
+            try {
+                guest = em.find(Guest.class, id);
+                if (guest != null) {
+                    guests.put(id, guest);  // optional cache
+                }
+                return guest;
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                em.close();
+            }
+        }
+
+        return null;
     }
+
 
     public Guest updateGuest(UUID id, Guest updatedGuest) {
         if(guests.containsKey(id)){
@@ -148,8 +171,36 @@ public class ApplicationResource {
     }
 
     public HotelManager getManager(UUID managerId) {
-        return managers.get(managerId);
+        if (managerId == null) {
+            return null;
+        }
+
+        // 1) In-memory first (covers seeded + newly-created while app is running)
+        HotelManager manager = managers.get(managerId);
+        if (manager != null) {
+            return manager;
+        }
+
+        // 2) Fallback: DB lookup
+        EntityManager em = getEntityManagerSafe();
+        if (em != null) {
+            try {
+                manager = em.find(HotelManager.class, managerId);
+                if (manager != null) {
+                    // optional: cache it in memory for later
+                    managers.put(managerId, manager);
+                }
+                return manager;
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                em.close();
+            }
+        }
+
+        return null;
     }
+
 
     public HotelManager updateManager(UUID id, HotelManager updatedManager) {
         if (managers.containsKey(id)) {
@@ -365,8 +416,32 @@ public class ApplicationResource {
 
         return hotel;
     }
-
     public UUID authenticateGuest(String email, String password) {
+
+        // 1) Try the database first
+        EntityManager em = getEntityManagerSafe();
+        if (em != null) {
+            try {
+                TypedQuery<Guest> q = em.createQuery(
+                        "SELECT g FROM Guest g WHERE g.email = :email AND g.password = :password",
+                        Guest.class
+                );
+                q.setParameter("email", email);
+                q.setParameter("password", password);
+
+                Guest g = q.getSingleResult();
+                return g.getId();   // UUID from the entity
+
+            } catch (NoResultException ex) {
+                // not found in DB – fall through to in-memory check
+            } catch (Exception e) {
+                e.printStackTrace(); // log and fall back
+            } finally {
+                em.close();
+            }
+        }
+
+        // 2) Fallback: in-memory map (demo users / pre-persistence)
         for (Guest guest : guests.values()) {
             if (guest.getEmail().equals(email) && guest.getPassword().equals(password)) {
                 return guest.getId();
@@ -376,6 +451,31 @@ public class ApplicationResource {
     }
 
     public UUID authenticateManager(String email, String password) {
+
+        // 1) Try the database first
+        EntityManager em = getEntityManagerSafe();
+        if (em != null) {
+            try {
+                TypedQuery<HotelManager> q = em.createQuery(
+                        "SELECT m FROM HotelManager m WHERE m.email = :email AND m.password = :password",
+                        HotelManager.class
+                );
+                q.setParameter("email", email);
+                q.setParameter("password", password);
+
+                HotelManager m = q.getSingleResult();
+                return m.getId();
+
+            } catch (NoResultException ex) {
+                // not found in DB – fall through to in-memory check
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                em.close();
+            }
+        }
+
+        // 2) Fallback: in-memory map
         for (HotelManager manager : managers.values()) {
             if (manager.getEmail().equals(email) && manager.getPassword().equals(password)) {
                 return manager.getId();
@@ -383,6 +483,7 @@ public class ApplicationResource {
         }
         return null;
     }
+
 
     public boolean deleteManager(UUID managerId) {
         return getAllManagers().remove(managerId) != null;
