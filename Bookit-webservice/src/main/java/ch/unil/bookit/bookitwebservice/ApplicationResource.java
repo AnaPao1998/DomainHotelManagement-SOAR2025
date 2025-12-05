@@ -4,421 +4,239 @@ import ch.unil.bookit.domain.Guest;
 import ch.unil.bookit.domain.Hotel;
 import ch.unil.bookit.domain.HotelManager;
 import ch.unil.bookit.domain.booking.Booking;
+import ch.unil.bookit.domain.booking.BookingStatus;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.persistence.*;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.NoResultException;
 
+import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @ApplicationScoped
 public class ApplicationResource {
-    private EntityManagerFactory emf;
-    private EntityManager getEntityManagerSafe() {
-        try {
-            if (emf == null) {
-                emf = Persistence.createEntityManagerFactory("bookitPU");
-            }
-            return emf.createEntityManager();
-        } catch (Exception e) {
-            // Log but DO NOT break the app
-            e.printStackTrace();
-            return null;
-        }
-    }
-    private Map<UUID, Guest> guests;
-    private Map<UUID, Hotel> hotels;
-    private Map<UUID, Booking>  bookings;
-    private Map<UUID, HotelManager>  managers;
 
-    /*@Inject
-    private ManagerRegistry managerRegistry;
-    */
+    private EntityManagerFactory emf;
+
+    // IN-MEMORY STORAGE FOR HOTELS & BOOKINGS (Hybrid Approach)
+    private Map<UUID, Hotel> hotels = new HashMap<>();
+    private Map<UUID, Booking> bookings = new HashMap<>();
+
     @PostConstruct
     public void init() {
-        guests = new HashMap<>();
-        hotels = new HashMap<>();
-        bookings = new HashMap<>();
-        managers = new HashMap<>();
-        populateApplicationState();
+        try {
+            // 1. Connect to Database for Users
+            emf = Persistence.createEntityManagerFactory("bookitPU");
+
+            // 2. Populate Data (Robust Seeding)
+            populateApplicationState();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("CRITICAL: Failed to create EntityManagerFactory: " + e.getMessage());
+        }
     }
 
-    /// ////////////////////
-    /// GUEST FUNCTIONS ////
-    /// ////////////////////
-    public Guest createGuest(Guest guest) {
-        guest.setuuid(UUID.randomUUID());
-        guests.put(guest.getUUID(), guest);   // existing behavior: keep this
+    private EntityManager getEntityManagerSafe() {
+        if (emf != null) {
+            return emf.createEntityManager();
+        }
+        return null;
+    }
 
+    // ==========================================
+    //      DATABASE OPERATIONS (GUEST)
+    // ==========================================
+
+    public Guest createGuest(Guest guest) {
         EntityManager em = getEntityManagerSafe();
         if (em != null) {
             try {
                 em.getTransaction().begin();
+                if (guest.getId() == null) guest.setuuid(UUID.randomUUID());
                 em.persist(guest);
                 em.getTransaction().commit();
             } catch (Exception e) {
+                if(em.getTransaction().isActive()) em.getTransaction().rollback();
                 e.printStackTrace();
-                if (em.getTransaction().isActive()) {
-                    em.getTransaction().rollback();
-                }
-                // IMPORTANT: we swallow the error so login/app keeps working
             } finally {
                 em.close();
             }
         }
-
         return guest;
-    }
-
-
-    public Map<UUID, Guest> getAllGuests() {
-        return guests;
     }
 
     public Guest getGuest(UUID id) {
-        if (id == null) {
-            return null;
-        }
-
-        Guest guest = guests.get(id);
-        if (guest != null) {
-            return guest;
-        }
-
         EntityManager em = getEntityManagerSafe();
         if (em != null) {
+            try { return em.find(Guest.class, id); } finally { em.close(); }
+        }
+        return null;
+    }
+
+    // Returns Map<UUID, Guest> to satisfy GuestResource (.values())
+    public Map<UUID, Guest> getAllGuests() {
+        EntityManager em = getEntityManagerSafe();
+        Map<UUID, Guest> map = new HashMap<>();
+        if (em != null) {
             try {
-                guest = em.find(Guest.class, id);
-                if (guest != null) {
-                    guests.put(id, guest);  // optional cache
+                List<Guest> list = em.createQuery("SELECT g FROM Guest g", Guest.class).getResultList();
+                for (Guest g : list) {
+                    map.put(g.getId(), g);
                 }
-                return guest;
-            } catch (Exception e) {
-                e.printStackTrace();
             } finally {
                 em.close();
             }
         }
-
-        return null;
+        return map;
     }
 
-
-    public Guest updateGuest(UUID id, Guest updatedGuest) {
-        if(guests.containsKey(id)){
-            updatedGuest.setuuid(id);
-            guests.put(id, updatedGuest);
-            return updatedGuest;
-        }
-        return null;
-    }
-
-    public boolean deleteGuest(UUID id){
-        return guests.remove(id) != null;
-    }
-
-    public Guest depositToGuestWallet(UUID guestId, int amount) {
-        Guest guest = getGuest(guestId);
-        if (guest == null) {
-            return null;
-        }
-        guest.deposit(amount);
-        return guest;
-    }
-
-    public Guest withdrawFromGuestWallet(UUID guestId, int amount) {
-        Guest guest = getGuest(guestId);
-        if (guest == null) {
-            return null;
-        }
-        guest.withdraw(amount);
-        return guest;
-    }
-
-
-    /// //////////////////////
-    /// MANAGER FUNCTIONS ////
-    /// //////////////////////
-    public HotelManager createManager(HotelManager manager) {
-        manager.setuuid(UUID.randomUUID());
-        managers.put(manager.getUUID(), manager);   // keep in-memory
-
+    public Guest updateGuest(UUID id, Guest updatedInfo) {
         EntityManager em = getEntityManagerSafe();
         if (em != null) {
             try {
                 em.getTransaction().begin();
-                em.persist(manager);
-                em.getTransaction().commit();
-            } catch (Exception e) {
-                e.printStackTrace();
-                if (em.getTransaction().isActive()) {
-                    em.getTransaction().rollback();
+                Guest guest = em.find(Guest.class, id);
+                if (guest != null) {
+                    // only update fields if they are NOT null
+                    if (updatedInfo.getFirstName() != null) guest.setFirstName(updatedInfo.getFirstName());
+                    if (updatedInfo.getLastName() != null)  guest.setLastName(updatedInfo.getLastName());
+                    if (updatedInfo.getEmail() != null)     guest.setEmail(updatedInfo.getEmail());
+                    if (updatedInfo.getPassword() != null)  guest.setPassword(updatedInfo.getPassword());
+
+                    // balance is an int (primitive), so we can't check for null
+                    if (updatedInfo.getBalance() != 0) guest.setBalance(updatedInfo.getBalance());
+
+                    em.merge(guest);
+                    em.getTransaction().commit();
                 }
+                return guest;
+            } catch (Exception e) {
+                if(em.getTransaction().isActive()) em.getTransaction().rollback();
+                e.printStackTrace();
             } finally {
                 em.close();
             }
         }
-
-        return manager;
+        return null;
     }
 
-
-    public Map<UUID, HotelManager> getAllManagers() {
-        return managers;
-    }
-
-    public HotelManager getManager(UUID managerId) {
-        if (managerId == null) {
-            return null;
-        }
-
-        // 1) In-memory first (covers seeded + newly-created while app is running)
-        HotelManager manager = managers.get(managerId);
-        if (manager != null) {
-            return manager;
-        }
-
-        // 2) Fallback: DB lookup
+    public boolean deleteGuest(UUID id) {
         EntityManager em = getEntityManagerSafe();
         if (em != null) {
             try {
-                manager = em.find(HotelManager.class, managerId);
-                if (manager != null) {
-                    // optional: cache it in memory for later
-                    managers.put(managerId, manager);
+                em.getTransaction().begin();
+                Guest guest = em.find(Guest.class, id);
+                if (guest != null) {
+                    em.remove(guest);
+                    em.getTransaction().commit();
+                    return true;
                 }
-                return manager;
+            } finally {
+                em.close();
+            }
+        }
+        return false;
+    }
+
+    // ==========================================
+    //      DATABASE OPERATIONS (MANAGER)
+    // ==========================================
+
+    public HotelManager createManager(HotelManager manager) {
+        EntityManager em = getEntityManagerSafe();
+        if (em != null) {
+            try {
+                em.getTransaction().begin();
+                if (manager.getId() == null) manager.setuuid(UUID.randomUUID());
+                em.persist(manager);
+                em.getTransaction().commit();
             } catch (Exception e) {
+                if(em.getTransaction().isActive()) em.getTransaction().rollback();
                 e.printStackTrace();
             } finally {
                 em.close();
             }
         }
-
-        return null;
+        return manager;
     }
 
-
-    public HotelManager updateManager(UUID id, HotelManager updatedManager) {
-        if (managers.containsKey(id)) {
-            updatedManager.setuuid(id);
-            managers.put(id, updatedManager);
-            return updatedManager;
+    public HotelManager getManager(UUID id) {
+        EntityManager em = getEntityManagerSafe();
+        if (em != null) {
+            try { return em.find(HotelManager.class, id); } finally { em.close(); }
         }
         return null;
     }
 
-
-    /// ////////////////////
-    /// HOTEL FUNCTIONS ////
-    /// ////////////////////
-    public Hotel createHotel(Hotel hotel) {
-
-        if (hotel.getManagerId() == null) {
-            throw new IllegalArgumentException("Manager ID is required");
+    // FIXED: Returns Map to satisfy ManagerResource
+    public Map<UUID, HotelManager> getAllManagers() {
+        EntityManager em = getEntityManagerSafe();
+        Map<UUID, HotelManager> map = new HashMap<>();
+        if (em != null) {
+            try {
+                List<HotelManager> list = em.createQuery("SELECT m FROM HotelManager m", HotelManager.class).getResultList();
+                for (HotelManager m : list) {
+                    map.put(m.getId(), m);
+                }
+            } finally {
+                em.close();
+            }
         }
+        return map;
+    }
 
+    public HotelManager updateManager(UUID id, HotelManager updatedInfo) {
+        EntityManager em = getEntityManagerSafe();
+        if (em != null) {
+            try {
+                em.getTransaction().begin();
+                HotelManager manager = em.find(HotelManager.class, id);
+                if (manager != null) {
+                    // FIXED: Only update fields if they are NOT null
+                    if (updatedInfo.getFirstName() != null) manager.setFirstName(updatedInfo.getFirstName());
+                    if (updatedInfo.getLastName() != null)  manager.setLastName(updatedInfo.getLastName());
+                    if (updatedInfo.getEmail() != null)     manager.setEmail(updatedInfo.getEmail());
+                    if (updatedInfo.getPassword() != null)  manager.setPassword(updatedInfo.getPassword());
 
-        if (!managers.containsKey(hotel.getManagerId())) {
-            throw new IllegalArgumentException("Manager not found");
+                    em.merge(manager);
+                    em.getTransaction().commit();
+                }
+                return manager;
+            } catch (Exception e) {
+                if(em.getTransaction().isActive()) em.getTransaction().rollback();
+                e.printStackTrace();
+            } finally {
+                em.close();
+            }
         }
+        return null;
+    }
 
-
-        HotelManager manager = managers.get(hotel.getManagerId());
-
-        if (hotel.getHotelId() == null) {
-            hotel.setHotelId(UUID.randomUUID());
+    public boolean deleteManager(UUID id) {
+        EntityManager em = getEntityManagerSafe();
+        if (em != null) {
+            try {
+                em.getTransaction().begin();
+                HotelManager manager = em.find(HotelManager.class, id);
+                if (manager != null) {
+                    em.remove(manager);
+                    em.getTransaction().commit();
+                    return true;
+                }
+            } finally {
+                em.close();
+            }
         }
-
-        hotel.publish();
-
-        manager.addHotel(hotel);
-
-        hotels.put(hotel.getHotelId(), hotel);
-        return hotel;
+        return false;
     }
 
-    public Map<UUID, Hotel> getAllHotels() {
-        return hotels;
-    }
-
-    public Hotel getHotel(UUID id) {
-        return hotels.get(id);
-    }
-
-    public Hotel updateHotel(UUID id, Hotel updatedHotel) {
-        if (!hotels.containsKey(id)) {
-            return null;
-        }
-        updatedHotel.setHotelId(id);
-        hotels.put(id, updatedHotel);
-        return updatedHotel;
-    }
-
-    public boolean deleteHotel(UUID id) {
-        return hotels.remove(id) != null;
-    }
-
-
-    /// //////////////////////
-    /// BOOKING FUNCTIONS ////
-    /// //////////////////////
-    public Map<UUID, Booking> getBookings() {
-        return bookings;
-    }
-
-    public Booking getBooking(UUID bookingId) {
-        return bookings.get(bookingId);
-    }
-
-    public void saveBooking(Booking booking) {
-        bookings.put(booking.getBookingId(), booking);
-    }
-
-    public Booking createBooking(UUID hotelId, UUID guestId, UUID roomTypeId) {
-        UUID bookingId = UUID.randomUUID();
-        Booking booking = new Booking(bookingId, hotelId, guestId, roomTypeId);
-        bookings.put(bookingId, booking);
-        booking.setCreatedAt(Instant.now());
-        booking.setUpdatedAt(Instant.now());
-
-        Guest guest = guests.get(guestId);
-        if (guest != null) {
-            guest.addBooking(booking);   // keep guest view in sync
-        }
-        return booking;
-    }
-
-    public java.util.List<Booking> getBookingsForGuest(UUID guestId) {
-        if (guestId == null) {
-            return java.util.Collections.emptyList();
-        }
-
-        return bookings.values().stream()
-                .filter(b -> guestId.equals(b.getUserId()))
-                .toList();
-    }
-
-    private void populateApplicationState() {
-        
-        UUID guestId1 = UUID.randomUUID();
-        UUID guestId2 = UUID.randomUUID();
-
-        Guest guest1 = new Guest(guestId1, "guest1@bookit.com", "pass123", "Ana", "Montero");
-        guest1.deposit(500);
-        guests.put(guestId1, guest1);
-
-        Guest guest2 = new Guest(guestId2, "bogdanic.duska@gmail.com", "pass123", "Duska", "Bogdanic");
-        guests.put(guestId2, guest2);
-
-        UUID managerId = UUID.randomUUID();
-        HotelManager manager = new HotelManager(managerId, "manager@bookit.com", "pass123", "Marta", "Keller");
-        managers.put(managerId, manager);
-
-        String[][] seed = {
-                {"Bookit Inn", "Cozy place near the lake", "Lausanne", "Switzerland", "Rue de la Paix 10", "120.00", "hotel1.jpg"},
-                {"Alpine Retreat", "Mountain view hotel with spa", "Zermatt", "Switzerland", "Matterhornstrasse 5", "230.00", "hotel2.jpg"},
-                {"Leman Palace", "Elegant lakeside hotel", "Geneva", "Switzerland", "Quai du Mont-Blanc 20", "320.00", "hotel3.jpg"},
-                {"City Central Hotel", "Right in the old town", "Zurich", "Switzerland", "Bahnhofstrasse 50", "210.00", "hotel4.jpg"},
-                {"Sunrise Beach Resort", "Sea view and cocktails", "Nice", "France", "Promenade des Anglais 7", "190.00", "hotel5.jpg"},
-                {"Canal View Lodge", "Quiet spot near canals", "Bruges", "Belgium", "Spiegelrei 3", "160.00", "hotel6.jpg"},
-                {"Royal Arden Hotel", "Business & conference center", "Brussels", "Belgium", "Avenue Louise 120", "220.00", "hotel7.jpg"},
-                {"Mountain Cabin Hotel", "Rustic vibes, hiking paths", "Chamonix", "France", "Route du Tour 15", "180.00", "hotel8.jpg"},
-                {"Harbour Lights Inn", "Harbour and seafood nearby", "Hamburg", "Germany", "Fischmarkt 12", "170.00", "hotel9.jpg"},
-                {"Old Town Boutique", "Boutique rooms in city center", "Prague", "Czech Republic", "Karlova 9", "150.00", "hotel10.jpg"}
-        };
-
-        Hotel firstHotel = null;
-        Hotel secondHotel = null;
-
-        for (String[] h : seed) {
-            // Pass the local 'manager' object
-            Hotel created = createHotelForManager(manager, h[0], h[1], h[2], h[3], h[4], h[5], h[6]);
-            if (firstHotel == null) firstHotel = created;
-            else if (secondHotel == null) secondHotel = created;
-        }
-
-        // Room Types & prices
-        manager.defineRoomTypes(java.util.Arrays.asList("STANDARD", "DELUXE"));
-        manager.setRoomPrices("STANDARD", 120.0);
-        manager.setRoomPrices("DELUXE", 170.0);
-
-        // roomType IDs for demo bookings
-        UUID stdTypeId = UUID.randomUUID();
-        UUID dlxTypeId = UUID.randomUUID();
-
-        // Demo bookings for first hotel
-        if (firstHotel != null && secondHotel != null) {
-            //Booking 1: Ana
-            UUID b1_Id = UUID.randomUUID();
-            Booking b1 = new Booking(b1_Id, firstHotel.getHotelId(), guestId1, stdTypeId);
-            b1.setStatus(ch.unil.bookit.domain.booking.BookingStatus.PENDING);
-            bookings.put(b1_Id, b1);
-            guest1.addBooking(b1);
-
-            //Booking 2: Ana
-            UUID b2_Id = UUID.randomUUID();
-            Booking b2 = new Booking(b2_Id, secondHotel.getHotelId(), guestId1, dlxTypeId);
-            b2.setStatus(ch.unil.bookit.domain.booking.BookingStatus.PENDING);
-            bookings.put(b2_Id, b2);
-            guest1.addBooking(b2);
-
-            //Booking 3: Duska
-            UUID b3_Id = UUID.randomUUID();
-            Booking b3 = new Booking(b3_Id, firstHotel.getHotelId(), guestId2, stdTypeId);
-            b3.setStatus(ch.unil.bookit.domain.booking.BookingStatus.PENDING);
-            bookings.put(b3_Id, b3);
-            guest2.addBooking(b3);
-
-            //Booking 4: Duska
-            UUID b4_Id = UUID.randomUUID();
-            Booking b4 = new Booking(b4_Id, secondHotel.getHotelId(), guestId2, dlxTypeId);
-            b4.setStatus(ch.unil.bookit.domain.booking.BookingStatus.PENDING);
-            bookings.put(b4_Id, b4);
-            guest2.addBooking(b4);
-
-            manager.approveBooking(b1, guests);
-            //manager.cancelBooking(b2, guests);
-        }
-    }
-
-    private Hotel createHotelForManager(
-            HotelManager manager,
-            String name,
-            String description,
-            String city,
-            String country,
-            String address,
-            String price,
-            String imageUrl
-    ) {
-        UUID hotelId = UUID.randomUUID();
-
-        Hotel hotel = new Hotel(
-                hotelId,
-                manager.getId(),
-                name,
-                description,
-                city,
-                country,
-                address,
-                new java.math.BigDecimal(price)
-        );
-
-        hotel.publish();
-        hotel.setImageUrl(imageUrl);
-
-        hotels.put(hotelId, hotel);
-        manager.addHotel(hotel);
-
-        return hotel;
-    }
+    // --- Authentication (DB) ---
     public UUID authenticateGuest(String email, String password) {
-
-        // 1) Try the database first
         EntityManager em = getEntityManagerSafe();
         if (em != null) {
             try {
@@ -433,83 +251,213 @@ public class ApplicationResource {
                 return g.getId();   // UUID from the entity
 
             } catch (NoResultException ex) {
-                // not found in DB – fall through to in-memory check
-            } catch (Exception e) {
-                e.printStackTrace(); // log and fall back
-            } finally {
-                em.close();
-            }
-        }
-
-        // 2) Fallback: in-memory map (demo users / pre-persistence)
-        for (Guest guest : guests.values()) {
-            if (guest.getEmail().equals(email) && guest.getPassword().equals(password)) {
-                return guest.getId();
-            }
-        }
-        return null;
-    }
-
-    public UUID authenticateManager(String email, String password) {
-
-        // 1) Try the database first
-        EntityManager em = getEntityManagerSafe();
-        if (em != null) {
-            try {
-                TypedQuery<HotelManager> q = em.createQuery(
-                        "SELECT m FROM HotelManager m WHERE m.email = :email AND m.password = :password",
-                        HotelManager.class
-                );
-                q.setParameter("email", email);
-                q.setParameter("password", password);
-
-                HotelManager m = q.getSingleResult();
-                return m.getId();
-
-            } catch (NoResultException ex) {
-                // not found in DB – fall through to in-memory check
+                return null; // Login failed (Not found in DB)
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
                 em.close();
             }
         }
+        return null;
+    }
 
-        // 2) Fallback: in-memory map
-        for (HotelManager manager : managers.values()) {
-            if (manager.getEmail().equals(email) && manager.getPassword().equals(password)) {
-                return manager.getId();
+    public UUID authenticateManager(String email, String password) {
+        EntityManager em = getEntityManagerSafe();
+        if (em != null) {
+            try {
+                TypedQuery<HotelManager> q = em.createQuery(
+                        "SELECT m FROM HotelManager m WHERE m.email = :e AND m.password = :p", HotelManager.class);
+                q.setParameter("e", email);
+                q.setParameter("p", password);
+                return q.getSingleResult().getId();
+            } catch (Exception e) {
+                return null;
+            } finally {
+                em.close();
             }
         }
         return null;
     }
 
+    // --- Wallet (DB) ---
 
-    public boolean deleteManager(UUID managerId) {
-        return getAllManagers().remove(managerId) != null;
+    public Guest depositToGuestWallet(UUID guestId, int amount) {
+        EntityManager em = getEntityManagerSafe();
+        if (em != null) {
+            try {
+                em.getTransaction().begin();
+                Guest guest = em.find(Guest.class, guestId);
+                if (guest != null) {
+                    guest.deposit(amount);
+                    em.getTransaction().commit();
+                }
+                return guest;
+            } finally {
+                em.close();
+            }
+        }
+        return null;
     }
 
-    public Booking createBooking(Booking booking) {
-        if (booking == null) {
-            throw new IllegalArgumentException("Booking cannot be null");
+    public Guest withdrawFromGuestWallet(UUID guestId, int amount) {
+        EntityManager em = getEntityManagerSafe();
+        if (em != null) {
+            try {
+                em.getTransaction().begin();
+                Guest guest = em.find(Guest.class, guestId);
+                if (guest != null) {
+                    guest.withdraw(amount);
+                    em.getTransaction().commit();
+                }
+                return guest;
+            } finally {
+                em.close();
+            }
+        }
+        return null;
+    }
+
+    // ==========================================
+    //      HASHMAP OPERATIONS (HOTEL/BOOKING)
+    // ==========================================
+
+    public Hotel createHotel(Hotel hotel) {
+        UUID managerId = hotel.getManagerId();
+
+        if (managerId == null) throw new IllegalArgumentException("Manager ID required");
+
+        HotelManager manager = getManager(managerId);
+        if (manager == null) throw new IllegalArgumentException("Manager not found in DB");
+
+        if (hotel.getHotelId() == null) {
+            hotel.setHotelId(UUID.randomUUID());
         }
 
-        if (booking.getBookingId() == null) {
-            booking.setBookingId(UUID.randomUUID());
+        manager.addHotel(hotel);
+        hotels.put(hotel.getHotelId(), hotel);
+        return hotel;
+    }
+
+    public Hotel getHotel(UUID id) { return hotels.get(id); }
+
+    public Map<UUID, Hotel> getAllHotels() { return hotels; }
+
+    public Hotel updateHotel(UUID id, Hotel updatedInfo) {
+        if (hotels.containsKey(id)) {
+            updatedInfo.setHotelId(id);
+            if (updatedInfo.getManagerId() == null) {
+                updatedInfo.setManagerId(hotels.get(id).getManagerId());
+            }
+            hotels.put(id, updatedInfo);
+            return updatedInfo;
+        }
+        return null;
+    }
+
+    public boolean deleteHotel(UUID id) { return hotels.remove(id) != null; }
+
+    // --- Bookings (HashMap) ---
+
+    public Booking createBooking(UUID hotelId, UUID guestId, UUID roomTypeId) {
+        Guest guest = getGuest(guestId); // From DB
+        Hotel hotel = hotels.get(hotelId); // From Map
+
+        if (guest == null || hotel == null) {
+            throw new IllegalArgumentException("Invalid Guest ID or Hotel ID");
         }
 
-        if (booking.getCreatedAt() == null) {
-            booking.setCreatedAt(java.time.Instant.now());
-        }
-        booking.setUpdatedAt(java.time.Instant.now());
+        UUID bookingId = UUID.randomUUID();
+        Booking booking = new Booking(bookingId, hotelId, guestId, roomTypeId);
 
-        bookings.put(booking.getBookingId(), booking);
+        booking.setStatus(BookingStatus.PENDING);
+        bookings.put(bookingId, booking);
 
-        Guest g = guests.get(booking.getUserId());
-        if (g != null) {
-            g.addBooking(booking);
-        }
-
+        guest.addBooking(booking);
         return booking;
+    }
+
+    public Booking getBooking(UUID id) { return bookings.get(id); }
+
+    public void saveBooking(Booking booking) { bookings.put(booking.getBookingId(), booking); }
+
+    public List<Booking> getBookingsForGuest(UUID guestId) {
+        List<Booking> result = new ArrayList<>();
+        for (Booking b : bookings.values()) {
+            if (b.getUserId().equals(guestId)) {
+                result.add(b);
+            }
+        }
+        return result;
+    }
+
+    public Map<UUID, Booking> getBookings() { return bookings; }
+
+    public List<Booking> getPendingBookingsForManager(UUID managerId) {
+        List<Booking> result = new ArrayList<>();
+        for (Booking b : bookings.values()) {
+            if (b.getStatus() == BookingStatus.PENDING) {
+                Hotel h = hotels.get(b.getHotelId());
+                if (h != null && h.getManagerId().equals(managerId)) {
+                    result.add(b);
+                }
+            }
+        }
+        return result;
+    }
+
+    // ==========================================
+    //      HYBRID POPULATION (The Logic Fix)
+    // ==========================================
+    private void populateApplicationState() {
+        EntityManager em = getEntityManagerSafe();
+        if (em == null) return;
+
+        try {
+            // 1. Ensure Manager Exists
+            HotelManager manager = null;
+            List<HotelManager> managers = em.createQuery(
+                            "SELECT m FROM HotelManager m WHERE m.email = 'manager@bookit.com'", HotelManager.class)
+                    .getResultList();
+
+            if (managers.isEmpty()) {
+                em.getTransaction().begin();
+                manager = new HotelManager(UUID.randomUUID(), "manager@bookit.com", "pass123", "Marta", "Keller");
+                em.persist(manager);
+                em.getTransaction().commit();
+            } else {
+                manager = managers.get(0);
+            }
+
+            // 2. Ensure Guest Exists
+            List<Guest> guests = em.createQuery(
+                            "SELECT g FROM Guest g WHERE g.email = 'guest1@bookit.com'", Guest.class)
+                    .getResultList();
+
+            if (guests.isEmpty()) {
+                em.getTransaction().begin();
+                Guest guest1 = new Guest(UUID.randomUUID(), "guest1@bookit.com", "pass123", "Ana", "Montero");
+                guest1.deposit(500);
+                em.persist(guest1);
+                em.getTransaction().commit();
+            }
+
+            // 3. Create In-Memory Hotels
+            if (hotels.isEmpty()) {
+                createHotel(new Hotel(UUID.randomUUID(), manager.getId(), "Bookit Inn", "Cozy place", "Lausanne", "Switzerland", "Rue de la Paix 10", new BigDecimal("120.00")));
+                createHotel(new Hotel(UUID.randomUUID(), manager.getId(), "Alpine Retreat", "Mountain view", "Zermatt", "Switzerland", "Matterhornstrasse 5", new BigDecimal("230.00")));
+
+                for(Hotel h : hotels.values()) {
+                    if(h.getName().equals("Bookit Inn")) h.setImageUrl("hotel1.jpg");
+                    if(h.getName().equals("Alpine Retreat")) h.setImageUrl("hotel2.jpg");
+                    h.publish();
+                }
+            }
+
+        } catch (Exception e) {
+            if(em.getTransaction().isActive()) em.getTransaction().rollback();
+            e.printStackTrace();
+        } finally {
+            em.close();
+        }
     }
 }
