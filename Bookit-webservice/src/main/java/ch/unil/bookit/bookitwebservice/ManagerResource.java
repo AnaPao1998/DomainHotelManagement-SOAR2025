@@ -65,6 +65,15 @@ public class ManagerResource {
         return Response.status(Response.Status.NOT_FOUND).build();
     }
 
+    @GET
+    @Path("/{managerId}/hotels")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getHotelsByManager(@PathParam("managerId") UUID managerId) {
+        List<Hotel> hotels = applicationResource.getHotelsForManager(managerId);
+        return Response.ok(hotels).build();
+    }
+
+
     @POST
     @Path("/manager")
     public Response createManager(HotelManager manager) {

@@ -248,6 +248,40 @@
     animation: suitcase-shadow 5s infinite alternate ease-in-out;
 }
 
+/* Hotel Management table layout */
+.hotels-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 8px; /* little vertical gap between rows */
+}
+
+.hotels-table-header th {
+    padding: 12px 16px;
+    font-weight: 700;
+}
+
+.hotels-table-row td {
+    padding: 12px 16px;
+    vertical-align: top;
+    line-height: 1.4;
+}
+
+/* Column widths */
+.col-photo      { width: 110px; }
+.col-name       { width: 150px; }
+.col-city       { width: 120px; }
+.col-country    { width: 120px; }
+.col-price      { width: 120px; white-space: nowrap; }
+.col-description { width: auto; }
+
+/* Let description wrap nicely over multiple lines */
+.hotel-description {
+    display: block;
+    max-width: 700px;          /* adjust to taste */
+    word-wrap: break-word;
+    white-space: normal;
+}
+
 @keyframes suitcase-move {
     from { transform: translateX(-40px); }
     to   { transform: translateX(40px); }

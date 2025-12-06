@@ -284,6 +284,38 @@ public class ApplicationResource {
         return h;
     }
 
+    public List<Hotel> getHotelsForManager(UUID managerId) {
+        if (managerId == null) {
+            return Collections.emptyList();
+        }
+
+        // 1) DB hotels for this manager
+        List<Hotel> dbHotels = em.createQuery(
+                        "SELECT h FROM Hotel h WHERE h.manager.uuid = :mid",
+                        Hotel.class)
+                .setParameter("mid", managerId)
+                .getResultList();
+
+        Map<UUID, Hotel> merged = new LinkedHashMap<>();
+        for (Hotel h : dbHotels) {
+            merged.put(h.getHotelId(), h);
+        }
+
+        // 2) Fallback: in-memory hotels map
+        for (Hotel h : hotels.values()) {
+            UUID mid = h.getManagerId();
+            if (mid == null && h.getManager() != null) {
+                mid = h.getManager().getId();
+            }
+
+            if (managerId.equals(mid)) {
+                merged.putIfAbsent(h.getHotelId(), h);
+            }
+        }
+
+        return new ArrayList<>(merged.values());
+    }
+
 
     @Transactional
     public Hotel updateHotel(UUID id, Hotel updatedHotel) {
@@ -489,7 +521,8 @@ public class ApplicationResource {
             return Collections.emptyList();
         }
 
-        return em.createQuery(
+        // 1) DB bookings for this manager
+        List<Booking> dbResult = em.createQuery(
                         "SELECT b FROM Booking b " +
                                 "WHERE b.status = :status " +
                                 "  AND b.hotelId IN (" +
@@ -500,7 +533,38 @@ public class ApplicationResource {
                 .setParameter("mid", managerId)
                 .setParameter("status", BookingStatus.PENDING)
                 .getResultList();
+
+        // 2) Merge into a map to avoid duplicates
+        Map<UUID, Booking> merged = new LinkedHashMap<>();
+        for (Booking b : dbResult) {
+            merged.put(b.getBookingId(), b);
+        }
+
+        // 3) Fallback: also look at in-memory bookings map
+        for (Booking b : bookings.values()) {
+            if (b.getStatus() != BookingStatus.PENDING) {
+                continue;
+            }
+
+            // find the hotel + its manager
+            Hotel h = hotels.get(b.getHotelId());
+            if (h == null) {
+                continue;
+            }
+
+            UUID mid = h.getManagerId();
+            if (mid == null && h.getManager() != null) {
+                mid = h.getManager().getId();
+            }
+
+            if (managerId.equals(mid)) {
+                merged.putIfAbsent(b.getBookingId(), b);
+            }
+        }
+
+        return new ArrayList<>(merged.values());
     }
+
 
     @Transactional
     public boolean deleteBooking(UUID bookingId) {
