@@ -94,14 +94,40 @@ public class ApplicationResource {
     }
 
 
+    @Transactional
     public Guest updateGuest(UUID id, Guest updatedGuest) {
-        if(guests.containsKey(id)){
-            updatedGuest.setuuid(id);
-            guests.put(id, updatedGuest);
-            return updatedGuest;
+        System.out.println("[ApplicationResource.updateGuest] id = " + id);
+        System.out.println("[ApplicationResource.updateGuest] incoming password = "
+                + updatedGuest.getPassword());
+
+        if (id == null || updatedGuest == null) {
+            return null;
         }
-        return null;
+
+        Guest managed = em.find(Guest.class, id);
+        if (managed == null) {
+            System.out.println("[ApplicationResource.updateGuest] managed = null");
+            return null;
+        }
+
+        System.out.println("[ApplicationResource.updateGuest] managed password BEFORE = "
+                + managed.getPassword());
+
+        managed.setFirstName(updatedGuest.getFirstName());
+        managed.setLastName(updatedGuest.getLastName());
+        managed.setEmail(updatedGuest.getEmail());
+        managed.setPassword(updatedGuest.getPassword());
+
+        em.merge(managed);
+        guests.put(id, managed);
+
+        System.out.println("[ApplicationResource.updateGuest] managed password AFTER = "
+                + managed.getPassword());
+
+        return managed;
     }
+
+
 
     public boolean deleteGuest(UUID id){
         return guests.remove(id) != null;

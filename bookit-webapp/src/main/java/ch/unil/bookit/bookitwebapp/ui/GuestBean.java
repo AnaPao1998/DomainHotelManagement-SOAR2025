@@ -106,17 +106,65 @@ public class GuestBean extends Guest implements Serializable {
     public void updateGuest() {
         try {
             UUID uuid = this.getUUID();
+            System.out.println("[GuestBean.updateGuest] uuid BEFORE lookup = " + uuid);
+
+            // 🔹 If uuid is null (which your log shows), look it up via LoginBean
+            if (uuid == null && loginBean != null
+                    && loginBean.getEmail() != null
+                    && loginBean.getPassword() != null) {
+
+                try {
+                    uuid = service.authenticate(
+                            loginBean.getEmail(),
+                            loginBean.getPassword(),  // OLD password, still valid in DB
+                            "guest"
+                    );
+                    System.out.println("[GuestBean.updateGuest] uuid from authenticate() = " + uuid);
+
+                    if (uuid != null) {
+                        this.setuuid(uuid);  // store on the bean for later
+                    }
+                } catch (Exception authEx) {
+                    authEx.printStackTrace();
+                }
+            }
+
+            System.out.println("[GuestBean.updateGuest] uuid AFTER lookup = " + uuid);
+            System.out.println("[GuestBean.updateGuest] password on bean = " + this.getPassword());
+
             if (uuid != null) {
-                Response updated_guest = service.updateGuest(this);
-                loadGuest();
-                changed = false;
+                // Build a DTO with the *new* password
+                Guest dto = new Guest(
+                        uuid,
+                        this.getEmail(),
+                        this.getPassword(),   // already set to newPassword in savePasswordChange()
+                        this.getFirstName(),
+                        this.getLastName()
+                );
+                dto.setBalance(this.getBalance());
+
+                System.out.println("[GuestBean.updateGuest] sending DTO password = " + dto.getPassword());
+
+                Response resp = service.updateGuest(dto);
+                System.out.println("[GuestBean.updateGuest] REST status = " + resp.getStatus());
+
+                if (resp.getStatus() >= 200 && resp.getStatus() < 300) {
+                    loadGuest();   // reload from DB
+                    changed = false;
+                } else {
+                    dialogMessage = "Update failed, status: " + resp.getStatus();
+                    PrimeFaces.current().executeScript("PF('updateErrorDialog').show();");
+                }
+            } else {
+                dialogMessage = "Could not determine your user id. Please log out and log in again.";
+                PrimeFaces.current().executeScript("PF('updateErrorDialog').show();");
             }
         } catch (Exception e) {
             dialogMessage = e.getMessage();
             PrimeFaces.current().executeScript("PF('updateErrorDialog').show();");
-
         }
     }
+
 
     // checks if any of the profile fields have been changed
     public void checkIfChanged() {
@@ -134,40 +182,54 @@ public class GuestBean extends Guest implements Serializable {
     //
     // Password
     //
+// =======================
+// Password section
+// =======================
 
-    // Getters and Setters
     public String getCurrentPassword() {
         return currentPassword;
     }
+
     public void setCurrentPassword(String currentPassword) {
         this.currentPassword = currentPassword;
     }
+
     public String getNewPassword() {
         return newPassword;
     }
+
     public void setNewPassword(String newPassword) {
         this.newPassword = newPassword;
     }
 
-    // Password change
     public void savePasswordChange() throws Exception {
-        if (currentPassword == null || newPassword == null) { // check if required fields are filled
+        if (currentPassword == null || newPassword == null) {
             dialogMessage = "Please enter all the required fields.";
             PrimeFaces.current().executeScript("PF('passwordChangeDialog').show()");
-        } else if (!currentPassword.equals(guest.getPassword())) { // check if the user typed their password correctly
+        } else if (!currentPassword.equals(guest.getPassword())) {
             dialogMessage = "Passwords don't match!";
             PrimeFaces.current().executeScript("PF('passwordChangeDialog').show()");
-        } else if (currentPassword.equals(newPassword)) { // check if the old password is not the same as the new one
+        } else if (currentPassword.equals(newPassword)) {
             dialogMessage = "The new password must be different from the old password.";
             PrimeFaces.current().executeScript("PF('passwordChangeDialog').show()");
-        } else { // change password
+        } else {
+            System.out.println("[GuestBean] currentPassword = " + currentPassword);
+            System.out.println("[GuestBean] newPassword     = " + newPassword);
+            System.out.println("[GuestBean] bean.getPassword() BEFORE set = " + this.getPassword());
+
+            // 🔹 Set the new password on the bean itself
             this.setPassword(newPassword);
-            updateGuest();
+
+            System.out.println("[GuestBean] bean.getPassword() AFTER set  = " + this.getPassword());
+
+            updateGuest();  // now uses the fixed UUID lookup
+
             dialogMessage = "Password successfully changed";
             PrimeFaces.current().executeScript("PF('passwordChangeDialog').show()");
             resetPasswordChange();
         }
     }
+
     public void resetPasswordChange() {
         this.currentPassword = null;
         this.newPassword = null;
