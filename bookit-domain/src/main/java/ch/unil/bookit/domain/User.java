@@ -1,15 +1,32 @@
 package ch.unil.bookit.domain;
 
+import jakarta.persistence.*;
+
 import java.util.UUID;
 
+@Entity
+@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn(name = "user_type", length = 20)
+@Table(name = "Users")
 public class User {
 
+    @Id
+    @Column(name = "user_id", nullable = false, updatable = false)
     private UUID uuid;
-    /// changing this to UUID because it lets us use the unique ID package
+
+    @Column(nullable = false, unique = true)
     private String email;
+
+    @Column(nullable = false)
     private String password;
+
+    @Column(name = "first_name", nullable = false)
     private String firstName;
+
+    @Column(name = "last_name", nullable = false)
     private String lastName;
+
+    @Column(nullable = false)
     private int balance;
 
     public User() {

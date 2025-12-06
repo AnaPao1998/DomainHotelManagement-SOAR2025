@@ -7,6 +7,9 @@ import ch.unil.bookit.domain.booking.Booking;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -20,9 +23,9 @@ public class ApplicationResource {
     private Map<UUID, Booking>  bookings;
     private Map<UUID, HotelManager>  managers;
 
-    /*@Inject
-    private ManagerRegistry managerRegistry;
-    */
+    @PersistenceContext(unitName = "BookItPU")
+    private EntityManager em;   // 🔹 JPA handle
+
     @PostConstruct
     public void init() {
         guests = new HashMap<>();
@@ -32,11 +35,19 @@ public class ApplicationResource {
         populateApplicationState();
     }
 
+    @Transactional
     public Guest createGuest(Guest guest){
         guest.setuuid(UUID.randomUUID());
+
+        // in-memory: keep old behaviour
         guests.put(guest.getUUID(), guest);
+
+        // NEW: persist to DB (JOINED hierarchy → Users + Guests)
+        em.persist(guest);
+
         return guest;
     }
+
 
     public Map<UUID, Guest> getAllGuests() {
         return guests;
@@ -77,11 +88,19 @@ public class ApplicationResource {
         return guest;
     }
 
+    @Transactional
     public HotelManager createManager(HotelManager manager){
         manager.setuuid(UUID.randomUUID());
+
+        // in-memory
         managers.put(manager.getUUID(), manager);
+
+        // NEW: persist to DB
+        em.persist(manager);
+
         return manager;
     }
+
 
     public Map<UUID, HotelManager> getAllManagers() {
         return managers;

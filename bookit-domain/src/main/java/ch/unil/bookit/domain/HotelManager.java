@@ -4,15 +4,21 @@ import ch.unil.bookit.domain.booking.Booking;
 import ch.unil.bookit.domain.booking.BookingStatus;
 import ch.unil.bookit.domain.services.CurrencyConverter;
 import ch.unil.bookit.domain.services.EmailService;
+import jakarta.persistence.*;
 
 import java.util.*;
 
+@Entity
+@Table(name = "HotelManagers")
+@DiscriminatorValue("MANAGEER")
+@PrimaryKeyJoinColumn(name = "user_id")
 public class HotelManager extends User {
 
     private final List<Hotel> hotels = new ArrayList<>();
     private List<String> roomTypes = new ArrayList<>();
     private final Map<String, Double> roomPrices = new HashMap<>();
 
+    @Transient
     private final EmailService emailService = new EmailService();
     // private final CurrencyConverter currencyConverter = new CurrencyConverter();
 
