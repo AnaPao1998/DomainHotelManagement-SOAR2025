@@ -14,8 +14,13 @@ import java.util.*;
 @PrimaryKeyJoinColumn(name = "user_id")
 public class HotelManager extends User {
 
+    @Transient
     private final List<Hotel> hotels = new ArrayList<>();
+
+    @Transient
     private List<String> roomTypes = new ArrayList<>();
+
+    @Transient
     private final Map<String, Double> roomPrices = new HashMap<>();
 
     @Transient
@@ -54,11 +59,6 @@ public class HotelManager extends User {
         }
         roomPrices.put(roomType, price);
     }
-
-//    public double getConvertedPrice(String roomType, String targetCurrency) {
-//        double basePrice = roomPrices.getOrDefault(roomType, 0.0);
-//        return currencyConverter.convert("USD", targetCurrency, basePrice);
-//    }
 
     public void approveBooking(Booking booking, Map<UUID, Guest> guests) {
 

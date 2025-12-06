@@ -45,6 +45,7 @@ public class RegisterBean implements Serializable {
         password = null;
         confirmPassword = null;
         role = null;
+        managerCode = null;
     }
 
     public String register() {
@@ -77,8 +78,11 @@ public class RegisterBean implements Serializable {
             return null;
         }
 
+        log.info("Manager code received: '" + managerCode + "'");
         if ("manager".equals(role)) {
-            if (managerCode == null || !managerCode.equals(REQUIRED_MANAGER_CODE)) {
+            String code = (managerCode == null) ? null : managerCode.trim();  // trim spaces
+
+            if (code == null || !code.equalsIgnoreCase(REQUIRED_MANAGER_CODE)) {  // ignore case
                 FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR,
                                 "Registration failed.",
@@ -86,6 +90,7 @@ public class RegisterBean implements Serializable {
                 return null;
             }
         }
+
 
         switch (role) {
             case "guest":
@@ -180,5 +185,9 @@ public class RegisterBean implements Serializable {
     }
 
     public String getManagerCode() { return managerCode; }
-    public void setManagerCode(String managerCode) { this.managerCode = managerCode; }
+    public void setManagerCode(String managerCode) {
+        Logger.getLogger(RegisterBean.class.getName())
+                .info("setManagerCode called with '" + managerCode + "'");
+        this.managerCode = managerCode;
+    }
 }

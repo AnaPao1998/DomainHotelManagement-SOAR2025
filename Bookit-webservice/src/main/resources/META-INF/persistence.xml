@@ -8,11 +8,11 @@
         <class>ch.unil.bookit.domain.User</class>
         <class>ch.unil.bookit.domain.Guest</class>
         <class>ch.unil.bookit.domain.HotelManager</class>
-<!--        <class>ch.unil.doplab.studybuddy.domain.Topic</class>-->
-<!--        <class>ch.unil.doplab.studybuddy.domain.Affinity</class>-->
-<!--        <class>ch.unil.doplab.studybuddy.domain.Lesson</class>-->
+        <class>ch.unil.bookit.domain.booking.Booking</class>
+        <class>ch.unil.bookit.domain.Hotel</class>
+
         <properties>
-            <property name="jakarta.persistence.schema-generation.database.action" value="create"/>
+            <property name="jakarta.persistence.schema-generation.database.action" value="drop-and-create"/>
             <property name="eclipselink.logging.level" value="FINEST"/>
         </properties>
     </persistence-unit>

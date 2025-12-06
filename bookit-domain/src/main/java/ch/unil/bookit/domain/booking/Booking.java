@@ -2,25 +2,41 @@ package ch.unil.bookit.domain.booking;
 
 import ch.unil.bookit.domain.Guest;
 import jakarta.json.bind.annotation.JsonbTransient;
+import jakarta.persistence.*;
 
 import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
-
+@Entity
+@Table(name = "Bookings")
 public class Booking {
 
+    @Id
+    @Column(name = "booking_id", nullable = false, updatable = false)
     private UUID bookingId;
+
+    @Column(name = "hotel_id", nullable = false)
     private UUID hotelId;
+
+    @Column(name = "user_id", nullable = false)
     private UUID userId;
+
+    @Column(name = "room_type_id")
     private UUID roomTypeId;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private BookingStatus status = BookingStatus.PENDING;
 
+    @Column(name = "created_at", nullable = false)
     private Instant createdAt = Instant.now();
+
+    @Column(name = "updated_at", nullable = false)
     private Instant updatedAt = Instant.now();
 
+    @Transient
     @JsonbTransient
     private Guest guest;
 

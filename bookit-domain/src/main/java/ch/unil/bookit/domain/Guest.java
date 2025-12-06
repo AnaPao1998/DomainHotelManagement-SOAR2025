@@ -2,10 +2,7 @@ package ch.unil.bookit.domain;
 
 import ch.unil.bookit.domain.booking.Booking;
 import ch.unil.bookit.domain.booking.BookingStatus;
-import jakarta.persistence.DiscriminatorValue;
-import jakarta.persistence.Entity;
-import jakarta.persistence.PrimaryKeyJoinColumn;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import java.util.*;
 
@@ -15,6 +12,7 @@ import java.util.*;
 @PrimaryKeyJoinColumn(name = "user_id")
 public class Guest extends User {
 
+    @Transient
     private final Map<UUID, Booking> bookings = new TreeMap<>();
 
     public Guest() {
