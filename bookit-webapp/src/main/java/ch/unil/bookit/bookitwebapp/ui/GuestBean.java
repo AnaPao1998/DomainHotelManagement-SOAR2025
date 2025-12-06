@@ -62,11 +62,25 @@ public class GuestBean extends Guest implements Serializable {
         changed = false;
         dialogMessage = null;
     }
+
+    // extended to avoid JSF from trying to parse an HTML error as JSON
     public void loadGuest() {
-        var id = this.getUUID();
-        if (id != null) {
-            Response response = service.getGuests(id.toString());
+        UUID id = this.getUUID();
+        if (id == null) {
+            return;
+        }
+
+        Response response = null;
+        try {
+            response = service.getGuests(id.toString());
+
+            if (response.getStatus() != 200) {
+                System.err.println("GET /guests/" + id + " returned " + response.getStatus());
+                return;
+            }
+
             guest = response.readEntity(Guest.class);
+
             if (guest != null) {
                 this.setuuid(guest.getId());
                 this.setEmail(guest.getEmail());
@@ -74,11 +88,21 @@ public class GuestBean extends Guest implements Serializable {
                 this.setFirstName(guest.getFirstName());
                 this.setLastName(guest.getLastName());
                 this.setBalance(guest.getBalance());
+
+                // Load bookings separately — correct!
                 List<Booking> freshBookings = service.getBookingsForGuest(id);
                 this.setBookings(freshBookings);
             }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (response != null) {
+                response.close();
+            }
         }
     }
+
     public void updateGuest() {
         try {
             UUID uuid = this.getUUID();

@@ -4,6 +4,7 @@ import ch.unil.bookit.domain.Hotel;
 import ch.unil.bookit.domain.HotelManager;
 import ch.unil.bookit.domain.booking.Booking;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -116,6 +117,7 @@ public class ManagerResource {
 
     @PUT
     @Path("/{managerId}/bookings/{bookingId}/approve")
+    @Transactional
     public Response approveBooking(
             @PathParam("managerId") UUID managerId,
             @PathParam("bookingId") UUID bookingId) {
@@ -148,6 +150,7 @@ public class ManagerResource {
 
     @PUT
     @Path("/{managerId}/bookings/{bookingId}/cancel")
+    @Transactional
     public Response cancelBooking(
             @PathParam("managerId") UUID managerId,
             @PathParam("bookingId") UUID bookingId) {
@@ -180,16 +183,9 @@ public class ManagerResource {
     @GET
     @Path("/{managerId}/bookings/pending")
     public Response getPendingBookings(@PathParam("managerId") UUID managerId) {
-        List<Booking> pendingBookings = new ArrayList<>();
-
-        for (Booking b : applicationResource.getBookings().values()) {
-            if (b.getStatus() == ch.unil.bookit.domain.booking.BookingStatus.PENDING) {
-                Hotel hotel = applicationResource.getHotel(b.getHotelId());
-                if (hotel != null && hotel.getManagerId().equals(managerId)) {
-                    pendingBookings.add(b);
-                }
-            }
-        }
+        List<Booking> pendingBookings =
+                applicationResource.getPendingBookingsForManager(managerId);
         return Response.ok(pendingBookings).build();
     }
+
 }

@@ -4,6 +4,7 @@ import ch.unil.bookit.domain.Guest;
 import ch.unil.bookit.domain.Hotel;
 import ch.unil.bookit.domain.HotelManager;
 import ch.unil.bookit.domain.booking.Booking;
+import ch.unil.bookit.domain.booking.BookingStatus;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -12,9 +13,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @ApplicationScoped
 public class ApplicationResource {
@@ -53,9 +52,26 @@ public class ApplicationResource {
         return guests;
     }
 
-    public Guest getGuest(UUID id){
-        return guests.get(id);
+    public Guest getGuest(UUID id) {
+        if (id == null) {
+            return null;
+        }
+
+        // 1) Try in-memory cache
+        Guest g = guests.get(id);
+        if (g != null) {
+            return g;
+        }
+
+        // 2) Fallback to DB
+        g = em.find(Guest.class, id);
+        if (g != null) {
+            guests.put(id, g);   // cache for later
+        }
+
+        return g;
     }
+
 
     public Guest updateGuest(UUID id, Guest updatedGuest) {
         if(guests.containsKey(id)){
@@ -103,11 +119,41 @@ public class ApplicationResource {
 
 
     public Map<UUID, HotelManager> getAllManagers() {
-        return managers;
+
+        // 1) Load everything from DB
+        List<HotelManager> dbManagers =
+                em.createQuery("SELECT m FROM HotelManager m", HotelManager.class)
+                        .getResultList();
+
+        // 2) Merge DB managers into in-memory cache
+        for (HotelManager m : dbManagers) {
+            managers.putIfAbsent(m.getId(), m);
+        }
+
+        // 3) Return the merged map
+        return Collections.unmodifiableMap(managers);
     }
 
+
     public HotelManager getManager(UUID managerId) {
-        return managers.get(managerId);
+        if (managerId == null) {
+            return null;
+        }
+
+        // 1) Try in-memory map (seed + just-created managers)
+        HotelManager manager = managers.get(managerId);
+        if (manager != null) {
+            return manager;
+        }
+
+        // 2) Fallback to DB
+        manager = em.find(HotelManager.class, managerId);
+        if (manager != null) {
+            // optional: put into cache for later
+            managers.put(managerId, manager);
+        }
+
+        return manager;
     }
 
     public HotelManager updateManager(UUID id, HotelManager updatedManager) {
@@ -119,19 +165,29 @@ public class ApplicationResource {
         return null;
     }
 
+    @Transactional
     public Hotel createHotel(Hotel hotel) {
 
         if (hotel.getManagerId() == null) {
             throw new IllegalArgumentException("Manager ID is required");
         }
 
+        UUID managerId = hotel.getManagerId();
 
-        if (!managers.containsKey(hotel.getManagerId())) {
-            throw new IllegalArgumentException("Manager not found");
+        // --- get manager entity for JPA relation ---
+        // from DB
+        HotelManager managerEntity = em.find(HotelManager.class, managerId);
+        if (managerEntity == null) {
+            throw new IllegalArgumentException("Manager not found in DB: " + managerId);
         }
 
-
-        HotelManager manager = managers.get(hotel.getManagerId());
+        // from in-memory map (for your existing logic)
+        HotelManager managerInMemory = managers.get(managerId);
+        if (managerInMemory == null) {
+            // fall back to the managed entity if it’s not in the map
+            managerInMemory = managerEntity;
+            managers.put(managerId, managerInMemory);
+        }
 
         if (hotel.getHotelId() == null) {
             hotel.setHotelId(UUID.randomUUID());
@@ -139,19 +195,62 @@ public class ApplicationResource {
 
         hotel.publish();
 
-        manager.addHotel(hotel);
+        // set JPA relation (also keeps managerId in sync)
+        hotel.setManager(managerEntity);
 
+        // persist to DB
+        em.persist(hotel);
+
+        // keep old in-memory behaviour
         hotels.put(hotel.getHotelId(), hotel);
+        managerInMemory.addHotel(hotel);
+
         return hotel;
     }
 
+
+    // ApplicationResource.java
     public Map<UUID, Hotel> getAllHotels() {
-        return hotels;
+        // 1) start with anything we already have in memory
+        Map<UUID, Hotel> all = new HashMap<>(hotels);
+
+        // 2) load all hotels from the DB
+        var dbHotels = em.createQuery("SELECT h FROM Hotel h", Hotel.class)
+                .getResultList();
+
+        // 3) add DB hotels that aren't in the map yet
+        for (Hotel h : dbHotels) {
+            all.putIfAbsent(h.getHotelId(), h);
+        }
+
+        // 4) refresh the internal cache so everything stays consistent
+        hotels.clear();
+        hotels.putAll(all);
+
+        return all;
     }
 
+
     public Hotel getHotel(UUID id) {
-        return hotels.get(id);
+        if (id == null) {
+            return null;
+        }
+
+        // 1) Try in-memory cache
+        Hotel h = hotels.get(id);
+        if (h != null) {
+            return h;
+        }
+
+        // 2) Fallback to DB
+        h = em.find(Hotel.class, id);
+        if (h != null) {
+            hotels.put(id, h);   // cache for later
+        }
+
+        return h;
     }
+
 
     public Hotel updateHotel(UUID id, Hotel updatedHotel) {
         if (!hotels.containsKey(id)) {
@@ -167,40 +266,151 @@ public class ApplicationResource {
     }
 
     public Map<UUID, Booking> getBookings() {
-        return bookings;
+        // 1) start with anything we already have in memory
+        Map<UUID, Booking> all = new HashMap<>(bookings);
+
+        // 2) load all bookings from the DB
+        List<Booking> dbBookings = em.createQuery(
+                        "SELECT b FROM Booking b", Booking.class)
+                .getResultList();
+
+        // 3) add DB bookings that aren't in the map yet
+        for (Booking b : dbBookings) {
+            all.putIfAbsent(b.getBookingId(), b);
+        }
+
+        // 4) refresh the internal cache so everything stays consistent
+        bookings.clear();
+        bookings.putAll(all);
+
+        // 5) return an unmodifiable view
+        return Collections.unmodifiableMap(bookings);
     }
+
 
     public Booking getBooking(UUID bookingId) {
-        return bookings.get(bookingId);
+        if (bookingId == null) {
+            return null;
+        }
+
+        // 1) in-memory cache
+        Booking b = bookings.get(bookingId);
+        if (b != null) {
+            return b;
+        }
+
+        // 2) DB lookup
+        b = em.find(Booking.class, bookingId);
+        if (b != null) {
+            bookings.put(b.getBookingId(), b);  // cache for later
+        }
+
+        return b;
     }
 
+
+    @Transactional
     public void saveBooking(Booking booking) {
+        if (booking == null) {
+            return;
+        }
+
+        booking.setUpdatedAt(Instant.now());
+
+        // persist changes to DB
+        em.merge(booking);
+
+        // keep in-memory cache in sync
         bookings.put(booking.getBookingId(), booking);
     }
 
-    public Booking createBooking(UUID hotelId, UUID guestId, UUID roomTypeId) {
-        UUID bookingId = UUID.randomUUID();
-        Booking booking = new Booking(bookingId, hotelId, guestId, roomTypeId);
-        bookings.put(bookingId, booking);
-        booking.setCreatedAt(Instant.now());
+
+    @Transactional
+    public Booking createBooking(Booking booking) {
+        if (booking == null) {
+            throw new IllegalArgumentException("Booking cannot be null");
+        }
+
+        // Generate id + timestamps if missing
+        if (booking.getBookingId() == null) {
+            booking.setBookingId(UUID.randomUUID());
+        }
+        if (booking.getCreatedAt() == null) {
+            booking.setCreatedAt(Instant.now());
+        }
         booking.setUpdatedAt(Instant.now());
 
-        Guest guest = guests.get(guestId);
-        if (guest != null) {
-            guest.addBooking(booking);   // keep guest view in sync
+        // Link to Guest (from cache or DB) so domain stays consistent
+        Guest g = guests.get(booking.getUserId());
+        if (g == null && booking.getUserId() != null) {
+            g = em.find(Guest.class, booking.getUserId());
+            if (g != null) {
+                guests.put(g.getId(), g);   // cache it
+            }
         }
+        if (g != null) {
+            g.addBooking(booking);       // updates Guest’s transient map
+            booking.setGuest(g);         // if your Booking entity has this
+        }
+
+        // Persist + cache
+        em.persist(booking);
+        bookings.put(booking.getBookingId(), booking);
+
         return booking;
     }
 
-    public java.util.List<Booking> getBookingsForGuest(UUID guestId) {
+    @Transactional
+    public Booking createBooking(UUID hotelId, UUID guestId, UUID roomTypeId) {
+        Booking booking = new Booking(
+                UUID.randomUUID(),
+                hotelId,
+                guestId,
+                roomTypeId
+        );
+        return createBooking(booking);  // delegate to the main method
+    }
+
+    public List<Booking> getBookingsForGuest(UUID guestId) {
         if (guestId == null) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyList();
         }
 
-        return bookings.values().stream()
-                .filter(b -> guestId.equals(b.getUserId()))
-                .toList();
+        // Load from DB
+        List<Booking> dbBookings = em.createQuery(
+                        "SELECT b FROM Booking b WHERE b.userId = :uid",
+                        Booking.class)
+                .setParameter("uid", guestId)
+                .getResultList();
+
+        // Refresh cache
+        for (Booking b : dbBookings) {
+            bookings.put(b.getBookingId(), b);
+        }
+
+        return dbBookings;
     }
+
+    public List<Booking> getPendingBookingsForManager(UUID managerId) {
+        if (managerId == null) {
+            return Collections.emptyList();
+        }
+
+        return em.createQuery(
+                        "SELECT b FROM Booking b " +
+                                "WHERE b.status = :status " +
+                                "  AND b.hotelId IN (" +
+                                "      SELECT h.hotelId FROM Hotel h " +
+                                "      WHERE h.manager.uuid = :mid" +
+                                "  )",
+                        Booking.class)
+                .setParameter("mid", managerId)
+                .setParameter("status", BookingStatus.PENDING)
+                .getResultList();
+    }
+
+
+
 
     private void populateApplicationState() {
         
@@ -299,7 +509,7 @@ public class ApplicationResource {
 
         Hotel hotel = new Hotel(
                 hotelId,
-                manager.getId(),
+                manager.getId(),                // fills the transient managerId
                 name,
                 description,
                 city,
@@ -311,26 +521,56 @@ public class ApplicationResource {
         hotel.publish();
         hotel.setImageUrl(imageUrl);
 
+        // 🔹 in-memory only – do NOT call createHotel()
         hotels.put(hotelId, hotel);
         manager.addHotel(hotel);
 
         return hotel;
     }
 
+
+// --- AUTHENTICATION ---
+
     public UUID authenticateGuest(String email, String password) {
-        for (Guest guest : guests.values()) {
-            if (guest.getEmail().equals(email) && guest.getPassword().equals(password)) {
-                return guest.getId();
+        // 1) Check in-memory seed data / runtime cache
+        for (Guest g : guests.values()) {
+            if (g.getEmail().equals(email) && g.getPassword().equals(password)) {
+                return g.getId();
             }
+        }
+
+        // 2) Check database
+        var result = em.createQuery(
+                        "SELECT g FROM Guest g WHERE g.email = :email AND g.password = :pw",
+                        Guest.class)
+                .setParameter("email", email)
+                .setParameter("pw", password)
+                .getResultList();
+
+        if (!result.isEmpty()) {
+            return result.get(0).getId();
         }
         return null;
     }
 
     public UUID authenticateManager(String email, String password) {
-        for (HotelManager manager : managers.values()) {
-            if (manager.getEmail().equals(email) && manager.getPassword().equals(password)) {
-                return manager.getId();
+        // 1) Check in-memory seed data / runtime cache
+        for (HotelManager m : managers.values()) {
+            if (m.getEmail().equals(email) && m.getPassword().equals(password)) {
+                return m.getId();
             }
+        }
+
+        // 2) Check database
+        var result = em.createQuery(
+                        "SELECT m FROM HotelManager m WHERE m.email = :email AND m.password = :pw",
+                        HotelManager.class)
+                .setParameter("email", email)
+                .setParameter("pw", password)
+                .getResultList();
+
+        if (!result.isEmpty()) {
+            return result.get(0).getId();
         }
         return null;
     }
@@ -339,27 +579,4 @@ public class ApplicationResource {
         return getAllManagers().remove(managerId) != null;
     }
 
-    public Booking createBooking(Booking booking) {
-        if (booking == null) {
-            throw new IllegalArgumentException("Booking cannot be null");
-        }
-
-        if (booking.getBookingId() == null) {
-            booking.setBookingId(UUID.randomUUID());
-        }
-
-        if (booking.getCreatedAt() == null) {
-            booking.setCreatedAt(java.time.Instant.now());
-        }
-        booking.setUpdatedAt(java.time.Instant.now());
-
-        bookings.put(booking.getBookingId(), booking);
-
-        Guest g = guests.get(booking.getUserId());
-        if (g != null) {
-            g.addBooking(booking);
-        }
-
-        return booking;
-    }
 }

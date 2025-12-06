@@ -2,6 +2,7 @@ package ch.unil.bookit.domain;
 
 import ch.unil.bookit.domain.booking.Booking;
 import ch.unil.bookit.domain.booking.BookingStatus;
+import jakarta.json.bind.annotation.JsonbTransient;
 import jakarta.persistence.*;
 
 import java.util.*;
@@ -12,6 +13,7 @@ import java.util.*;
 @PrimaryKeyJoinColumn(name = "user_id")
 public class Guest extends User {
 
+    @JsonbTransient
     @Transient
     private final Map<UUID, Booking> bookings = new TreeMap<>();
 

@@ -4,18 +4,22 @@ import ch.unil.bookit.domain.booking.Booking;
 import ch.unil.bookit.domain.booking.BookingStatus;
 import ch.unil.bookit.domain.services.CurrencyConverter;
 import ch.unil.bookit.domain.services.EmailService;
+import jakarta.json.bind.annotation.JsonbTransient;
 import jakarta.persistence.*;
 
 import java.util.*;
 
 @Entity
 @Table(name = "HotelManagers")
-@DiscriminatorValue("MANAGEER")
+@DiscriminatorValue("MANAGER")
 @PrimaryKeyJoinColumn(name = "user_id")
 public class HotelManager extends User {
 
-    @Transient
-    private final List<Hotel> hotels = new ArrayList<>();
+    @OneToMany(mappedBy = "manager",            // points to Hotel.manager
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    @JsonbTransient   // avoid infinite JSON loops
+    private List<Hotel> hotels = new ArrayList<>();
 
     @Transient
     private List<String> roomTypes = new ArrayList<>();
@@ -37,7 +41,7 @@ public class HotelManager extends User {
 
     public void addHotel(Hotel hotel) {
         if (hotel != null && !hotels.contains(hotel)) {
-            hotel.setManagerId(this.getId());   // updated
+            hotel.setManager(this);             // ✅ sets both manager and managerId
             hotels.add(hotel);
         }
     }

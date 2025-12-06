@@ -31,7 +31,9 @@
                     <p:column headerText="Hotel" style="width: 150px; text-align: center;">
                         <p:graphicImage library="hotels"
                                         name="#{guestBean.getHotel(booking.hotelId).imageUrl}"
-                                        width="120" style="border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);"/>
+                                        rendered="#{not empty guestBean.getHotel(booking.hotelId).imageUrl}"
+                                        width="120"
+                                        style="border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);" />
                     </p:column>
 
                     <p:column headerText="Details">

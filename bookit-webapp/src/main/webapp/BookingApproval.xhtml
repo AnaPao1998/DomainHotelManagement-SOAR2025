@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-      xmlns:f="http://xmlns.jcp.org/jsf/core"
-      xmlns:p="http://primefaces.org/ui">
-
-
-<ui:composition template="/templates/ManagerTemplate.xhtml">
+<ui:composition
+        xmlns="http://www.w3.org/1999/xhtml"
+        xmlns:h="http://xmlns.jcp.org/jsf/html"
+        xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+        xmlns:f="http://xmlns.jcp.org/jsf/core"
+        xmlns:p="http://primefaces.org/ui"
+        template="/templates/ManagerTemplate.xhtml">
 
     <f:metadata>
         <f:event type="preRenderView" listener="#{managerBean.loadManager()}" />
@@ -43,7 +42,8 @@
                     </p:column>
 
                     <p:column headerText="Hotel">
-                        <h:outputText value="#{managerBean.getHotelName(booking.hotelId)}" style="font-weight: bold;"/>
+                        <h:outputText value="#{managerBean.getHotelName(booking.hotelId)}"
+                                      style="font-weight: bold;"/>
                     </p:column>
 
                     <p:column headerText="Guest Name">
@@ -55,10 +55,11 @@
                     </p:column>
 
                     <p:column headerText="Status" width="100" style="text-align: center;">
-        <span class="customer-badge status-pending"
-              style="background: #FFF4DE; color: #FFA117; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 12px;">
-            #{booking.status}
-        </span>
+                        <span class="customer-badge status-pending"
+                              style="background: #FFF4DE; color: #FFA117; padding: 4px 8px;
+                                     border-radius: 4px; font-weight: bold; font-size: 12px;">
+                            #{booking.status}
+                        </span>
                     </p:column>
 
                     <p:column headerText="Actions" width="180" style="text-align: center;">
@@ -67,13 +68,15 @@
                                          title="Approve"
                                          actionListener="#{managerBean.approveBooking(booking)}"
                                          update="@form :infoGrowl"
-                                         process="@this"  styleClass="ui-button-success p-mr-2"/>
+                                         process="@this"
+                                         styleClass="ui-button-success p-mr-2"/>
 
                         <p:commandButton icon="pi pi-times"
                                          title="Reject"
                                          actionListener="#{managerBean.cancelBooking(booking)}"
                                          update="@form :infoGrowl"
-                                         process="@this"  styleClass="ui-button-danger">
+                                         process="@this"
+                                         styleClass="ui-button-danger">
                             <p:confirm header="Confirmation"
                                        message="Are you sure you want to reject this booking?"
                                        icon="pi pi-exclamation-triangle" />
@@ -83,7 +86,8 @@
 
                 </p:dataTable>
 
-                <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" responsive="true" width="350">
+                <p:confirmDialog global="true" showEffect="fade" hideEffect="fade"
+                                 responsive="true" width="350">
 
                     <p:commandButton value="No" type="button"
                                      styleClass="ui-confirmdialog-no ui-button-flat"/>
@@ -98,4 +102,3 @@
 
     </ui:define>
 </ui:composition>
-</html>

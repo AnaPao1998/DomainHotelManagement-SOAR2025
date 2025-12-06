@@ -1,5 +1,6 @@
 package ch.unil.bookit.domain;
 
+import jakarta.json.bind.annotation.JsonbTransient;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -14,8 +15,15 @@ public class Hotel {
     @Column(name = "hotel_id", nullable = false, updatable = false)
     private UUID hotelId;
 
-    @Column(name = "manager_id", nullable = false, updatable = false)
-    private UUID managerId;        // FK to user_id of HotelManager
+    // ----- JPA relation: many Hotels → one HotelManager -----
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "manager_id", referencedColumnName = "user_id")
+    @JsonbTransient          // 🔹 don’t send full manager object in JSON
+    private HotelManager manager;
+
+    // ----- Webservice-facing managerId (NOT persisted in DB) -----
+    @Transient               // 🔹 JPA ignores this field
+    private UUID managerId;  // 🔹 JSON/JSF still sees this
 
     @Column(nullable = false)
     private String name;
@@ -55,6 +63,7 @@ public class Hotel {
     }
 
     public Hotel(UUID hotelId,
+
                  UUID managerId,
                  String name,
                  String description,
@@ -71,6 +80,16 @@ public class Hotel {
         this.address = requireNonBlank(address, "address");
         this.nightPrice = requirePositive(nightPrice, "nightPrice");
         this.published = false;
+    }
+
+
+    public HotelManager getManager() {
+        return manager;
+    }
+
+    public void setManager(HotelManager manager) {
+        this.manager = manager;
+        this.managerId = (manager != null ? manager.getId() : null); // keep bridge in sync
     }
 
     public UUID getManagerId() { return managerId; }
