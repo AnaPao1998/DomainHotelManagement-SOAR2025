@@ -48,12 +48,12 @@ public class ManagerResource {
 
     @PUT
     @Path("/{hotelId}")
-    public Response updateHotel(@PathParam("hotelId") UUID hotelId, Hotel hotel) {
-        Hotel updatedHotel = applicationResource.updateHotel(hotelId, hotel);
-        if (updatedHotel != null) {
-            return Response.ok(updatedHotel).build();
+    public Response updateHotel(@PathParam("hotelId") UUID hotelId, Hotel updatedHotel) {
+        Hotel result = applicationResource.updateHotel(hotelId, updatedHotel);
+        if (result == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
-        return Response.status(Response.Status.NOT_FOUND).build();
+        return Response.ok(result).build();
     }
 
     @DELETE

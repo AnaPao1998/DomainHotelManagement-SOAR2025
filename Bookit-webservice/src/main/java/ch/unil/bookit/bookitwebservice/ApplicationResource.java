@@ -34,6 +34,9 @@ public class ApplicationResource {
         populateApplicationState();
     }
 
+    /// //////////////////////
+    /// //////GUEST /////////
+    /// /////////////////////
     @Transactional
     public Guest createGuest(Guest guest){
         guest.setuuid(UUID.randomUUID());
@@ -49,8 +52,26 @@ public class ApplicationResource {
 
 
     public Map<UUID, Guest> getAllGuests() {
-        return guests;
+        // 1) start with what we already have in memory
+        Map<UUID, Guest> all = new HashMap<>(guests);
+
+        // 2) load all guests from the DB
+        List<Guest> dbGuests = em.createQuery("SELECT g FROM Guest g", Guest.class)
+                .getResultList();
+
+        // 3) add DB guests that aren't in the map yet
+        for (Guest g : dbGuests) {
+            all.putIfAbsent(g.getId(), g);
+        }
+
+        // 4) refresh internal cache so everything stays consistent
+        guests.clear();
+        guests.putAll(all);
+
+        // 5) return an unmodifiable view (optional but nice)
+        return Collections.unmodifiableMap(guests);
     }
+
 
     public Guest getGuest(UUID id) {
         if (id == null) {
@@ -104,6 +125,10 @@ public class ApplicationResource {
         return guest;
     }
 
+
+    /// //////////////////////
+    /// ///// MANAGER  ///////
+    /// /////////////////////
     @Transactional
     public HotelManager createManager(HotelManager manager){
         manager.setuuid(UUID.randomUUID());
@@ -165,6 +190,14 @@ public class ApplicationResource {
         return null;
     }
 
+    public boolean deleteManager(UUID managerId) {
+        return getAllManagers().remove(managerId) != null;
+    }
+
+
+    /// //////////////////////
+    /// ///// HOTEL /////////
+    /// /////////////////////
     @Transactional
     public Hotel createHotel(Hotel hotel) {
 
@@ -252,17 +285,99 @@ public class ApplicationResource {
     }
 
 
+    @Transactional
     public Hotel updateHotel(UUID id, Hotel updatedHotel) {
-        if (!hotels.containsKey(id)) {
+        if (id == null || updatedHotel == null) {
             return null;
         }
-        updatedHotel.setHotelId(id);
-        hotels.put(id, updatedHotel);
-        return updatedHotel;
+
+        // Load the managed entity from the DB
+        Hotel managed = em.find(Hotel.class, id);
+        if (managed == null) {
+            return null;
+        }
+
+        // Copy over editable fields
+        managed.setName(updatedHotel.getName());
+        managed.setDescription(updatedHotel.getDescription());
+        managed.setCity(updatedHotel.getCity());
+        managed.setCountry(updatedHotel.getCountry());
+        managed.setAddress(updatedHotel.getAddress());
+        managed.setNightPrice(updatedHotel.getNightPrice());
+        managed.setImageUrl(updatedHotel.getImageUrl());
+        // DO NOT touch `published` here → it stays whatever it was
+
+        // If you handle amenities/photos/rooms via API, copy them here too
+
+        // Persist changes
+        em.merge(managed);
+
+        // Keep cache in sync
+        hotels.put(id, managed);
+
+        return managed;
     }
+
 
     public boolean deleteHotel(UUID id) {
         return hotels.remove(id) != null;
+    }
+
+    private Hotel createHotelForManager(
+            HotelManager manager,
+            String name,
+            String description,
+            String city,
+            String country,
+            String address,
+            String price,
+            String imageUrl
+    ) {
+        UUID hotelId = UUID.randomUUID();
+
+        Hotel hotel = new Hotel(
+                hotelId,
+                manager.getId(),                // fills the transient managerId
+                name,
+                description,
+                city,
+                country,
+                address,
+                new java.math.BigDecimal(price)
+        );
+
+        hotel.publish();
+        hotel.setImageUrl(imageUrl);
+
+        // 🔹 in-memory only – do NOT call createHotel()
+        hotels.put(hotelId, hotel);
+        manager.addHotel(hotel);
+
+        return hotel;
+    }
+
+
+    /// //////////////////////
+    /// ///// BOOKING /////////
+    /// /////////////////////
+    public Booking getBooking(UUID bookingId) {
+        if (bookingId == null) {
+            return null;
+        }
+
+        // 1) in-memory cache
+        Booking b = bookings.get(bookingId);
+        if (b != null) {
+            return b;
+        }
+
+        // 2) DB lookup
+        b = em.find(Booking.class, bookingId);
+        if (b != null) {
+            bookings.put(b.getBookingId(), b);  // cache for later
+        }
+
+        return b;
     }
 
     public Map<UUID, Booking> getBookings() {
@@ -286,28 +401,6 @@ public class ApplicationResource {
         // 5) return an unmodifiable view
         return Collections.unmodifiableMap(bookings);
     }
-
-
-    public Booking getBooking(UUID bookingId) {
-        if (bookingId == null) {
-            return null;
-        }
-
-        // 1) in-memory cache
-        Booking b = bookings.get(bookingId);
-        if (b != null) {
-            return b;
-        }
-
-        // 2) DB lookup
-        b = em.find(Booking.class, bookingId);
-        if (b != null) {
-            bookings.put(b.getBookingId(), b);  // cache for later
-        }
-
-        return b;
-    }
-
 
     @Transactional
     public void saveBooking(Booking booking) {
@@ -360,16 +453,16 @@ public class ApplicationResource {
         return booking;
     }
 
-    @Transactional
-    public Booking createBooking(UUID hotelId, UUID guestId, UUID roomTypeId) {
-        Booking booking = new Booking(
-                UUID.randomUUID(),
-                hotelId,
-                guestId,
-                roomTypeId
-        );
-        return createBooking(booking);  // delegate to the main method
-    }
+//    @Transactional
+//    public Booking createBooking(UUID hotelId, UUID guestId, UUID roomTypeId) {
+//        Booking booking = new Booking(
+//                UUID.randomUUID(),
+//                hotelId,
+//                guestId,
+//                roomTypeId
+//        );
+//        return createBooking(booking);  // delegate to the main method
+//    }
 
     public List<Booking> getBookingsForGuest(UUID guestId) {
         if (guestId == null) {
@@ -409,8 +502,74 @@ public class ApplicationResource {
                 .getResultList();
     }
 
+    @Transactional
+    public boolean deleteBooking(UUID bookingId) {
+        if (bookingId == null) {
+            return false;
+        }
 
+        // Remove from DB
+        Booking managed = em.find(Booking.class, bookingId);
+        if (managed != null) {
+            em.remove(managed);
+        } else {
+            // nothing in DB, maybe only in cache
+            if (!bookings.containsKey(bookingId)) {
+                return false;
+            }
+        }
 
+        // Remove from in-memory cache
+        bookings.remove(bookingId);
+        return true;
+    }
+
+    /// //////////////////////////////
+    /// ///// AUTHENTICATION /////////
+    /// //////////////////////////////
+    public UUID authenticateGuest(String email, String password) {
+        // 1) Check in-memory seed data / runtime cache
+        for (Guest g : guests.values()) {
+            if (g.getEmail().equals(email) && g.getPassword().equals(password)) {
+                return g.getId();
+            }
+        }
+
+        // 2) Check database
+        var result = em.createQuery(
+                        "SELECT g FROM Guest g WHERE g.email = :email AND g.password = :pw",
+                        Guest.class)
+                .setParameter("email", email)
+                .setParameter("pw", password)
+                .getResultList();
+
+        if (!result.isEmpty()) {
+            return result.get(0).getId();
+        }
+        return null;
+    }
+
+    public UUID authenticateManager(String email, String password) {
+        // 1) Check in-memory seed data / runtime cache
+        for (HotelManager m : managers.values()) {
+            if (m.getEmail().equals(email) && m.getPassword().equals(password)) {
+                return m.getId();
+            }
+        }
+
+        // 2) Check database
+        var result = em.createQuery(
+                        "SELECT m FROM HotelManager m WHERE m.email = :email AND m.password = :pw",
+                        HotelManager.class)
+                .setParameter("email", email)
+                .setParameter("pw", password)
+                .getResultList();
+
+        if (!result.isEmpty()) {
+            return result.get(0).getId();
+        }
+        return null;
+    }
 
     private void populateApplicationState() {
         
@@ -495,88 +654,7 @@ public class ApplicationResource {
         }
     }
 
-    private Hotel createHotelForManager(
-            HotelManager manager,
-            String name,
-            String description,
-            String city,
-            String country,
-            String address,
-            String price,
-            String imageUrl
-    ) {
-        UUID hotelId = UUID.randomUUID();
-
-        Hotel hotel = new Hotel(
-                hotelId,
-                manager.getId(),                // fills the transient managerId
-                name,
-                description,
-                city,
-                country,
-                address,
-                new java.math.BigDecimal(price)
-        );
-
-        hotel.publish();
-        hotel.setImageUrl(imageUrl);
-
-        // 🔹 in-memory only – do NOT call createHotel()
-        hotels.put(hotelId, hotel);
-        manager.addHotel(hotel);
-
-        return hotel;
-    }
 
 
-// --- AUTHENTICATION ---
-
-    public UUID authenticateGuest(String email, String password) {
-        // 1) Check in-memory seed data / runtime cache
-        for (Guest g : guests.values()) {
-            if (g.getEmail().equals(email) && g.getPassword().equals(password)) {
-                return g.getId();
-            }
-        }
-
-        // 2) Check database
-        var result = em.createQuery(
-                        "SELECT g FROM Guest g WHERE g.email = :email AND g.password = :pw",
-                        Guest.class)
-                .setParameter("email", email)
-                .setParameter("pw", password)
-                .getResultList();
-
-        if (!result.isEmpty()) {
-            return result.get(0).getId();
-        }
-        return null;
-    }
-
-    public UUID authenticateManager(String email, String password) {
-        // 1) Check in-memory seed data / runtime cache
-        for (HotelManager m : managers.values()) {
-            if (m.getEmail().equals(email) && m.getPassword().equals(password)) {
-                return m.getId();
-            }
-        }
-
-        // 2) Check database
-        var result = em.createQuery(
-                        "SELECT m FROM HotelManager m WHERE m.email = :email AND m.password = :pw",
-                        HotelManager.class)
-                .setParameter("email", email)
-                .setParameter("pw", password)
-                .getResultList();
-
-        if (!result.isEmpty()) {
-            return result.get(0).getId();
-        }
-        return null;
-    }
-
-    public boolean deleteManager(UUID managerId) {
-        return getAllManagers().remove(managerId) != null;
-    }
 
 }

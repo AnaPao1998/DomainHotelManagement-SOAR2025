@@ -28,11 +28,8 @@ public class BookingResource {
         }
 
         try {
-            Booking created = applicationResource.createBooking(
-                    booking.getHotelId(),
-                    booking.getUserId(),
-                    booking.getRoomTypeId()
-            );
+            // Let ApplicationResource do the heavy lifting
+            Booking created = applicationResource.createBooking(booking);
             return Response.status(Response.Status.CREATED).entity(created).build();
         } catch (Exception ex) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
@@ -40,6 +37,7 @@ public class BookingResource {
                     .build();
         }
     }
+
 
 
     @GET
@@ -82,8 +80,8 @@ public class BookingResource {
     @DELETE
     @Path("/{bookingId}")
     public Response deleteBooking(@PathParam("bookingId") UUID bookingId) {
-        Map<UUID, Booking> allBookings = applicationResource.getBookings();
-        if (allBookings.remove(bookingId) != null) {
+        boolean deleted = applicationResource.deleteBooking(bookingId);
+        if (deleted) {
             return Response.noContent().build();
         } else {
             return Response.status(Response.Status.NOT_FOUND)
@@ -91,21 +89,12 @@ public class BookingResource {
         }
     }
 
+
     //GET /api/bookings/guest/{guestId}
     @GET
     @Path("/guest/{guestId}")
     public Response getBookingsByGuest(@PathParam("guestId") UUID guestId) {
-        ArrayList<Booking> guestBookings = new ArrayList<>();
-
-        //all bookings in the system
-        for (Booking b : applicationResource.getBookings().values()) {
-            //if the booking's User ID matches the requested Guest ID, add it
-            if (b.getUserId() != null && b.getUserId().equals(guestId)) {
-                guestBookings.add(b);
-            }
-        }
-
-        //return the filtered list
-        return Response.ok(guestBookings).build();
+        return Response.ok(applicationResource.getBookingsForGuest(guestId)).build();
     }
+
 }
