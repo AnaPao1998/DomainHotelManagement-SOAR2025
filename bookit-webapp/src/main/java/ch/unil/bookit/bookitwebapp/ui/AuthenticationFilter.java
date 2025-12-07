@@ -49,7 +49,14 @@ public class AuthenticationFilter implements Filter {
         boolean isHotelDetail  = path.equals("/HotelDetail.xhtml");
 
         if (isLoginPage || isRegisterPage) {
-            LoginBean.invalidateSession();
+            // Only reset the HTTP session on initial GET, not on POST
+            if ("GET".equalsIgnoreCase(req.getMethod())) {
+                HttpSession existing = req.getSession(false);
+                if (existing != null) {
+                    existing.invalidate();
+                }
+            }
+
             chain.doFilter(request, response);
             return;
         }

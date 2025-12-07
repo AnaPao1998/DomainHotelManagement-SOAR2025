@@ -109,9 +109,9 @@ public class LoginBean implements Serializable {
     }
 
     public static void invalidateSession() {
-        var session = getSession(false);
-        if (session != null) {
-            session.invalidate();
+        var facesContext = FacesContext.getCurrentInstance();
+        if (facesContext != null) {
+            facesContext.getExternalContext().invalidateSession();
         }
     }
 }

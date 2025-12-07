@@ -43,15 +43,11 @@
                 </p:selectOneRadio>
 
                 <p:outputLabel for="managerCode" value="Access Code:"
-                               style="color: #d9534f; font-weight: bold;"
-                               rendered="#{registerBean.role eq 'manager'}"/>
+                               style="color: #d9534f; font-weight: bold;"/>
 
                 <p:password id="managerCode" value="#{registerBean.managerCode}"
                             placeholder="Admin Secret Key"
-                            required="#{registerBean.role eq 'manager'}"
-                            requiredMessage="Access code is required."
-                            toggleMask="true"
-                            rendered="#{registerBean.role eq 'manager'}"/>
+                            toggleMask="true"/>
 
                 <p:outputLabel for="firstName" value="First Name:"/>
                 <p:inputText id="firstName" value="#{registerBean.firstName}" required="true"
