@@ -89,9 +89,17 @@ public class BookItService {
         return response;
     }
 
-    //update guest
+    // update guest
     public Response updateGuest(Guest guest) {
-        var response = guestTarget.path(guest.getId().toString()).request(MediaType.APPLICATION_JSON).put(Entity.entity(guest, MediaType.APPLICATION_JSON));
+        System.out.println("[BookItService.updateGuest] id = " + guest.getId());
+        System.out.println("[BookItService.updateGuest] password in JSON = " + guest.getPassword());
+
+        Response response = guestTarget
+                .path(guest.getId().toString())
+                .request(MediaType.APPLICATION_JSON)
+                .put(Entity.entity(guest, MediaType.APPLICATION_JSON));
+
+        System.out.println("[BookItService.updateGuest] status = " + response.getStatus());
         return response;
     }
 

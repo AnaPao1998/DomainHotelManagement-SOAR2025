@@ -1,6 +1,3 @@
-# creates the Payara image and have ti speak to MySQL
-
-# took this from studybuddy, not sure if it's needed
 FROM payara/server-full:6.2025.8-jdk17
 
 #Download the appropriate connector (see pom.xml) and plug it into the correct mounted volume (mysql container)

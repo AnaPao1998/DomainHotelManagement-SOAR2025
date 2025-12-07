@@ -240,18 +240,29 @@ public class ManagerBean extends HotelManager implements Serializable {
     }
 
     public String getHotelImage(UUID hotelId) {
-        if (hotelId == null) return "default.jpg"; // fallback image
-        try {
-            Response response = service.getHotel(hotelId.toString());
-            if (response.getStatus() == 200) {
-                Hotel h = response.readEntity(Hotel.class);
-                return h.getImageUrl();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (hotelId == null) {
+            return null; // JSF won't try to load a resource
         }
-        return "default.jpg";
+
+        // Use the REST-backed helper you already defined
+        Hotel h = getHotel(hotelId);
+        if (h == null) {
+            // no hotel found -> either return null or a default image
+            return "default-hotel.jpg";   // or: return null;
+        }
+
+        String image = h.getImageUrl();
+
+        // If null/blank, fall back to a default image OR just return null
+        if (image == null || image.isBlank()) {
+            return "default-hotel.jpg";   // make sure this exists in /resources/hotels
+            // or: return null;
+        }
+
+        return image;
     }
+
+
     public String getFormattedDate(java.time.Instant instant) {
         if (instant == null) return "";
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy")

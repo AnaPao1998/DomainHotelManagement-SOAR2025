@@ -76,7 +76,7 @@
             <div align="center" style="margin-top: 20px;">
                 <p:commandButton id="registerButton" value="Sign Up"
                                  action="#{registerBean.register()}"
-                                 oncomplete="#{registerBean.reset()}"
+                                 process="@form"
                                  update="registerForm growl"
                                  icon="pi pi-user-plus"
                                  styleClass="ui-button-primary"

@@ -11,6 +11,7 @@
 
     <f:metadata>
         <f:event type="preRenderView" listener="#{managerBean.loadManager}" />
+        <f:event type="preRenderView" listener="#{hotelBean.loadHotelsForCurrentManager}" />
     </f:metadata>
 
     <ui:define name="pageTitle">Manager | Hotel Management</ui:define>
@@ -39,7 +40,16 @@
                              headerClass="hotels-table-header"
                              rowClasses="hotels-table-row"
                              rendered="#{not empty hotelBean.allHotels}">
+                    <h:column>
+                        <f:facet name="header">
+                            <h:outputText value="Photo"/>
+                        </f:facet>
 
+                        <p:graphicImage library="hotels"
+                                        name="#{managerBean.getHotelImage(hotel.hotelId)}"
+                                        width="80"
+                                        style="border-radius:6px; box-shadow:0 2px 4px rgba(0,0,0,0.1);" />
+                    </h:column>
                     <h:column>
                         <f:facet name="header">
                             <h:outputText value="Name"/>
@@ -57,32 +67,39 @@
                     </h:column>
 
                     <h:column>
+                        <f:facet name="header">
+                            <h:outputText value="Description"/>
+                        </f:facet>
+                        <h:outputText value="#{hotel.description}"/>
+                    </h:column>
+
+                    <h:column>
                         <f:facet name="header"><h:outputText value="Price"/></f:facet>
                         <h:outputText value="#{hotel.nightPrice}">
                             <f:convertNumber type="currency" currencySymbol="CHF" />
                         </h:outputText>
                     </h:column>
 
-                    <h:column>
-                        <f:facet name="header">
-                            <h:outputText value="Address"/>
-                        </f:facet>
-                        <h:outputText value="#{hotel.address}"/>
-                    </h:column>
+<!--                    <h:column>-->
+<!--                        <f:facet name="header">-->
+<!--                            <h:outputText value="Address"/>-->
+<!--                        </f:facet>-->
+<!--                        <h:outputText value="#{hotel.address}"/>-->
+<!--                    </h:column>-->
 
-                    <h:column>
-                        <f:facet name="header">
-                            <h:outputText value="UUID"/>
-                        </f:facet>
-                        <h:outputText value="#{hotel.hotelId}"/>
-                    </h:column>
+<!--                    <h:column>-->
+<!--                        <f:facet name="header">-->
+<!--                            <h:outputText value="UUID"/>-->
+<!--                        </f:facet>-->
+<!--                        <h:outputText value="#{hotel.hotelId}"/>-->
+<!--                    </h:column>-->
 
-                    <h:column>
-                        <f:facet name="header">
-                            <h:outputText value="Actions"/>
-                        </f:facet>
-                        <h:outputText value="[Actions CRUD]"/>
-                    </h:column>
+<!--                    <h:column>-->
+<!--                        <f:facet name="header">-->
+<!--                            <h:outputText value="Actions"/>-->
+<!--                        </f:facet>-->
+<!--                        <h:outputText value="[Actions CRUD]"/>-->
+<!--                    </h:column>-->
                 </h:dataTable>
 
                 <h:panelGroup rendered="#{empty hotelBean.allHotels}">
@@ -98,9 +115,18 @@
         </p:card>
 
         <p:dialog header="#{hotelBean.isCreatingNewHotel ? 'Add Hotel' : 'Edit Hotel'}"
-                  widgetVar="editHotelDialog" modal="true" width="500">
+                  widgetVar="editHotelDialog"
+                  modal="true"
+                  width="500"
+                  height="600"
+                  contentStyle="overflow-y: auto; max-height: 500px;">   <!-- ADD THIS -->
+
             <h:form id="editHotelDialogForm">
-                <p:panelGrid id="editPanel" columns="1" layout="grid" styleClass="ui-fluid">
+
+                <p:panelGrid id="editPanel"
+                             columns="1"
+                             layout="grid"
+                             styleClass="ui-fluid">
 
                     <p:outputLabel for="hotelName" value="Hotel Name"/>
                     <p:inputText id="hotelName" value="#{hotelBean.selectedHotel.name}" required="true"
@@ -124,7 +150,14 @@
                     <p:inputText id="hotelAddress" value="#{hotelBean.selectedHotel.address}" required="true"
                                  requiredMessage="Address is required"/>
 
-
+                    <p:outputLabel for="hotelDescription" value="Description"/>
+                    <p:inputTextarea id="hotelDescription"
+                                     value="#{hotelBean.selectedHotel.description}"
+                                     rows="3"
+                                     autoResize="true"
+                                     required="true"
+                                     requiredMessage="Description is required"
+                                     placeholder="Describe your hotel (e.g. facilities, vibe, etc.)"/>
                 </p:panelGrid>
 
                 <p:commandButton value="Save"

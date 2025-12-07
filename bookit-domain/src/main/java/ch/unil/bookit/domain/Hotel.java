@@ -1,43 +1,69 @@
 package ch.unil.bookit.domain;
 
+import jakarta.json.bind.annotation.JsonbTransient;
+import jakarta.persistence.*;
+
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.Objects;
 
+@Entity
+@Table(name = "Hotels")
 public class Hotel {
-    // identity
+
+    @Id
+    @Column(name = "hotel_id", nullable = false, updatable = false)
     private UUID hotelId;
-    private UUID managerId;
+
+    // ----- JPA relation: many Hotels → one HotelManager -----
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "manager_id", referencedColumnName = "user_id")
+    @JsonbTransient          // 🔹 don’t send full manager object in JSON
+    private HotelManager manager;
+
+    // ----- Webservice-facing managerId (NOT persisted in DB) -----
+    @Transient               // 🔹 JPA ignores this field
+    private UUID managerId;  // 🔹 JSON/JSF still sees this
+
+    @Column(nullable = false)
     private String name;
+
+    @Column(length = 2000)
     private String description;
+
+    @Column(nullable = false)
     private String city;
+
+    @Column(nullable = false)
     private String country;
+
+    @Column(nullable = false)
     private String address;
+
+    @Column(name = "image_url")
     private String imageUrl;
 
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
-    // pricing
+    @Column(name = "night_price", nullable = false, precision = 10, scale = 2)
     private BigDecimal nightPrice;
 
+    @Column(nullable = false)
     private boolean published;
 
+    // not persisted yet, keeping in memory
+    @Transient
     private final List<Room> rooms = new ArrayList<>();
 
+    @Transient
     private final List<String> photos = new ArrayList<>();
 
+    @Transient
     private final List<String> amenities = new ArrayList<>();
 
     public Hotel() {
     }
 
     public Hotel(UUID hotelId,
+
                  UUID managerId,
                  String name,
                  String description,
@@ -54,6 +80,16 @@ public class Hotel {
         this.address = requireNonBlank(address, "address");
         this.nightPrice = requirePositive(nightPrice, "nightPrice");
         this.published = false;
+    }
+
+
+    public HotelManager getManager() {
+        return manager;
+    }
+
+    public void setManager(HotelManager manager) {
+        this.manager = manager;
+        this.managerId = (manager != null ? manager.getId() : null); // keep bridge in sync
     }
 
     public UUID getManagerId() { return managerId; }
@@ -150,6 +186,14 @@ public class Hotel {
     public void setAmenities(List<String> amenities) {
         this.amenities.clear();
         if (amenities != null) this.amenities.addAll(amenities);
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     @Override

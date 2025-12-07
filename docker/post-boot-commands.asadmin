@@ -1,0 +1,2 @@
+create-jdbc-connection-pool --restype javax.sql.DataSource --datasourceclassname com.mysql.cj.jdbc.MysqlDataSource --ping true --property user=${ENV=DB_USER}:password=${ENV=DB_PASSWORD}:DatabaseName=${ENV=DB_NAME}:ServerName=${ENV=DB_HOST}:portNumber=${ENV=DB_PORT}:useSSL=false:allowPublicKeyRetrieval=true BookitPool
+create-jdbc-resource --connectionpoolid BookitPool jdbc/Bookit

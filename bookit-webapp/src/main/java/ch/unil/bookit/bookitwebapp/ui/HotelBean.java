@@ -68,7 +68,7 @@ public class HotelBean implements Serializable {
         } else {
             updateHotel();
         }
-        loadAllHotels();
+        loadHotelsForCurrentManager();
     }
 
     private void createHotel() {
@@ -111,9 +111,29 @@ public class HotelBean implements Serializable {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Failed to delete hotel: " + e.getMessage()));
         }
-        //loadAllHotels(); // Reload the list
+
+        loadHotelsForCurrentManager();
     }
 
+    public void loadHotelsForCurrentManager() {
+        UUID managerId = managerBean.getManagerId();
+        if (managerId == null) {
+            allHotels = Collections.emptyList();
+            return;
+        }
+
+        try {
+            allHotels = service.getHotelsByManager(managerId);
+        } catch (Exception e) {
+            allHotels = Collections.emptyList();
+            FacesContext.getCurrentInstance().addMessage(
+                    null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR,
+                            "Error",
+                            "Failed to load hotels: " + e.getMessage())
+            );
+        }
+    }
 
     // Getters and Setters
 

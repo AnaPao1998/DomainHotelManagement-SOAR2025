@@ -2,14 +2,18 @@ package ch.unil.bookit.domain;
 
 import ch.unil.bookit.domain.booking.Booking;
 import ch.unil.bookit.domain.booking.BookingStatus;
+import jakarta.json.bind.annotation.JsonbTransient;
 import jakarta.persistence.*;
+
 import java.util.*;
 
 @Entity
-@Table(name = "guests")
+@Table(name= "Guests")
 @DiscriminatorValue("GUEST")
+@PrimaryKeyJoinColumn(name = "user_id")
 public class Guest extends User {
 
+    @JsonbTransient
     @Transient
     private final Map<UUID, Booking> bookings = new TreeMap<>();
 

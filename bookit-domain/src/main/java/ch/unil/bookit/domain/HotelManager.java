@@ -2,18 +2,24 @@ package ch.unil.bookit.domain;
 
 import ch.unil.bookit.domain.booking.Booking;
 import ch.unil.bookit.domain.booking.BookingStatus;
-// import ch.unil.bookit.domain.services.CurrencyConverter;
+import ch.unil.bookit.domain.services.CurrencyConverter;
 import ch.unil.bookit.domain.services.EmailService;
+import jakarta.json.bind.annotation.JsonbTransient;
 import jakarta.persistence.*;
+
 import java.util.*;
 
 @Entity
-@Table(name = "hotel_managers")
+@Table(name = "HotelManagers")
 @DiscriminatorValue("MANAGER")
+@PrimaryKeyJoinColumn(name = "user_id")
 public class HotelManager extends User {
 
-    @Transient
-    private final List<Hotel> hotels = new ArrayList<>();
+    @OneToMany(mappedBy = "manager",            // points to Hotel.manager
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    @JsonbTransient   // avoid infinite JSON loops
+    private List<Hotel> hotels = new ArrayList<>();
 
     @Transient
     private List<String> roomTypes = new ArrayList<>();
@@ -35,7 +41,7 @@ public class HotelManager extends User {
 
     public void addHotel(Hotel hotel) {
         if (hotel != null && !hotels.contains(hotel)) {
-            hotel.setManagerId(this.getId());   // updated
+            hotel.setManager(this);             // ✅ sets both manager and managerId
             hotels.add(hotel);
         }
     }
@@ -44,10 +50,19 @@ public class HotelManager extends User {
         return Collections.unmodifiableList(hotels);
     }
 
-//    public double getConvertedPrice(String roomType, String targetCurrency) {
-//        double basePrice = roomPrices.getOrDefault(roomType, 0.0);
-//        return currencyConverter.convert("USD", targetCurrency, basePrice);
-//    }
+    public void defineRoomTypes(List<String> types) {
+        this.roomTypes = (types == null) ? new ArrayList<>() : new ArrayList<>(types);
+    }
+
+    public void setRoomPrices(String roomType, double price) {
+        if (!roomTypes.contains(roomType)) {
+            throw new IllegalArgumentException("Room type " + roomType + " does not exist.");
+        }
+        if (price < 0) {
+            throw new IllegalArgumentException("Price must be non-negative.");
+        }
+        roomPrices.put(roomType, price);
+    }
 
     public void approveBooking(Booking booking, Map<UUID, Guest> guests) {
 
@@ -83,19 +98,5 @@ public class HotelManager extends User {
                 "Booking Cancelled",
                 "Your booking has been cancelled. Please contact us for further details."
         );
-    }
-
-    public void defineRoomTypes(List<String> types) {
-        this.roomTypes = (types == null) ? new ArrayList<>() : new ArrayList<>(types);
-    }
-
-    public void setRoomPrices(String roomType, double price) {
-        if (!roomTypes.contains(roomType)) {
-            throw new IllegalArgumentException("Room type " + roomType + " does not exist.");
-        }
-        if (price < 0) {
-            throw new IllegalArgumentException("Price must be non-negative.");
-        }
-        roomPrices.put(roomType, price);
     }
 }

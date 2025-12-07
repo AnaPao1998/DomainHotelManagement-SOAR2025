@@ -1,18 +1,17 @@
 package ch.unil.bookit.domain;
 
 import jakarta.persistence.*;
+
 import java.util.UUID;
 
-
 @Entity
-@Table(name = "users")
 @Inheritance(strategy = InheritanceType.JOINED)
-@DiscriminatorColumn(name = "user_type")
-
+@DiscriminatorColumn(name = "user_type", length = 20)
+@Table(name = "Users")
 public class User {
 
     @Id
-    @Column(name = "user_id", nullable = false, updatable = false, length = 36)
+    @Column(name = "user_id", nullable = false, updatable = false)
     private UUID uuid;
 
     @Column(nullable = false, unique = true)
@@ -21,7 +20,7 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    @Column(name= "first_name", nullable = false)
+    @Column(name = "first_name", nullable = false)
     private String firstName;
 
     @Column(name = "last_name", nullable = false)
@@ -41,14 +40,6 @@ public class User {
         this.firstName = firstName;
         this.lastName = lastName;
         this.balance = 0; /// testing
-    }
-
-    // Generate a UUID automatically if it's null when persisting
-    @PrePersist
-    private void ensureId() {
-        if (uuid == null) {
-            uuid = UUID.randomUUID();
-        }
     }
 
     public UUID getUUID() {
