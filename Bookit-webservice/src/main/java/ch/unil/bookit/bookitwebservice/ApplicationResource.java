@@ -7,7 +7,6 @@ import ch.unil.bookit.domain.booking.Booking;
 import ch.unil.bookit.domain.booking.BookingStatus;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
@@ -17,6 +16,19 @@ import java.util.*;
 
 @ApplicationScoped
 public class ApplicationResource {
+    private static final String[][] HOTEL_SEED = {
+            {"Bookit Inn",           "Cozy place near the lake",          "Lausanne",  "Switzerland",    "Rue de la Paix 10",       "120.00", "hotel1.jpg"},
+            {"Alpine Retreat",       "Mountain view hotel with spa",      "Zermatt",   "Switzerland",    "Matterhornstrasse 5",     "230.00", "hotel2.jpg"},
+            {"Leman Palace",         "Elegant lakeside hotel",            "Geneva",    "Switzerland",    "Quai du Mont-Blanc 20",   "320.00", "hotel3.jpg"},
+            {"City Central Hotel",   "Right in the old town",             "Zurich",    "Switzerland",    "Bahnhofstrasse 50",       "210.00", "hotel4.jpg"},
+            {"Sunrise Beach Resort", "Sea view and cocktails",            "Nice",      "France",         "Promenade des Anglais 7", "190.00", "hotel5.jpg"},
+            {"Canal View Lodge",     "Quiet spot near canals",            "Bruges",    "Belgium",        "Spiegelrei 3",            "160.00", "hotel6.jpg"},
+            {"Royal Arden Hotel",    "Business & conference center",      "Brussels",  "Belgium",        "Avenue Louise 120",       "220.00", "hotel7.jpg"},
+            {"Mountain Cabin Hotel", "Rustic vibes, hiking paths",        "Chamonix",  "France",         "Route du Tour 15",        "180.00", "hotel8.jpg"},
+            {"Harbour Lights Inn",   "Harbour and seafood nearby",        "Hamburg",   "Germany",        "Fischmarkt 12",           "170.00", "hotel9.jpg"},
+            {"Old Town Boutique",    "Boutique rooms in city center",     "Prague",    "Czech Republic", "Karlova 9",               "150.00", "hotel10.jpg"}
+    };
+
     private Map<UUID, Guest> guests;
     private Map<UUID, Hotel> hotels;
     private Map<UUID, Booking>  bookings;
@@ -677,23 +689,11 @@ public class ApplicationResource {
         HotelManager manager = new HotelManager(managerId, "manager@bookit.com", "pass123", "Marta", "Keller");
         managers.put(managerId, manager);
 
-        String[][] seed = {
-                {"Bookit Inn", "Cozy place near the lake", "Lausanne", "Switzerland", "Rue de la Paix 10", "120.00", "hotel1.jpg"},
-                {"Alpine Retreat", "Mountain view hotel with spa", "Zermatt", "Switzerland", "Matterhornstrasse 5", "230.00", "hotel2.jpg"},
-                {"Leman Palace", "Elegant lakeside hotel", "Geneva", "Switzerland", "Quai du Mont-Blanc 20", "320.00", "hotel3.jpg"},
-                {"City Central Hotel", "Right in the old town", "Zurich", "Switzerland", "Bahnhofstrasse 50", "210.00", "hotel4.jpg"},
-                {"Sunrise Beach Resort", "Sea view and cocktails", "Nice", "France", "Promenade des Anglais 7", "190.00", "hotel5.jpg"},
-                {"Canal View Lodge", "Quiet spot near canals", "Bruges", "Belgium", "Spiegelrei 3", "160.00", "hotel6.jpg"},
-                {"Royal Arden Hotel", "Business & conference center", "Brussels", "Belgium", "Avenue Louise 120", "220.00", "hotel7.jpg"},
-                {"Mountain Cabin Hotel", "Rustic vibes, hiking paths", "Chamonix", "France", "Route du Tour 15", "180.00", "hotel8.jpg"},
-                {"Harbour Lights Inn", "Harbour and seafood nearby", "Hamburg", "Germany", "Fischmarkt 12", "170.00", "hotel9.jpg"},
-                {"Old Town Boutique", "Boutique rooms in city center", "Prague", "Czech Republic", "Karlova 9", "150.00", "hotel10.jpg"}
-        };
-
         Hotel firstHotel = null;
         Hotel secondHotel = null;
 
-        for (String[] h : seed) {
+        for (String[] h : HOTEL_SEED) {
+
             // Pass the local 'manager' object
             Hotel created = createHotelForManager(manager, h[0], h[1], h[2], h[3], h[4], h[5], h[6]);
             if (firstHotel == null) firstHotel = created;
@@ -745,6 +745,129 @@ public class ApplicationResource {
     }
 
 
+    @Transactional
+    public void populateDbWithDemoDataOnce() {
+        // Safety: if we already have guests in DB, do nothing
+        Long existingGuests = em.createQuery(
+                "SELECT COUNT(g) FROM Guest g", Long.class
+        ).getSingleResult();
 
+        if (existingGuests != null && existingGuests > 0) {
+            System.out.println("[SEED] Guests already exist (" + existingGuests + "), skipping seeding.");
+            return;
+        }
 
+        System.out.println("[SEED] Starting demo data seeding…");
+
+        Random random = new Random(42);
+
+        // ---------- Managers (e.g. 10) ----------
+        List<HotelManager> managerList = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            HotelManager m = new HotelManager(
+                    null,  // uuid will be set in createManager()
+                    "manager" + i + "@bookit.com",
+                    "pass123",
+                    "Manager" + i,
+                    "Demo"
+            );
+            createManager(m);
+            managerList.add(m);
+        }
+
+        // ---------- 1000 Guests ----------
+        List<Guest> guestList = new ArrayList<>(1000);
+        for (int i = 0; i < 1000; i++) {
+            Guest g = new Guest(
+                    UUID.randomUUID(),
+                    "guest" + i + "@bookit.com",
+                    "pass123",
+                    "Guest" + i,
+                    "User" + i
+            );
+            createGuest(g);
+            g.deposit(500);
+            guestList.add(g);
+        }
+
+        // ---------- 1000 Hotels ----------
+        List<Hotel> hotelList = new ArrayList<>(1000);
+        for (int i = 0; i < 1000; i++) {
+            HotelManager manager = managerList.get(i % managerList.size());
+            UUID hotelId = UUID.randomUUID();
+
+            // pick one of the 10 templates
+            String[] tpl = HOTEL_SEED[i % HOTEL_SEED.length];
+
+            String baseName     = tpl[0];
+            String baseDesc     = tpl[1];
+            String city         = tpl[2];
+            String country      = tpl[3];
+            String baseAddress  = tpl[4];
+            String basePriceStr = tpl[5];
+            String image        = tpl[6];
+
+            // make name unique but still nice, e.g. "Bookit Inn Lausanne #3"
+            int copyIndex = (i / HOTEL_SEED.length) + 1; // 1..100
+            String hotelName = baseName + " " + city + " #" + copyIndex;
+
+            // slightly vary the address
+            String address = baseAddress + " Apt " + copyIndex;
+
+            // base price +/- up to 20
+            java.math.BigDecimal basePrice = new java.math.BigDecimal(basePriceStr);
+            int delta = random.nextInt(41) - 20;
+            java.math.BigDecimal price = basePrice.add(new java.math.BigDecimal(delta));
+            if (price.compareTo(new java.math.BigDecimal("60.00")) < 0) {
+                price = new java.math.BigDecimal("60.00");
+            }
+
+            Hotel h = new Hotel(
+                    hotelId,
+                    manager.getId(),
+                    hotelName,
+                    baseDesc,
+                    city,
+                    country,
+                    address,
+                    price
+            );
+
+            h.setImageUrl(image);
+
+            createHotel(h);
+            hotelList.add(h);
+        }
+
+        // ---------- 1000 Bookings ----------
+        for (int i = 0; i < 1000; i++) {
+            Guest g = guestList.get(random.nextInt(guestList.size()));
+            Hotel h = hotelList.get(random.nextInt(hotelList.size()));
+
+            UUID bookingId = UUID.randomUUID();
+
+            Booking b = new Booking(
+                    bookingId,
+                    h.getHotelId(),
+                    g.getId(),
+                    UUID.randomUUID()
+            );
+
+            // cycle through statuses: PENDING, CONFIRMED, CANCELLED, COMPLETED
+            int mod = i % 4;
+            if (mod == 0) {
+                b.setStatus(BookingStatus.PENDING);
+            } else if (mod == 1) {
+                b.setStatus(BookingStatus.CONFIRMED);
+            } else if (mod == 2) {
+                b.setStatus(BookingStatus.CANCELLED);
+            } else {
+                b.setStatus(BookingStatus.COMPLETED);
+            }
+
+            createBooking(b);
+        }
+
+        System.out.println("[SEED] Demo data seeding finished.");
+    }
 }
