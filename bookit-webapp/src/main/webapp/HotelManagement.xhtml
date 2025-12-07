@@ -115,9 +115,18 @@
         </p:card>
 
         <p:dialog header="#{hotelBean.isCreatingNewHotel ? 'Add Hotel' : 'Edit Hotel'}"
-                  widgetVar="editHotelDialog" modal="true" width="500">
+                  widgetVar="editHotelDialog"
+                  modal="true"
+                  width="500"
+                  height="600"
+                  contentStyle="overflow-y: auto; max-height: 500px;">   <!-- ADD THIS -->
+
             <h:form id="editHotelDialogForm">
-                <p:panelGrid id="editPanel" columns="1" layout="grid" styleClass="ui-fluid">
+
+                <p:panelGrid id="editPanel"
+                             columns="1"
+                             layout="grid"
+                             styleClass="ui-fluid">
 
                     <p:outputLabel for="hotelName" value="Hotel Name"/>
                     <p:inputText id="hotelName" value="#{hotelBean.selectedHotel.name}" required="true"
@@ -149,7 +158,6 @@
                                      required="true"
                                      requiredMessage="Description is required"
                                      placeholder="Describe your hotel (e.g. facilities, vibe, etc.)"/>
-
                 </p:panelGrid>
 
                 <p:commandButton value="Save"
