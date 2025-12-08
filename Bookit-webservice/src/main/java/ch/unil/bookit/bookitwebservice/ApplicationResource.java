@@ -10,7 +10,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
-
+import com.github.javafaker.Faker;
 import java.time.Instant;
 import java.util.*;
 
@@ -759,17 +759,24 @@ public class ApplicationResource {
 
         System.out.println("[SEED] Starting demo data seeding…");
 
+        // 1. Create the Faker instance
+        Faker faker = new Faker();
         Random random = new Random(42);
 
         // ---------- Managers (e.g. 10) ----------
         List<HotelManager> managerList = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
+            // Generate realistic manager names
+            String firstName = faker.name().firstName();
+            String lastName = faker.name().lastName();
+            String email = firstName.toLowerCase() + "." + lastName.toLowerCase() + "@bookit.com";
+
             HotelManager m = new HotelManager(
-                    null,  // uuid will be set in createManager()
-                    "manager" + i + "@bookit.com",
+                    null,
+                    email,
                     "pass123",
-                    "Manager" + i,
-                    "Demo"
+                    firstName,
+                    lastName
             );
             createManager(m);
             managerList.add(m);
@@ -778,18 +785,29 @@ public class ApplicationResource {
         // ---------- 1000 Guests ----------
         List<Guest> guestList = new ArrayList<>(1000);
         for (int i = 0; i < 1000; i++) {
+            // Generate realistic guest names
+            String firstName = faker.name().firstName();
+            String lastName = faker.name().lastName();
+
+            // Create email like: ana.montero452@gmail.com
+            String email = firstName.toLowerCase() + "." +
+                    lastName.toLowerCase() +
+                    random.nextInt(9999) + "@gmail.com";
+
             Guest g = new Guest(
                     UUID.randomUUID(),
-                    "guest" + i + "@bookit.com",
+                    email,
                     "pass123",
-                    "Guest" + i,
-                    "User" + i
+                    firstName,
+                    lastName
             );
+
+            // Random balance between 100 and 1000
+            g.deposit(faker.number().numberBetween(100, 1000));
+
             createGuest(g);
-            g.deposit(500);
             guestList.add(g);
         }
-
         // ---------- 1000 Hotels ----------
         List<Hotel> hotelList = new ArrayList<>(1000);
         for (int i = 0; i < 1000; i++) {
