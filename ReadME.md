@@ -55,16 +55,16 @@ The platform has two primary user roles : **Guest** (the client who makes reserv
 
 The user interface is built on **JSF/PrimeFaces** and manages two distinct user journeys, utilizing Facelets templates (`GuestTemplate`/`ManagerTemplate`) for navigation and layout.
 
-| Page                                          | Template / Path       | Functionality                                                                                        | Key UI Components (Extra Credit) |
-|:----------------------------------------------|:----------------------|:-----------------------------------------------------------------------------------------------------| :--- |
-| **Login.xhtml** / **Register.xhtml**          | Standalone            | Authentication and New User Sign-up.                                                                 | **`p:selectOneRadio`** for Role Selection. |
-| **GuestHome.xhtml / ManagerHome.xhtml**       | GuestTemplate / ManagerTemplate      | **Guest/Manager Dashboard:** Welcome page, personalized greeting, and starting point for navigation. | *Special feature: Animated suitcase (Quality Bonus)*. |
-| **SearchHotels.xhtml**                        | GuestTemplate         | Main interface for searching hotels and viewing results.                                             | **`p:dataTable`** (for listing hotels). |
-| **CreateBooking.xhtml**                       | GuestTemplate         | Final confirmation and checkout page.                                                                | **`p:selectOneMenu`** (Dropdown for selection). |
-| **GuestBookings.xhtml**                       | GuestTemplate         | Lists all current, past, and pending reservations.                                                   | **`p:dataTable`** (for history). |
-| **HotelManagement.xhtml**                     | ManagerTemplate       | Manager interface to **create, edit, or delete** hotel listings (Hotel CRUD).                        | (Implements full Hotel/Room management). |
-| **BookingApproval.xhtml**                     | ManagerTemplate       | Lists incoming reservations for the manager to Approve or Reject.                                    | (Core Manager business action). |
-| **GuestProfile.xhtml / ManagerProfile.xhtml** | Guest/ManagerTemplate | View and update personal details and password.                                                       | `p:password` with `toggleMask`. |
+| Page                                          | Template                           | Functionality                                                                                        | Key UI Components (Extra Credit) |
+|:----------------------------------------------|:-----------------------------------|:-----------------------------------------------------------------------------------------------------| :--- |
+| **Login.xhtml** / **Register.xhtml**          | Standalone                         | Authentication and New User Sign-up.                                                                 | **`p:selectOneRadio`** for Role Selection. |
+| **GuestHome.xhtml / ManagerHome.xhtml**       | GuestTemplate / ManagerTemplate    | **Guest/Manager Dashboard:** Welcome page, personalized greeting, and starting point for navigation. | *Special feature: Animated suitcase (Quality Bonus)*. |
+| **SearchHotels.xhtml**                        | GuestTemplate                      | Main interface for searching hotels and viewing results.                                             | **`p:dataTable`** (for listing hotels). |
+| **CreateBooking.xhtml**                       | GuestTemplate                      | Final confirmation and checkout page.                                                                | **`p:selectOneMenu`** (Dropdown for selection). |
+| **GuestBookings.xhtml**                       | GuestTemplate                      | Lists all current, past, and pending reservations.                                                   | **`p:dataTable`** (for history). |
+| **HotelManagement.xhtml**                     | ManagerTemplate                    | Manager interface to **create, edit, or delete** hotel listings (Hotel CRUD).                        | (Implements full Hotel/Room management). |
+| **BookingApproval.xhtml**                     | ManagerTemplate                    | Lists incoming reservations for the manager to Approve or Reject.                                    | (Core Manager business action). |
+| **GuestProfile.xhtml / ManagerProfile.xhtml** | Guest/ManagerTemplate              | View and update personal details and password.                                                       | `p:password` with `toggleMask`. |
 
 ## 7. Requirements Summary
 
