@@ -265,6 +265,16 @@ public class GuestBean extends Guest implements Serializable {
         return hotels;
     }
 
+    private List<Hotel> filteredHotels;
+
+    public List<Hotel> getFilteredHotels() {
+        return filteredHotels;
+    }
+
+    public void setFilteredHotels(List<Hotel> filteredHotels) {
+        this.filteredHotels = filteredHotels;
+    }
+
     public void loadHotels() {
         try {
             // Call the REST endpoint: GET /api/hotelmanager

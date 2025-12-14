@@ -5,13 +5,15 @@
       xmlns:h="http://xmlns.jcp.org/jsf/html"
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
       xmlns:f="http://xmlns.jcp.org/jsf/core"
-      xmlns:p="http://primefaces.org/ui">
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:fn="http://xmlns.jcp.org/jsp/jstl/functions">
 
 <ui:composition template="/templates/GuestTemplate.xhtml">
 
     <f:metadata>
-        <f:event type="preRenderView" listener="#{guestBean.loadGuest}" />
-        <f:event type="preRenderView" listener="#{guestBean.loadHotels}" />
+        <!-- Prevent reloading the list on AJAX postbacks (filters, pagination, etc.) -->
+        <f:viewAction action="#{guestBean.loadGuest}" onPostback="false" />
+        <f:viewAction action="#{guestBean.loadHotels}" onPostback="false" />
     </f:metadata>
 
     <ui:define name="pageTitle">Bookit | Search Hotels</ui:define>
@@ -23,55 +25,68 @@
             <p>Need a vacation ? Choose your next destination ! </p>
         </h:panelGroup>
 
-        <p:dataTable value="#{guestBean.hotels}" var="hotel"
-                     paginator="true" rows="10"
-                     emptyMessage="No hotels found."
-                     styleClass="p-mt-3">
+        <h:form id="hotelSearchForm">
 
-             <p:column headerText="Photo" style="width:140px">
-                <h:graphicImage library="hotels"
-                                name="#{hotel.imageUrl}"
-                                width="100"
-                                style="border-radius:8px"
-                                rendered="#{not empty hotel.imageUrl}" />
-            </p:column>
+            <p:dataTable id="hotelsTable"
+                         value="#{guestBean.hotels}"
+                         var="hotel"
+                         filteredValue="#{guestBean.filteredHotels}"
+                         paginator="true" rows="10"
+                         emptyMessage="No hotels found."
+                         styleClass="p-mt-3"
+                         filterDelay="300">
+
+                <p:column headerText="Photo" style="width:140px">
+                    <h:graphicImage library="hotels"
+                                    name="#{empty hotel.imageUrl ? 'default-hotel.jpg' : hotel.imageUrl}"
+                                    width="100"
+                                    style="border-radius:8px" />
+                </p:column>
+
+                <p:column headerText="Name"
+                          filterBy="#{hotel.name}"
+                          filterMatchMode="contains"
+                          filterPlaceholder="Search name">
+                    <h:outputText value="#{hotel.name}" />
+                </p:column>
+
+                <p:column headerText="City"
+                          filterBy="#{hotel.city}"
+                          filterMatchMode="contains"
+                          filterPlaceholder="Search city">
+                    <h:outputText value="#{hotel.city}" />
+                </p:column>
+
+                <p:column headerText="Country"
+                          filterBy="#{hotel.country}"
+                          filterMatchMode="contains"
+                          filterPlaceholder="Filter country">
+                    <h:outputText value="#{hotel.country}" />
+                </p:column>
+
+                <p:column headerText="Address">
+                    <h:outputText value="#{hotel.address}" />
+                </p:column>
+
+                <p:column headerText="Price / Night">
+                    <h:outputText value="#{hotel.nightPrice}">
+                        <f:convertNumber type="number" minFractionDigits="2" maxFractionDigits="2" />
+                    </h:outputText>
+                </p:column>
+
+                <p:column headerText="Action" style="text-align:center">
+                    <p:commandButton value="Book"
+                                     icon="pi pi-calendar-plus"
+                                     action="#{guestBean.startBookingFromSearch(hotel)}"
+                                     styleClass="ui-button-success"
+                                     update=":growl"
+                                     rendered="#{fn:toLowerCase(loginBean.role) eq 'guest'}"/>
+                </p:column>
 
 
-            <p:column headerText="Name">
-                <h:outputText value="#{hotel.name}" />
-            </p:column>
+            </p:dataTable>
 
-            <p:column headerText="City">
-                <h:outputText value="#{hotel.city}" />
-            </p:column>
-
-            <p:column headerText="Country">
-                <h:outputText value="#{hotel.country}" />
-            </p:column>
-
-            <p:column headerText="Address">
-                <h:outputText value="#{hotel.address}" />
-            </p:column>
-
-            <p:column headerText="Price / Night">
-                <h:outputText value="#{hotel.nightPrice}">
-                    <f:convertNumber type="number"
-                                     minFractionDigits="2"
-                                     maxFractionDigits="2" />
-                </h:outputText>
-            </p:column>
-
-            <p:column headerText="Action" style="text-align:center"
-                      rendered="#{loginBean.role eq 'guest'}">
-
-                <p:commandButton value="Book"
-                                 icon="pi pi-calendar-plus"
-                                 action="#{guestBean.startBookingFromSearch(hotel)}"
-                                 styleClass="ui-button-success"
-                                 update=":growl"/>
-            </p:column>
-
-        </p:dataTable>
+        </h:form>
 
     </ui:define>
 

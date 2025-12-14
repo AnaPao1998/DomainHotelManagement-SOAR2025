@@ -10,7 +10,7 @@
 <ui:composition template="/templates/GuestTemplate.xhtml">
 
     <f:metadata>
-        <f:event type="preRenderView" listener="#{guestBean.loadGuest}" />
+        <f:viewAction action="#{guestBean.loadGuest}" onPostback="false" />
     </f:metadata>
 
     <ui:define name="pageTitle">Bookit | My Bookings</ui:define>
@@ -29,9 +29,10 @@
                              paginator="true" rows="5">
 
                     <p:column headerText="Hotel" style="width: 150px; text-align: center;">
-                        <p:graphicImage library="hotels"
-                                        name="#{guestBean.getHotel(booking.hotelId).imageUrl}"
-                                        rendered="#{not empty guestBean.getHotel(booking.hotelId).imageUrl}"
+                        <h:graphicImage library="hotels"
+                                        name="#{empty guestBean.getHotel(booking.hotelId) or empty guestBean.getHotel(booking.hotelId).imageUrl
+                             ? 'default-hotel.jpg'
+                             : guestBean.getHotel(booking.hotelId).imageUrl}"
                                         width="120"
                                         style="border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);" />
                     </p:column>
