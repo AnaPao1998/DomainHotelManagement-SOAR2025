@@ -81,10 +81,18 @@ public class HotelBean implements Serializable {
 
             selectedHotel.setManagerId(managerId);
 
-            service.createHotel(selectedHotel);
+            jakarta.ws.rs.core.Response response = service.createHotel(selectedHotel);
 
-            FacesContext.getCurrentInstance().addMessage(null,
-                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Hotel '" + selectedHotel.getName() + "' created successfully."));
+            // check if the status is 201 (Created)
+            if (response.getStatus() == 201) {
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "Hotel '" + selectedHotel.getName() + "' created successfully."));
+            } else {
+                // If failed, show the error code
+                FacesContext.getCurrentInstance().addMessage(null,
+                        new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Server failed with status: " + response.getStatus()));
+            }
+
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", "Failed to create hotel: " + e.getMessage()));
